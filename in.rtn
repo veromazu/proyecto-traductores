@@ -1,0 +1,18 @@
+func plus(boolean i,number a)->boolean
+begin
+	i=i+1;
+	if a then
+		x=x+1;
+		write a;
+		return b;
+	end;
+    return i; #holaaa
+end;
+
+program
+   with
+    number i=3;
+	do
+   	x= 4;
+	end;
+end;
