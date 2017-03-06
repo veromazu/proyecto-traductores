@@ -214,7 +214,7 @@ class SyntacticError < RuntimeError
         if @token.eql? "$" then
             "Unexpected EOF"
         else
-            "Line unexpected token #{@token}" 
+           " Line #{@token.position[0]}, column #{@token.position[1]}: unexpected token : #{@token.id}"
         end
     end
 end
@@ -231,7 +231,12 @@ def initialize(lexer)
 end
 
 def next_token
-  @lexer.next_token
+    if ((token = @lexer.next_token)!=nil)
+        return [token.symbol,token]
+    else 
+        return nil
+    end
+
 end
 
 
@@ -242,6 +247,3 @@ def parse(lexer)
 	do_parse
 	
 end
-
-
-

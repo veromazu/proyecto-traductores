@@ -80,7 +80,7 @@ class Token
 	end
 
 	def idAndValue
-		return [@symbol, @id]
+		return [@symbol, Token]
 	end
 end
 
@@ -207,7 +207,7 @@ class Lexer
 	def next_token
 		if ((tok = @tokensList.shift) != nil)
 			@tokensAux << tok
-			return tok.idAndValue
+			return tok
 		else
 			return nil
 		end
