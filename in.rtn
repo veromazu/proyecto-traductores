@@ -3,10 +3,20 @@ begin
 	i=i+1;
 	if a then
 		x=x+1;
-		write a;
+		writeln a;
 		return b;
 	end;
     return i; #holaaa
+end;
+func incremental_forward(number steps)
+begin
+    for i from 1 to steps do
+        i=i+1;
+    end;
+end;
+func gola()
+begin
+	read a;
 end;
 
 program

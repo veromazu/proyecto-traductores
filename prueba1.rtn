@@ -5,9 +5,10 @@ begin
     do
         b = x < y;
         if b then
-            write x;
+            return x;
+            write a;
         end;
-        return y;
+
     end;
 end;
 

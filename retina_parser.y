@@ -46,7 +46,7 @@ rule
     
     # Alcance: le quita la recursividad al simbolo inicial.
     Scope 
-    : Listfunciones PROGRAM wis END SEMICOLON {puts "ok"}
+    : Listfunciones PROGRAM LInst END SEMICOLON {puts "scope"}
     ;
 
     Listfunciones
@@ -55,95 +55,105 @@ rule
     ; 
 
     funciones
-    :FUNC ID LPARENT ListD RPARENT Retorno BEGIN funcInst END SEMICOLON {puts "ok"}
+    :FUNC ID LPARENT ListD RPARENT Retorno BEGIN funcInst END SEMICOLON {puts "funcion"}
     ;
 
     wis
-    :DO  LInst END SEMICOLON {puts "ok"} # Puedo tener bloques sin with?->  programas qe solo tengan un write o una cuenta.
-    |WITH Ldecl DO LInst END SEMICOLON {puts "ok"}
+    :DO  LInst END SEMICOLON {puts "do"} # Puedo tener bloques sin with?->  programas qe solo tengan un write o una cuenta.
+    |WITH Ldecl DO LInst END SEMICOLON {puts "with do"}
+    |WITH DO END SEMICOLON {puts "with do"}
     ;
 
     ListD
     :
-    |type ID {puts "ok"}
-    |type ID COLON ListD {puts "ok"}
+    |type ID {puts "lista parametros"}
+    |type ID COLON ListD {puts "lista parámetros"}
     ;
 
     type
-    :TYPEN  {puts "ok"}
-    |TYPEB  {puts "ok"}
+    :TYPEN  {puts "number"}
+    |TYPEB  {puts "boolean"}
     ;
 
     Ldecl
-    :type ListID SEMICOLON  {puts "ok"}
-    |type ListID SEMICOLON Ldecl  {puts "ok"}
-    |type ID EQUAL Expr SEMICOLON  {puts "ok"}
-    |type ID EQUAL Expr SEMICOLON Ldecl  {puts "ok"}
+    :type Assign  {puts "asignacion"}
+    |type Assign Ldecl  {puts "asignaciones"}
+    |type ListID SEMICOLON  {puts "declaracions"}
+    |type ListID SEMICOLON Ldecl  {puts "declaraciones"}
+    
     ; 
     
     ListID
-    :ID  {puts "ok"}
-    |ID COLON ListID  {puts "ok"}
+    :ID  {puts val[0]}
+    |ID COLON ListID  {puts "list id #{val[0]}"}
     ;
 
     Retorno
     :
-    |RETURN2 type  {puts "ok"}
+    |RETURN2 type  {puts "->"}
     ;
 
     funcInst
     :
-    |LInst {puts "ok"}
+    |LInst {puts "instrucciones en funcion"}
     ;
 
     LInst
-    : Inst  {puts "ok"}
-    | LInst Inst  {puts "ok"}
+    : Inst  {puts "Instruccion"}
+    | LInst Inst  {puts "Lista Instruccion"}
 
     Inst
-    : wis  {puts "ok"}
-    | RETURN Expr SEMICOLON {puts "ok"}
-    | Assign  {puts "ok"}
-    | Iterator  {puts "ok"}
-    | READ ID SEMICOLON  {puts "ok"}
-    | WRITE writable SEMICOLON  {puts "ok"}
-    | WRITELN writable SEMICOLON  {puts "ok"}
-    | Cond  {puts "ok"}
-    | Call  {puts "ok"}
+    : wis  {puts "bloquewith"}
+    | RETURN Expr SEMICOLON {puts "return"}
+    | Assign  {puts "asignacion"}
+    | Iterator  {puts "iterator"}
+    | READ ID SEMICOLON  {puts "read"}
+    | WRITE writable SEMICOLON  {puts "write"}
+    | WRITELN writable SEMICOLON  {puts "writeln"}
+    | Cond  {puts "considtional"}
+    | Call SEMICOLON {puts "call"}
+    | Expr SEMICOLON {puts "Expresion como instr"}
     ;
 
     writable #Puedo imprimir vacio?
-    : Expr  {puts "ok"}
-    | Str   {puts "ok"}
-    | writable COLON writable  {puts "ok"}
+    :Expr  {puts "write expr"}
+    |Str   {puts "write str"}
+    |Call   {puts "write call"}
+    |writable COLON writable  {puts "lista write"}
     ; 
-     Str
-    : STRING  {puts "ok"}
+    
+    Str
+    : STRING  {puts "string #{val[0]}"}
     ;
 
     Assign
-    : ID EQUAL Expr SEMICOLON  {puts "ok"}
+    :ID EQUAL Expr SEMICOLON  {puts "asignacion #{val[0]}"}
     ;
 
     Iterator
-    :  WHILE Expr DO LInst END SEMICOLON  {puts "ok"}
-    | FOR ID FROM Expr TO Expr by DO LInst END SEMICOLON  {puts "ok"}
-    | REPEAT Expr TIMES LInst END SEMICOLON  {puts "ok"}
+    : WHILE Expr DO LInst END SEMICOLON  {puts "bloque while"}
+    | FOR ID FROM Expr TO Expr by DO LInst END SEMICOLON  {puts "bloque for"}
+    | REPEAT Expr TIMES LInst END SEMICOLON  {puts "bloque repeat"}
     ;
 
     by
     :
-    | BY Expr  {puts "ok"}
+    | BY Expr  {puts "by"}
     ;
 
     Cond
-    :  IF Expr THEN LInst END SEMICOLON  {puts "ok"}
-    | IF Expr THEN LInst ELSE LInst END SEMICOLON  {puts "ok"}
+    :IF Expr THEN LInst END SEMICOLON  {puts "cond if" }
+    |IF Expr THEN LInst ELSE LInst END SEMICOLON  {puts "con if else"}
     ;
 
     Call
-    : ID LPARENT ListID RPARENT  {puts "ok"}
-    | ID LPARENT RPARENT  {puts "ok"}
+    : ID LPARENT ListParam RPARENT {puts "call"}
+    | ID LPARENT RPARENT {puts "call sin param"}
+    ;
+
+    ListParam
+    :Expr  {puts "param expr"}
+    |Expr COLON ListID  {puts "lista param"}
     ;
 
   ##################################
@@ -175,13 +185,13 @@ rule
     # Booleanos: define al tipo de variables booleanas en Retina.
 
     Bool
-    : TRUE          {result = Terms.new(:TRUE , val[0])}
-    | FALSE         {result = Terms.new(:FALSE , val[0])}
+    : TRUE          {result = Terms.new(:TRUE , val[0]); puts "true"}
+    | FALSE         {result = Terms.new(:FALSE , val[0]);puts "false"}
     ;
     # Expresiones básicas: definen todas las expresiones hoja en Retina.
     Term
-    : DIGIT {result= Terms.new(:DIGIT,val[0])}
-    | ID   {result = Terms.new(:ID , val[0])}
+    : DIGIT {result= Terms.new(:DIGIT,val[0]); puts val[0]}
+    | ID   {result = Terms.new(:ID , val[0]); puts val[0]}
     | Bool
     ;
 
@@ -201,7 +211,11 @@ class SyntacticError < RuntimeError
     end
 
     def to_s
-        "Syntactic error on: #{@token}"   
+        if @token.eql? "$" then
+            "Unexpected EOF"
+        else
+            "Line unexpected token #{@token}" 
+        end
     end
 end
 
