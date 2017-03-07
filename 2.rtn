@@ -1,4 +1,4 @@
-func incremental_forward(number steps)
+func incremental_forward(number steps, boolean x)
 begin
     for i from 1 to steps do
         forward(i);

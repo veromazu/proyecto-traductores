@@ -18,6 +18,8 @@ En este archivo se implementan las clases destinadas a imprimir el Árbol Sintá
 #####################################
 # Simbolo inicial: define un programa en Retina e incorpora el alcance.
 class S
+    attr_accessor :scope
+    attr_accessor :decl
     # Donde scope es de la clase Scope.
     def initialize(scope)
         @scope = scope
@@ -29,6 +31,8 @@ end
 
 #Clase que le quita la recursividad al símbolo inicial.
 class Scope
+    attr_accessor :types
+    attr_accessor :elems
     # Donde inst es de la clase Instr
     def initialize(type1,func=nil,type2,inst)
         @types=[type1,type2]
@@ -37,7 +41,7 @@ class Scope
     def printAST(lvl)     
         for i in 0..1
             if @elems[i] != nil
-                (lvl).times{ print"\t"}
+                (lvl).times{ print" "}
                 puts "#{@types[i]}:"
 
                 @elems[i].printAST(lvl+1)            
@@ -48,12 +52,13 @@ end
 
 
 
-#Clase para la impresion de funciones
-class Func
+##Clase para imprimir lista de declaraciones
+class Ldecl
    #Donde type1 es :Funcion, type2 es :Nombre_Funcion,type3 es :Parámetros,type4 es Tipo_Retorno
    # y type5 es Instrucciones. var es el nombre de la función, list es la lista de parámetros,
    # typeret es el tipo de retorno, inst es un conjunto de instrucciones.
-
+    attr_accessor :types
+    attr_accessor :elems
     def initialize(type1,type2,var,type3=nil,list=nil,type4=nil,typeret=nil,type5=nil,inst=nil,type6=nil,var6=nil)
         @type1=type1
 
@@ -62,11 +67,11 @@ class Func
 
     end
     def printAST(lvl)
-        lvl.times{print "\t"}
+        lvl.times{print " "}
         puts "#{@type1}:"
         for i in 0..4
             if @elems[i] != nil
-                 (lvl+1).times{ print"\t"}
+                 (lvl+1).times{ print" "}
                 puts "#{@types[i]}:"
 
                 @elems[i].printAST(lvl+2)
@@ -76,9 +81,8 @@ class Func
     end
 end
 
-#Clase para imprimir bloques with.
-# Recibe: lisdecl que es una lista de declaraciones de la clase ListD y listinst es una lista de instrucciones de la clase Inst
-class Bloque
+
+class Func
     def initialize(type1,listDecl,type2=nil,listinst=nil,type3=nil,var3=nil,type4=nil,var4=nil)
         @types=[type1,type2,type3,type4]
         @elems=[listDecl,listinst,var3,var4]
@@ -86,7 +90,26 @@ class Bloque
     def printAST(lvl)     
         for i in 0..3
             if @elems[i] != nil
-                (lvl).times{ print"\t"}
+                (lvl).times{ print" "}
+                puts "#{@types[i]}:"
+
+                @elems[i].printAST(lvl+1)            
+            end
+        end
+    end
+end
+
+#Clase para imprimir bloques with.
+# Recibe: lisdecl que es una lista de declaraciones de la clase ListD y listinst es una lista de instrucciones de la clase Inst
+class Bloque
+    def initialize(type1,listDecl,type2=nil,listinst=nil)
+        @types=[type1,type2]
+        @elems=[listDecl,listinst]
+    end
+    def printAST(lvl)     
+        for i in 0..1
+            if @elems[i] != nil
+                (lvl).times{ print" "}
                 puts "#{@types[i]}:"
 
                 @elems[i].printAST(lvl+1)            
@@ -104,7 +127,7 @@ class List
     def printAST(lvl)     
         for i in 0..1
             if @elems[i] != nil
-                (lvl).times{ print"\t"}
+                (lvl).times{ print" "}
                 puts "#{@types[i]}:"
 
                 @elems[i].printAST(lvl+1)            
@@ -115,6 +138,9 @@ class List
 end
 
 class ListaInst
+    attr_accessor :type
+    attr_accessor :elem
+    attr_accessor :list
     def initialize(type,elem,list=nil)
         @list=list
         @type=type
@@ -122,7 +148,7 @@ class ListaInst
     end
     def printAST(lvl)
         
-        lvl.times{print("\t")}
+        lvl.times{print(" ")}
         puts "#{@type}:"
         @elem.printAST(lvl+1)
         if @list!=nil
@@ -147,8 +173,7 @@ class ListD
     end
 end
 =end
-#Clase para imprimir lista de declaraciones
-class Ldecl<Func;end
+
     
 
 #Clase para imprimir los tipos de datos boolean o number.
@@ -159,9 +184,9 @@ class Type
         @val=val
     end
     def printAST(lvl)
-        (lvl).times{ print"\t"}
+        (lvl).times{ print" "}
         puts "#{@type}:"
-        (lvl+1).times{print"\t"}
+        (lvl+1).times{print" "}
         puts "nombre: #{@val.id}"
     end
 end
@@ -175,9 +200,9 @@ class Read
         @val=val
     end
     def printAST(lvl)
-        (lvl).times{ print"\t"}
+        (lvl).times{ print" "}
         puts "#{@type}:"
-        (lvl+1).times{print"\t"}
+        (lvl+1).times{print" "}
         puts "Identificador: #{@val.id}"
     end
 end
@@ -190,7 +215,7 @@ class Str
         @cadena=cadena
     end
     def printAST(lvl)
-        (lvl).times{print"\t"}
+        (lvl).times{print" "}
         puts "valor: #{@cadena.id}"
     end
 end
@@ -199,10 +224,10 @@ end
 # Recibe: type1 es :VARIABLE y type2 es :EXPRESSION
 
 class Assign < Bloque;end
-class WLoop<Func;end
-class FLoop<Func;end
-class RLoop<Func;end
-class Cond<Bloque;end
+class WLoop<Ldecl;end
+class FLoop<Ldecl;end
+class RLoop<Ldecl;end
+class Cond<Func;end
 class Call<Bloque;end
 
 =begin
@@ -236,7 +261,7 @@ class Cond2
     def printAST(lvl)
         for i in 0..2
             if @types[i] != nil
-                (lvl).times{ print"\t"}
+                (lvl).times{ print" "}
                 puts "#{@types[i]}:"
                 @elems[i].printAST(lvl+1)
             end
@@ -255,7 +280,7 @@ class WLoop2
     end
     def printAST(lvl)
         for i in 0..1
-            (lvl).times{print "\t"}
+            (lvl).times{print " "}
             puts "#{@types[i]}:"
             @elems[i].printAST(lvl+1)
         end     
@@ -275,7 +300,7 @@ class Floop2
     def printAST(lvl)
         for i in 0..4
             if (@elems[i] != nil)
-                (lvl).times{print "\t"}
+                (lvl).times{print " "}
                 puts "#{@types[i]}:"
                 @elems[i].printAST(lvl+1)
             end
@@ -295,12 +320,12 @@ class RLoop2
         @inst=inst
     end
     def printAST(lvl)
-        (lvl).times{print"\t"}
+        (lvl).times{print" "}
         puts "#{@type1}:"
-        (lvl+1).times{print "\t"}
+        (lvl+1).times{print " "}
         puts "#{@type2}:"
         @var.printAST(lvl+2)
-        (lvl+1).times{print "\t"}
+        (lvl+1).times{print " "}
         puts "#{@type3}:"
         @inst.printAST(lvl+2)
     end
@@ -322,11 +347,11 @@ class BinExp
     end
     def printAST(lvl)
         str=["lado izquierdo:","lado derecho:"]
-        (lvl).times{ print"\t"}
+        (lvl).times{ print" "}
         puts"#{@op}:"
         j=0
         @elems.each do |elem|
-            (lvl+1).times{ print"\t"}
+            (lvl+1).times{ print" "}
             puts str[j]
             elem.printAST(lvl+2)
             j+=1
@@ -343,7 +368,7 @@ class UnaExp
     end
     def printAST(lvl)
         for i in 1..lvl
-            print "\t"
+            print " "
         end
         puts "#{@op}"
         @elem.printAST(lvl+1)
@@ -359,7 +384,7 @@ class ParExp
     end
     def printAST(lvl)
         for i in 1..lvl
-            print "\t "
+            print "  "
         end
         puts "#{@type}"
         @expr.printAST(lvl+1)       
@@ -374,20 +399,20 @@ class Terms
     end
     def printAST(lvl)
         for i in 1..lvl
-            print "\t"
+            print " "
         end     
         case @nameTerm
         when :ID
             puts "Identificador:"
-            (lvl+1).times{ print"\t"}
+            (lvl+1).times{ print" "}
             puts"nombre:#{@term.id}"
         when :DIGIT
             puts "Literal Numérico:"
-            (lvl+1).times{ print"\t"}
+            (lvl+1).times{ print" "}
             puts"valor:#{@term.id}"
         when :TRUE,:FALSE
             puts "Literal Booleano:"
-            (lvl+1).times{ print"\t"}
+            (lvl+1).times{ print" "}
             puts"valor:#{@term.id}"
         end
     end

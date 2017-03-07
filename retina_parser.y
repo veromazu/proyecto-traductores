@@ -55,7 +55,7 @@ rule
     ; 
 
     funciones
-    :FUNC Var LPARENT ListD RPARENT Retorno BEGIN funcInst END SEMICOLON {result=Bloque.new(:Nombre_Funcion,val[1],:Parametros,val[3],:Tipo_Retorno,val[5],:Instrucciones,val[7])}
+    :FUNC Var LPARENT ListD RPARENT Retorno BEGIN funcInst END SEMICOLON {result=Func.new(:Nombre_Funcion,val[1],:Parametros,val[3],:Tipo_Retorno,val[5],:Instrucciones,val[7])}
     ;
 
     wis
@@ -82,13 +82,13 @@ rule
     Ldecl
     :type Assign {result=Ldecl.new(:declaracion,:tipo,val[0],:asignacion,val[1])}
     |type Assign Ldecl  {result=Ldecl.new(:declaracion,:tipo,val[0],:asignacion,val[1])}
-    |type ListID SEMICOLON     ######### FALTA ESTOOOO #####
-    |type ListID SEMICOLON Ldecl  #### FALTA ESTOO ###
+    |type ListID SEMICOLON   {result=Ldecl.new(:declaracion,:tipo,val[0],:Lista_ID,val[1])}
+    |type ListID SEMICOLON Ldecl  {result=Ldecl.new(:Lista_Decl,:tipo,val[0],:Lista_ID,val[1],:declaracion,val[3])}
     ; 
     
     ListID
-    :Var {result=Terms.new(:ID,val[0])}
-    |Var COLON ListID {result=Terms.new(:ID,val[0])}
+    :Var              {result=ListaInst.new(:ID,val[0])}
+    |Var COLON ListID {result=ListaInst.new(:ID,val[0],val[2])}
     ;
 
     Retorno
@@ -109,8 +109,8 @@ rule
     : wis  {result=Bloque.new(:Bloque,val[0])}
     | RETURN Expr SEMICOLON {result=Bloque.new(:Retorno,val[1])}
     | Assign  {result=Bloque.new(:Asignacion,val[0])}
-    | Iterator  {resul=Bloque.new(:Iteracion,val[0])}
-    | READ Var SEMICOLON  {resul=Bloque.new(:Lectura,val[1])}    ###### FALTA ACOMODAR ESTOOOO ########
+    | Iterator  {result=Bloque.new(:Iteracion,val[0])}
+    | READ Var SEMICOLON  {result=Bloque.new(:Lectura,val[1])}    ###### FALTA ACOMODAR ESTOOOO ########
     | WRITE writable SEMICOLON  {result=Write.new(:Salida,val[1])}
     | WRITELN writable SEMICOLON  {result=Write.new(:Salida_Con_Salto,val[1])}
     | Cond  {result=Bloque.new(:Condicional,val[0])}
@@ -122,7 +122,7 @@ rule
     :Expr  {result=Bloque.new(:expresion,val[0])}
     |Str   {result=Bloque.new(:string,val[0])}
     |Call   {result=Bloque.new(:Call,val[0])}
-    |writable COLON writable
+    |writable COLON writable {result=Bloque.new(:valor,val[0],:valor,val[2])}
     ; 
     
     Str

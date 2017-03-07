@@ -1,16 +1,3 @@
-func my_forward()
-begin
-    forward(1);
-end;
-
-func max(number x, number y) -> number
-begin
-    if x < y then
-        return y;
-    else
-        return x;
-    end;
-end;
 
 program
     my_forward();
@@ -19,6 +6,6 @@ program
     with
         number x = 37;
     do
-        writeln "Un numero especial: ", max(9,x);
+        writeln x,y;
     end;
 end;

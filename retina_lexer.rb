@@ -178,7 +178,7 @@ class Lexer
 				tokenName="literal booleano"
 			when :AND,:NOT,:OR
 				tokenName="operador booleano"
-			when :PROGRAM,:BEGIN,:END,:WITH,:DO,:IF,:THEN,:ELSE,:WHILE,:FOR,:REPEAT,:WRITE,:WRITELN,:FROM,:TO,:BY,:FUNC,:RETURN,:RETURN2
+			when :PROGRAM,:BEGIN,:END,:WITH,:DO,:IF,:THEN,:READ,:ELSE,:WHILE,:FOR,:REPEAT,:WRITE,:WRITELN,:FROM,:TO,:BY,:FUNC,:RETURN,:RETURN2
 				tokenName="palabra reservada"
 			when :EQUIVALENT,:LESSTHAN,:DISTINCT,:GETHAN,:LESSTHAN,:GREATTHAN
 				tokenName="operador de comparación"

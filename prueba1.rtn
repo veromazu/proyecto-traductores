@@ -20,7 +20,8 @@ end;
 program
     writeln "Insert a number : ";
     with
-        number n;
+        number n,x,w;
+        boolean y;
     do
         read n; # I suggest that this number be a multiple of 360
         with
