@@ -41,119 +41,122 @@ rule
 
     # Simbolo inicial: define un programa en Retina e incorpora el alcance.
     S
-    :  Scope {result = S.new(val[0])}
+    :  Scope {result = S.new(val[0]);result.printAST(0)}
     ;   
     
     # Alcance: le quita la recursividad al simbolo inicial.
     Scope 
-    : Listfunciones PROGRAM LInst END SEMICOLON {puts "scope"}
+    : Listfunciones PROGRAM LInst END SEMICOLON {result = Scope.new(:Funciones,val[0],:Program,val[2])}
     ;
 
     Listfunciones
     :
-    |funciones Listfunciones 
+    |funciones Listfunciones {result=ListaFunc.new(:Funcion,val[0],val[1])}
     ; 
 
     funciones
-    :FUNC ID LPARENT ListD RPARENT Retorno BEGIN funcInst END SEMICOLON {puts "funcion"}
+    :FUNC Var LPARENT ListD RPARENT Retorno BEGIN funcInst END SEMICOLON {result=Bloque.new(:Nombre_Funcion,val[1],:Parametros,val[3],:Tipo_Retorno,val[5],:Instrucciones,val[7])}
     ;
 
     wis
-    :DO  LInst END SEMICOLON {puts "do"} # Puedo tener bloques sin with?->  programas qe solo tengan un write o una cuenta.
-    |WITH Ldecl DO LInst END SEMICOLON {puts "with do"}
-    |WITH DO END SEMICOLON {puts "with do"}
+    :DO  LInst END SEMICOLON {result=Bloque.new(:declaraciones,nil,:instrucciones,val[1])}
+    |WITH Ldecl DO funcInst END SEMICOLON {result=Bloque.new(:declaraciones,val[1],:instrucciones,val[3])}
+    |WITH DO END SEMICOLON {result=Bloque.new(:declaraciones,nil,:instrucciones,nil)}
     ;
 
     ListD
     :
-    |type ID {puts "lista parametros"}
-    |type ID COLON ListD {puts "lista parámetros"}
+    |type Var {result=ListD.new(:tipos,val[0],:identificadores,val[1])}
+    |type Var COLON ListD {result=List.new(:tipos,val[0],val[3],:identificadores,val[1])}
     ;
 
+    Var
+    : ID {result = Terms.new(:ID , val[0])}
+    ; 
+
     type
-    :TYPEN  {puts "number"}
-    |TYPEB  {puts "boolean"}
+    :TYPEN  {result=Type.new(:Tipo,val[0])}
+    |TYPEB  {result=Type.new(:Tipo,val[0])}
     ;
 
     Ldecl
-    :type Assign  {puts "asignacion"}
-    |type Assign Ldecl  {puts "asignaciones"}
-    |type ListID SEMICOLON  {puts "declaracions"}
-    |type ListID SEMICOLON Ldecl  {puts "declaraciones"}
-    
+    :type Assign {result=Ldecl.new(:declaracion,:tipo,val[0],:asignacion,val[1])}
+    |type Assign Ldecl  {result=Ldecl.new(:declaracion,:tipo,val[0],:asignacion,val[1])}
+    |type ListID SEMICOLON     ######### FALTA ESTOOOO #####
+    |type ListID SEMICOLON Ldecl  #### FALTA ESTOO ###
     ; 
     
     ListID
-    :ID  {puts val[0]}
-    |ID COLON ListID  {puts "list id #{val[0]}"}
+    :Var {result=Terms.new(:ID,val[0])}
+    |Var COLON ListID {result=Terms.new(:ID,val[0])}
     ;
 
     Retorno
     :
-    |RETURN2 type  {puts "->"}
+    |RETURN2 type  {result=Bloque.new(:tipo,val[1])}
     ;
 
     funcInst
     :
-    |LInst {puts "instrucciones en funcion"}
+    |LInst
     ;
 
     LInst
-    : Inst  {puts "Instruccion"}
-    | LInst Inst  {puts "Lista Instruccion"}
+    : Inst  {result=ListaInst.new(:Instruccion,val[0])}
+    | Inst LInst  {result=ListaInst.new(:Instruccion,val[0],val[1])}
 
     Inst
-    : wis  {puts "bloquewith"}
-    | RETURN Expr SEMICOLON {puts "return"}
-    | Assign  {puts "asignacion"}
-    | Iterator  {puts "iterator"}
-    | READ ID SEMICOLON  {puts "read"}
-    | WRITE writable SEMICOLON  {puts "write"}
-    | WRITELN writable SEMICOLON  {puts "writeln"}
-    | Cond  {puts "considtional"}
-    | Call SEMICOLON {puts "call"}
-    | Expr SEMICOLON {puts "Expresion como instr"}
+    : wis  {result=Bloque.new(:Bloque,val[0])}
+    | RETURN Expr SEMICOLON {result=Bloque.new(:Retorno,val[1])}
+    | Assign  {result=Bloque.new(:Asignacion,val[0])}
+    | Iterator  {resul=Bloque.new(:Iteracion,val[0])}
+    | READ Var SEMICOLON  {resul=Bloque.new(:Lectura,val[1])}    ###### FALTA ACOMODAR ESTOOOO ########
+    | WRITE writable SEMICOLON  {result=Write.new(:Salida,val[1])}
+    | WRITELN writable SEMICOLON  {result=Write.new(:Salida_Con_Salto,val[1])}
+    | Cond  {result=Bloque.new(:Condicional,val[0])}
+    | Call SEMICOLON {result=Bloque.new(:Llamada_de_Funcion,val[0])}
+    | Expr SEMICOLON {result=Bloque.new(:Expresion,val[0])}
     ;
 
     writable #Puedo imprimir vacio?
-    :Expr  {puts "write expr"}
-    |Str   {puts "write str"}
-    |Call   {puts "write call"}
-    |writable COLON writable  {puts "lista write"}
+    :Expr  {result=Bloque.new(:expresion,val[0])}
+    |Str   {result=Bloque.new(:string,val[0])}
+    |Call   {result=Bloque.new(:Call,val[0])}
+    |writable COLON writable
     ; 
     
     Str
-    : STRING  {puts "string #{val[0]}"}
+    : STRING  {result=Str.new(val[0])}
     ;
 
-    Assign
-    :ID EQUAL Expr SEMICOLON  {puts "asignacion #{val[0]}"}
+    Assign  
+    : Var EQUAL Expr SEMICOLON  {result=Assign.new(:Lado_Izquierdo,val[0],:Lado_Derecho,val[2])}
     ;
 
     Iterator
-    : WHILE Expr DO LInst END SEMICOLON  {puts "bloque while"}
-    | FOR ID FROM Expr TO Expr by DO LInst END SEMICOLON  {puts "bloque for"}
-    | REPEAT Expr TIMES LInst END SEMICOLON  {puts "bloque repeat"}
+    : WHILE Expr DO LInst END SEMICOLON  {result=WLoop.new(:Ciclo_While,:Condicion,val[1],:Do,val[1])}
+    | FOR Var FROM Expr TO Expr by DO LInst END SEMICOLON  {result= FLoop.new(:Ciclo_For,:For,val[1],:From,val[3],:To,val[5],:By,nil,:Instrucciones,val[8])}
+    | REPEAT Expr TIMES LInst END SEMICOLON  {result=RLoop.new(:Ciclo_Repeat,:Times,val[1],:Instrucciones,val[3])}
     ;
 
     by
     :
-    | BY Expr  {puts "by"}
+    | BY Expr  {result=Bloque.new(:By,val[1])}
     ;
 
     Cond
-    :IF Expr THEN LInst END SEMICOLON  {puts "cond if" }
-    |IF Expr THEN LInst ELSE LInst END SEMICOLON  {puts "con if else"}
+    :IF Expr THEN LInst END SEMICOLON  {result=Cond.new(:Condición,val[1],:Instrucciones,val[3])}
+    |IF Expr THEN LInst ELSE LInst END SEMICOLON  {result=Cond.new(:Condicion,val[1],:Instrucciones,val[3],:Instrucciones_Else,val[5])}
     ;
 
-    Call
-    : ID LPARENT ListParam RPARENT {puts "call"}
-    | ID LPARENT RPARENT {puts "call sin param"}
+    Call   #######
+    : Var LPARENT ListParam RPARENT {result=Call.new(:nombre,val[0],:argumentos,val[2])}
+    | Var LPARENT RPARENT {result=Call.new(:nombre,val[0])}
     ;
 
     ListParam
-    :Expr  {puts "param expr"}
-    |Expr COLON ListID  {puts "lista param"}
+    :Expr  {result=Bloque.new(:expresion,val[0])}
+    |Expr COLON ListParam {result=Bloque.new(:expresion,val[0])}
     ;
 
   ##################################
@@ -185,13 +188,13 @@ rule
     # Booleanos: define al tipo de variables booleanas en Retina.
 
     Bool
-    : TRUE          {result = Terms.new(:TRUE , val[0]); puts "true"}
-    | FALSE         {result = Terms.new(:FALSE , val[0]);puts "false"}
+    : TRUE          {result = Terms.new(:TRUE , val[0])}
+    | FALSE         {result = Terms.new(:FALSE , val[0])}
     ;
     # Expresiones básicas: definen todas las expresiones hoja en Retina.
     Term
-    : DIGIT {result= Terms.new(:DIGIT,val[0]); puts val[0]}
-    | ID   {result = Terms.new(:ID , val[0]); puts val[0]}
+    : DIGIT {result= Terms.new(:DIGIT,val[0])}
+    | ID   {result = Terms.new(:ID , val[0])}
     | Bool
     ;
 
@@ -214,7 +217,7 @@ class SyntacticError < RuntimeError
         if @token.eql? "$" then
             "Unexpected EOF"
         else
-           " Line #{@token.position[0]}, column #{@token.position[1]}: unexpected token : #{@token.id}"
+           " Línea #{@token.position[0]}, Column #{@token.position[1]}: token inesperado : #{@token.symbol} : #{@token.id}"
         end
     end
 end

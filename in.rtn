@@ -21,8 +21,8 @@ end;
 
 program
    with
-    number i=3;
+    number i;
 	do
-   	x= 4;
+   	x= 4+1;
 	end;
 end;

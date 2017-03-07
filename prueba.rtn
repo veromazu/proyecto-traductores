@@ -5,7 +5,7 @@
 func xd()
 begin
     with
-        number i;25casa
+        number i;
     do
         if x == 42 then
             for i from 1 to 42 do
