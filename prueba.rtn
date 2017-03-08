@@ -12,6 +12,7 @@ begin
                 write "HOLA PAPITO"",x;  # Comentario marico
                 repeat x times
                     home();             # Comentario random
+                    read y;
                 end;
                 #writeln "";
             end;
@@ -43,9 +44,9 @@ program
         while a >= 0 do
             a = a - 1;
         end;
-        #writeln a;              # Comentario random
-        #circle(7);              # Comentario random
-        #a = plus(42+2, 42);     # Comentario super random
+        writeln a;              # Comentario random
+        circle(7);              # Comentario random
+        a = plus(42+2, 42);     # Comentario super random
     end;
 end;
 

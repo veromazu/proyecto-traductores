@@ -42,7 +42,7 @@ def main
 		lexer.printTokens
 		parser=Parser.new(lexer)
 		begin
-			parser.parse(lexer)
+			ast = parser.parse(lexer)
 		rescue => e
 			SyntaxError.new()
 			puts "Error sintactico: #{e}"

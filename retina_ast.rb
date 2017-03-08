@@ -83,6 +83,8 @@ end
 
 
 class Func
+    attr_accessor :types
+    attr_accessor :elems
     def initialize(type1,listDecl,type2=nil,listinst=nil,type3=nil,var3=nil,type4=nil,var4=nil)
         @types=[type1,type2,type3,type4]
         @elems=[listDecl,listinst,var3,var4]
@@ -102,6 +104,8 @@ end
 #Clase para imprimir bloques with.
 # Recibe: lisdecl que es una lista de declaraciones de la clase ListD y listinst es una lista de instrucciones de la clase Inst
 class Bloque
+    attr_accessor :types
+    attr_accessor :elems
     def initialize(type1,listDecl,type2=nil,listinst=nil)
         @types=[type1,type2]
         @elems=[listDecl,listinst]
@@ -117,7 +121,7 @@ class Bloque
         end
     end
 end
-
+class Inst<Bloque;end
 class List
     def initialize(type1,var,list,type2=nil,var2=nil)
         @types=[type1,type2]
@@ -157,6 +161,7 @@ class ListaInst
     end
 end
 class ListaFunc<ListaInst;end
+class ListParam<ListaInst;end
 #Clase par imprimir una lista de argumentos de una función
 # list es la lista de la clase ListD, type1 es :Argumento y type2 es de la clase Esp
 class ListD < Bloque;end

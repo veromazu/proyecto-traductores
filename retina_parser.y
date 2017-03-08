@@ -106,22 +106,22 @@ rule
     | Inst LInst  {result=ListaInst.new(:Instruccion,val[0],val[1])}
 
     Inst
-    : wis  {result=Bloque.new(:Bloque,val[0])}
-    | RETURN Expr SEMICOLON {result=Bloque.new(:Retorno,val[1])}
-    | Assign  {result=Bloque.new(:Asignacion,val[0])}
-    | Iterator  {result=Bloque.new(:Iteracion,val[0])}
-    | READ Var SEMICOLON  {result=Bloque.new(:Lectura,val[1])}    ###### FALTA ACOMODAR ESTOOOO ########
+    : wis  {result=Inst.new(:Bloque,val[0])}
+    | RETURN Expr SEMICOLON {result=Inst.new(:Retorno,val[1])}
+    | Assign  {result=Inst.new(:Asignacion,val[0])}
+    | Iterator  {result=Inst.new(:Iteracion,val[0])}
+    | READ Var SEMICOLON  {result=Inst.new(:Lectura,val[1])}    ###### FALTA ACOMODAR ESTOOOO ########
     | WRITE writable SEMICOLON  {result=Write.new(:Salida,val[1])}
     | WRITELN writable SEMICOLON  {result=Write.new(:Salida_Con_Salto,val[1])}
-    | Cond  {result=Bloque.new(:Condicional,val[0])}
-    | Call SEMICOLON {result=Bloque.new(:Llamada_de_Funcion,val[0])}
-    | Expr SEMICOLON {result=Bloque.new(:Expresion,val[0])}
+    | Cond  {result=Inst.new(:Condicional,val[0])}
+    | Call SEMICOLON {result=Inst.new(:Llamada_de_Funcion,val[0])}
+    | Expr SEMICOLON {result=Inst.new(:Expresion,val[0])}
     ;
 
     writable #Puedo imprimir vacio?
-    :Expr  {result=Bloque.new(:expresion,val[0])}
-    |Str   {result=Bloque.new(:string,val[0])}
-    |Call   {result=Bloque.new(:Call,val[0])}
+    :Expr  {result=Bloque.new(:Expresion,val[0])}
+    |Str   {result=Bloque.new(:String,val[0])}
+    |Call   {result=Bloque.new(:Llamada_de_Funcion,val[0])}
     |writable COLON writable {result=Bloque.new(:valor,val[0],:valor,val[2])}
     ; 
     
@@ -130,11 +130,16 @@ rule
     ;
 
     Assign  
-    : Var EQUAL Expr SEMICOLON  {result=Assign.new(:Lado_Izquierdo,val[0],:Lado_Derecho,val[2])}
+    : Var EQUAL Asignable SEMICOLON  {result=Assign.new(:Lado_Izquierdo,val[0],:Lado_Derecho,val[2])}
+    ;
+
+    Asignable #Puedo asignar cualquiera de estos a una variable
+    :Expr  {result=Bloque.new(:Expresion,val[0])}
+    |Call   {result=Bloque.new(:Llamada_de_Funcionf,val[0])}
     ;
 
     Iterator
-    : WHILE Expr DO LInst END SEMICOLON  {result=WLoop.new(:Ciclo_While,:Condicion,val[1],:Do,val[1])}
+    : WHILE Expr DO LInst END SEMICOLON  {result=WLoop.new(:Ciclo_While,:Condicion,val[1],:Do,val[3])}
     | FOR Var FROM Expr TO Expr by DO LInst END SEMICOLON  {result= FLoop.new(:Ciclo_For,:For,val[1],:From,val[3],:To,val[5],:By,nil,:Instrucciones,val[8])}
     | REPEAT Expr TIMES LInst END SEMICOLON  {result=RLoop.new(:Ciclo_Repeat,:Times,val[1],:Instrucciones,val[3])}
     ;
@@ -155,8 +160,8 @@ rule
     ;
 
     ListParam
-    :Expr  {result=Bloque.new(:expresion,val[0])}
-    |Expr COLON ListParam {result=Bloque.new(:expresion,val[0])}
+    :Expr  {result=ListParam.new(:expresion,val[0])}
+    |Expr COLON ListParam {result=ListParam.new(:expresion,val[0],val[2])}
     ;
 
   ##################################

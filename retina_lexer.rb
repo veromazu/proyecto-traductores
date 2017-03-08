@@ -15,7 +15,7 @@
 # Diccionario global que guarda los tokens leidos por el lenguaje retina
 
 $tokens = {
-/^number/ 											=> :TYPEN,
+/^number\s/ 											=> :TYPEN,
 	/^boolean/										=> :TYPEB,															
 	/^true\s/										=> :TRUE,
 	/^false\s/										=> :FALSE,					
@@ -34,14 +34,14 @@ $tokens = {
 	/^for\s/										=> :FOR,
 	/^repeat\s/										=>:REPEAT,
 	/^times\s/										=>:TIMES,
-	/^read\s/										=>:READ,
+	/^read/										=>:READ,
 	/^writeln\s/									=>:WRITELN,
 	/^write\s/										=>:WRITE,
 	/^from\s/										=>:FROM,
 	/^to\s/											=>:TO,
 	/^by\s/											=>:BY,
 	/^func\s/										=>:FUNC,
-	/^return/										=>:RETURN,
+	/^return\s/										=>:RETURN,
 	/^->/											=>:RETURN2,
 	/^==/											=>:EQUIVALENT,
 	/^\/=/											=>:DISTINCT,
