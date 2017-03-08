@@ -66,33 +66,37 @@ end
 
 #Manejador de Program
 def prog_Handler(elem)
-	listInstError =  LInst_Handler(elem.elem)
-	return listInstError
+	instError =  Inst_Handler(elem.elem)
+	listInstError = 0
+	if (elem.list!=nil)
+		listInstError= LInst_Handler(elem.list)
+	end
+	return listInstError + instError
 end
 
 #Manejador de instrucciones
 def Inst_Handler(instr)
 	case instr.types[0]
 	when :Bloque
-		return bloque_Handler(elems[0])
+		return bloque_Handler(instr.elems[0])
 	when  :Retorno
-		return return_Handler(elems[0])
+		return return_Handler(instr.elems[0])
 	when :Asignacion
-		return asign_Handler(elems[0])
+		return asign_Handler(instr.elems[0])
 	when :Iterator
-		return iterator_Handler(elems[0])
+		return iterator_Handler(instr.elems[0])
 	when :Lectura
-		return lect_Handler(elems[0])
+		return lect_Handler(instr.elems[0])
 	when :Salida
-		return salida_Handler(elems[0])
+		return salida_Handler(instr.elems[0])
 	when :Salida_Con_Salto
-		return salida_Handler(elems[0])
+		return salida_Handler(instr.elems[0])
 	when :Condicional
-		return cond_Handler(elems[0])
+		return cond_Handler(instr.elems[0])
 	when :Llamada_de_Funcion
-		return llamada_Handler(elems[0])
+		return llamada_Handler(instr.elems[0])
 	when :Expresion
-		return expr_Handler(elems[0])
+		return expr_Handler(instr.elems[0])
 	end
 end
 
@@ -103,7 +107,7 @@ end
 def bloque_Handler(wis)
 	declError=0
 	if (wis.elems[0] !=nil)
-		declError = decl_Handler(elems[0])
+		declError = decl_Handler(wis.elems[0])
 
 	end
 	listInstError=0
@@ -115,9 +119,34 @@ end
 
 
 ##### Decl handleeeer ###########
+def decl_Handler(decl)
+	dError=0
+	case decl.types[1]
+	when :asignacion
+		dError=decAsig_Handler(decl.elems[1]) #### AQUI FALTA PASARLE EL TYPE
+	end
+end
 
+def decAsig_Handler(dec,type)
+	dError=0
+	if !($symTable.contains(dec.elems[0].term.id)
+		$symTable.insert(dec.elems[0].term.id,[type,nil])
+
+	else 
+		puts  "ERROR: variable '#{dec.elems[0].term.id}' was declared before" \
+				" at the same scope."
+		return 1
+	end
+end
+
+
+
+
+
+
+#### Manejador de Asignaciones #####
 def asign_Handler(asig)
-	idVar=asign.elems[0].term.id
+	idVar=asig.elems[0].term.id
 	if ($symTable.lookup(idVar)==nil)
 		puts "Error de Asignacion: variable '#{idVar}' no ha sido declarada."
 		return 1

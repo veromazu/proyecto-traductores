@@ -1,9 +1,7 @@
 program
-	with 
-		number hola;
-	do 
-		hola=4; 
-	end;
+
+	hola=4; 
+
 end;
 	
  

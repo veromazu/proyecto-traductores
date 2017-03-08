@@ -123,6 +123,9 @@ class Bloque
 end
 class Inst<Bloque;end
 class List
+    attr_accessor :types
+    attr_accessor :elems
+    attr_accessor :list
     def initialize(type1,var,list,type2=nil,var2=nil)
         @types=[type1,type2]
         @elems=[var,var2]
@@ -175,6 +178,8 @@ class By<Bloque;end
 #Clase para imprimir los tipos de datos boolean o number.
 # Recibe: type es boolean o number.
 class Type
+    attr_accessor :type
+    attr_accessor :val
     def initialize(type,val)
         @type=type
         @val=val
@@ -192,6 +197,8 @@ class Write<Bloque;end  #########################
 class Retorno<Bloque;end
 
 class Read
+    attr_accessor :type
+    attr_accessor :val
     def initialize(type,val)
         @type=type
         @val=val
@@ -208,6 +215,7 @@ end
 #Clase para la impresion de Strings
 # Recibe: type que es :String y cadena que es del tipo STRING
 class Str
+    attr_accessor :cadena
     def initialize(cadena)
         @cadena=cadena
     end
@@ -235,6 +243,8 @@ class Call<Bloque;end
 
 #Clase para la impresion de operacines binarias.
 class BinExp
+    attr_accessor :op
+    attr_accessor :elems
     # Donde type0 es :OPERATION, op puede ser +, -, *, /, %, ~, \/, /\, <, <=,
     # >, >=, =, ' o &, type1 y type2 son las distintas operaciones dependiedo el caso y expr1 y expr2 son expresiones
     def initialize(op, expr1, expr2)
@@ -258,6 +268,8 @@ end
 #Clase para la impresion de operacion Unarias como el inverso Aditivo
 # op es :Inverso_Aditivo y expr es la expresion.
 class UnaExp
+    attr_accessor :op
+    attr_accessor :expr
     def initialize(op, expr)
         @elem = expr
         @op = op
@@ -274,6 +286,8 @@ end
 #Clase para la impresion de exoresiones encerradas en paréntesis
 # Donde type es :Expresion y expr es una expresion cualquiera
 class ParExp
+    attr_accessor :type
+    attr_accessor :expr
     def initialize(type, expr)
         @type = type
         @expr = expr        
@@ -289,6 +303,8 @@ end
 
 #Clase par la impresión de Terms : identificadores, literales booleanos y literales nuḿéricos
 class Terms
+    attr_accessor :nameTerm
+    attr_accessor :term
     def initialize(nameTerm, term)
         @nameTerm = nameTerm
         @term = term

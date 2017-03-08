@@ -24,5 +24,6 @@ program
     number i;
 	do
    	x= 4+1;
+   	plus(f,g);
 	end;
 end;
