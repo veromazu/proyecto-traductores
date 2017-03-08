@@ -3,7 +3,7 @@
 
 require_relative 'retina_parser'
 require_relative 'retina_lexer'
-
+require_relative 'manejadorSimbolos'
 =begin
 
 UNIVERSIDAD SIMÓN BOLÍVAR
@@ -43,6 +43,7 @@ def main
 		parser=Parser.new(lexer)
 		begin
 			ast = parser.parse(lexer)
+			program_Handler(ast)
 		rescue => e
 			SyntaxError.new()
 			puts "Error sintactico: #{e}"

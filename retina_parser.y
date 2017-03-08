@@ -87,13 +87,13 @@ rule
     ; 
     
     ListID
-    :Var              {result=ListaInst.new(:ID,val[0])}
-    |Var COLON ListID {result=ListaInst.new(:ID,val[0],val[2])}
+    :Var              {result=ListID.new(:ID,val[0])}
+    |Var COLON ListID {result=ListID.new(:ID,val[0],val[2])}
     ;
 
     Retorno
     :
-    |RETURN2 type  {result=Bloque.new(:tipo,val[1])}
+    |RETURN2 type  {result=Retorno.new(:tipo,val[1])}
     ;
 
     funcInst
@@ -119,10 +119,10 @@ rule
     ;
 
     writable #Puedo imprimir vacio?
-    :Expr  {result=Bloque.new(:Expresion,val[0])}
-    |Str   {result=Bloque.new(:String,val[0])}
-    |Call   {result=Bloque.new(:Llamada_de_Funcion,val[0])}
-    |writable COLON writable {result=Bloque.new(:valor,val[0],:valor,val[2])}
+    :Expr  {result=Writable.new(:Expresion,val[0])}
+    |Str   {result=Writable.new(:String,val[0])}
+    |Call   {result=Writable.new(:Llamada_de_Funcion,val[0])}
+    |writable COLON writable {result=Writable.new(:valor,val[0],:valor,val[2])}
     ; 
     
     Str
@@ -134,8 +134,8 @@ rule
     ;
 
     Asignable #Puedo asignar cualquiera de estos a una variable
-    :Expr  {result=Bloque.new(:Expresion,val[0])}
-    |Call   {result=Bloque.new(:Llamada_de_Funcionf,val[0])}
+    :Expr  {result=Asignable.new(:Expresion,val[0])}
+    |Call   {result=Asignable.new(:Llamada_de_Funcionf,val[0])}
     ;
 
     Iterator
@@ -146,7 +146,7 @@ rule
 
     by
     :
-    | BY Expr  {result=Bloque.new(:By,val[1])}
+    | BY Expr  {result=By.new(:By,val[1])}
     ;
 
     Cond
@@ -208,9 +208,9 @@ end
 
 ---- header
 
-require_relative "lexer"
+require_relative "retina_lexer"
 
-require './retina_ast.rb'
+require_relative 'retina_ast'
 
 class SyntacticError < RuntimeError
 

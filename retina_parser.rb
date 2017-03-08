@@ -7,9 +7,9 @@
 require 'racc/parser.rb'
 
 
-require_relative "lexer"
+require_relative "retina_lexer"
 
-require './retina_ast.rb'
+require_relative 'retina_ast'
 
 class SyntacticError < RuntimeError
 
@@ -747,14 +747,14 @@ module_eval(<<'.,.,', 'retina_parser.y', 85)
 
 module_eval(<<'.,.,', 'retina_parser.y', 89)
   def _reduce_19(val, _values, result)
-    result=ListaInst.new(:ID,val[0])
+    result=ListID.new(:ID,val[0])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'retina_parser.y', 90)
   def _reduce_20(val, _values, result)
-    result=ListaInst.new(:ID,val[0],val[2])
+    result=ListID.new(:ID,val[0],val[2])
     result
   end
 .,.,
@@ -763,7 +763,7 @@ module_eval(<<'.,.,', 'retina_parser.y', 90)
 
 module_eval(<<'.,.,', 'retina_parser.y', 95)
   def _reduce_22(val, _values, result)
-    result=Bloque.new(:tipo,val[1])
+    result=Retorno.new(:tipo,val[1])
     result
   end
 .,.,
@@ -788,7 +788,7 @@ module_eval(<<'.,.,', 'retina_parser.y', 105)
 
 module_eval(<<'.,.,', 'retina_parser.y', 108)
   def _reduce_27(val, _values, result)
-    result=Inst.new(:Inst,val[0])
+    result=Inst.new(:Bloque,val[0])
     result
   end
 .,.,
@@ -858,28 +858,28 @@ module_eval(<<'.,.,', 'retina_parser.y', 117)
 
 module_eval(<<'.,.,', 'retina_parser.y', 121)
   def _reduce_37(val, _values, result)
-    result=Bloque.new(:Expresion,val[0])
+    result=Writable.new(:Expresion,val[0])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'retina_parser.y', 122)
   def _reduce_38(val, _values, result)
-    result=Bloque.new(:String,val[0])
+    result=Writable.new(:String,val[0])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'retina_parser.y', 123)
   def _reduce_39(val, _values, result)
-    result=Bloque.new(:Llamada_de_Funcion,val[0])
+    result=Writable.new(:Llamada_de_Funcion,val[0])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'retina_parser.y', 124)
   def _reduce_40(val, _values, result)
-    result=Bloque.new(:valor,val[0],:valor,val[2])
+    result=Writable.new(:valor,val[0],:valor,val[2])
     result
   end
 .,.,
@@ -900,14 +900,14 @@ module_eval(<<'.,.,', 'retina_parser.y', 132)
 
 module_eval(<<'.,.,', 'retina_parser.y', 136)
   def _reduce_43(val, _values, result)
-    result=Bloque.new(:Expresion,val[0])
+    result=Asignable.new(:Expresion,val[0])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'retina_parser.y', 137)
   def _reduce_44(val, _values, result)
-    result=Bloque.new(:Llamada_de_Funcionf,val[0])
+    result=Asignable.new(:Llamada_de_Funcionf,val[0])
     result
   end
 .,.,
@@ -937,7 +937,7 @@ module_eval(<<'.,.,', 'retina_parser.y', 143)
 
 module_eval(<<'.,.,', 'retina_parser.y', 148)
   def _reduce_49(val, _values, result)
-    result=Bloque.new(:By,val[1])
+    result=By.new(:By,val[1])
     result
   end
 .,.,

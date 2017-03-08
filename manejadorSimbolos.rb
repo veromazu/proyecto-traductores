@@ -33,6 +33,7 @@ def listFunc_Handler(elem)
 	listFuncError = 0
 	if (elem.list!=nil)
 		listFuncError = listFunc_Handler(elem.list)
+	end
 	return listFuncError + funcError
 end
 #Manejador de Funciones
@@ -59,6 +60,7 @@ def LInst_Handler(elem)
 	listInstError = 0
 	if (elem.list!=nil)
 		listInstError= LInst_Handler(elem.list)
+	end
 	return listInstError + instError
 end
 

@@ -162,22 +162,13 @@ class ListaInst
 end
 class ListaFunc<ListaInst;end
 class ListParam<ListaInst;end
+class ListID<ListaInst;end
 #Clase par imprimir una lista de argumentos de una función
 # list es la lista de la clase ListD, type1 es :Argumento y type2 es de la clase Esp
 class ListD < Bloque;end
-=begin
-
-class ListD
-    def initialize(type1,,var)
-        @type=type
-        @var=var
-    end
-    def printAST(lvl)
-        @type.printAST(lvl)
-        @var.printAST(lvl)
-    end
-end
-=end
+class Writable<Bloque;end
+class Asignable<Bloque;end
+class By<Bloque;end
 
     
 
@@ -198,6 +189,7 @@ end
 
 class LInst<Bloque;end
 class Write<Bloque;end  #########################
+class Retorno<Bloque;end
 
 class Read
     def initialize(type,val)
@@ -235,108 +227,7 @@ class RLoop<Ldecl;end
 class Cond<Func;end
 class Call<Bloque;end
 
-=begin
-#Clase para imprimir las instrucciones Write
-#Recibe: lista que es una lista separada por comas de objetos a imprimir de la clase Writey expr que es la expresion a imprimir 
-# => es de la clase Str o Expr.
-class Write2
-    def initialize(lista,expr)
-        @lista = lista   #Lista separada por comas de objetos a imprimir
-        @expr = expr    #Expresion a imprimir
-    end
-    def printAST(lvl)
-        if @lista!=nil
-            @lista.printAST(lvl)
-        end
-        @expr.printAST(lvl)
-    end
-end
 
-
-
-#Clase para la impresion de Condicionales
-# Recibe: type1 es :condicion, type2 es :then y type3 puede ser :else
-# => expr es de la clase Expr, inst1 e inst2 son de la clase Instr.
-class Cond2
-    
-    def initialize(type1, expr, type2, inst1, type3=nil, inst2=nil)
-        @types = [type1, type2, type3]
-        @elems = [expr, inst1, inst2]
-    end
-    def printAST(lvl)
-        for i in 0..2
-            if @types[i] != nil
-                (lvl).times{ print" "}
-                puts "#{@types[i]}:"
-                @elems[i].printAST(lvl+1)
-            end
-        end
-    end
-end
-
-
-#Clase par imprimir Iteraciones While
-# Recibe type1 es :While y type2 es :Instrucciones
-#=> expr es de la clase Expr e inst es de la clase Instr 
-class WLoop2
-    def initialize(type1, expr, type2, inst)
-        @types = [type1, type2]
-        @elems = [expr, inst]
-    end
-    def printAST(lvl)
-        for i in 0..1
-            (lvl).times{print " "}
-            puts "#{@types[i]}:"
-            @elems[i].printAST(lvl+1)
-        end     
-    end
-
-end
-
-#Clase par imprimir los ciclos For
-# Recibe: type1 es :For type2 es :From ,type3 ses :To , type4 es :Intrucciones y type5 es :Paso,
-# var es de la clase Var, expr1 , expr2 y expr2 son de la clase Term
-# => inst es de la clase Instr
-class Floop2
-    def initialize(type1, var, type2, expr1, type3, expr2, type4, inst,type5=nil,expr3=nil)
-        @types = [type1, type2, type3, type4,type5]
-        @elems = [var, expr1, expr2, inst,expr3]      
-    end
-    def printAST(lvl)
-        for i in 0..4
-            if (@elems[i] != nil)
-                (lvl).times{print " "}
-                puts "#{@types[i]}:"
-                @elems[i].printAST(lvl+1)
-            end
-        end
-    end 
-end
-
-#Clase para la impresiond e los cilos Repeat
-#Recibe: type1 es :Repat, type2 es :Instrucciones
-# => var es del tipo Expr y inst es del tipo Instr
-class RLoop2
-    def initialize(type1,var,type2,type3,inst)
-        @type1=type1
-        @type2=type2
-        @type3=type3
-        @var=var
-        @inst=inst
-    end
-    def printAST(lvl)
-        (lvl).times{print" "}
-        puts "#{@type1}:"
-        (lvl+1).times{print " "}
-        puts "#{@type2}:"
-        @var.printAST(lvl+2)
-        (lvl+1).times{print " "}
-        puts "#{@type3}:"
-        @inst.printAST(lvl+2)
-    end
-end
-
-=end
 
 ###################################
 # Clases asociadas a expresiones. #
