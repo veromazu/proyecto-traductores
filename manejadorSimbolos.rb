@@ -14,6 +14,7 @@ def program_Handler(ast)
 end
 
 #Manejador de alcances
+#scope es del tipo scope
 def scope_Handler(scope)
 
 
@@ -29,6 +30,7 @@ def scope_Handler(scope)
 end
 
 #Manejador de lista de Funciones.
+#elem es de la clase ListaFunc
 def listFunc_Handler(elem)
 	# Asignación de una nueva tabla.
 	symTableAux = SymbolTable.new($symTable)
@@ -61,6 +63,7 @@ def listFunc_Handler(elem)
 	return listFuncError + funcError
 end
 #Manejador de Funciones
+#func es de la clase Func
 def Func_Handler(func)
 	puts "Entre a funcHandler"
 	# Asignación de una nueva tabla.
@@ -78,12 +81,12 @@ def Func_Handler(func)
 
 	if (func.elems[2] != nil)
 		tipoRetorno = func.elems[2].elems[0].val.symbol
-		($symTable.update(namefunc,[tipoRetorno,nil]))
+		$symTable.update(namefunc,[tipoRetorno,[]])
 	end
 	fInsError = 0
 	if (func.elems[3] != nil)
 		#fInsError = LInst_Handler(func.elems[3]) 
-		fInsRetError = LInstRet_Handler(func.elems[3])   #### Igual que el otro manejador peri si veo un return veo que sea del mismo tipo ret de la funciin
+		fInsRetError =FInst_Handler(namefunc,func.elems[3])   #### Igual que el otro manejador peri si veo un return veo que sea del mismo tipo ret de la funciin
 	end
 
 	# Se empila la tabla del scope en la pila de tablas.
@@ -104,11 +107,16 @@ def Func_Handler(func)
 	end
 return  paramsError + fInsError
 end
-
+#Manejador de una lista de parámetros de una función
+#param es de la clase ListD o de la clase List
 def param_Handler(nombre,param)
-	paramError = paramDec_Handler(param.elems[0],param.elems[1].term.id)
-	listError=0
+
+	if param.instance_of?(ListD)
+		paramError = paramDec_Handler(nombre,param.elems[0],param.elems[1].term.id)
+		listError=0
+	end
 	if param.instance_of?(List)
+		paramError = paramDec_Handler(nombre,param.elems[0],param.elems[1].term.id)
 		listError=param_Handler(nombre,param.list)
 	end
 	return listError + paramError
@@ -116,11 +124,17 @@ end
 
 
 
-def paramDec_Handler(type,id)
+def paramDec_Handler(nombre,type,id)
 	type=type.val.symbol
 
 	if !($symTable.contains(id))
 		$symTable.insert(id, [type, nil])
+		tipoRetorno = $symTable.lookup(nombre)[0]
+		#tiposArg = $symTable.lookup(nombre)[1]
+		#if tiposArg == nil
+		#	tiposArg=Array.new
+		#end
+		#($symTable.update(nombre,[tipoRetorno,tiposArg<<type]))
 	else
 		puts "ERROR: variable '#{id}' fue declarada antes " \
 				" para la misma Funcion."
@@ -129,9 +143,86 @@ def paramDec_Handler(type,id)
 	return 0
 end
 
+#Manejador de instrucciones de funciones
+#FuncInst es de la clase funcInst
+def FInst_Handler(namefunc,funcInst) 
+
+	if (funcInst != nil)
+		fInsErrors = LInstF_Handler(namefunc,funcInst)
+	end
+	return fInsErrors
+end
+
+#Manejador de lista de instrucciones denntro de una funcion
+#LInstf es de la clase ListaInst
+def LInstF_Handler(namefunc,lInstf)
+	instError =  InstF_Handler(namefunc,lInstf.elem)
+	lInstFError = 0
+	if (lInstf.list != nil)
+		lInstFError = LInstF_Handler(namefunc,lInstf.list)
+	end
+	return instError + lInstFError
+end
+
+#Manejador de una instruccion dentro de una funcion
+#instr es de la clase Inst
+def InstF_Handler(namefunc, instr)
+case instr.types[0]
+	when :Bloque
+		return bloqueF_Handler(instr.elems[0]) #listo
+	when  :Retorno
+		return return_Handler(namefunc,instr.elems[0])
+	when :Asignacion
+		return asign_Handler(instr.elems[0].elems[0].term.id,instr.elems[0].elems[1]) #listo
+	when :Iteracion
+		return iteratorF_Handler(instr.elems[0]) #listo
+	when :Lectura
+		return lect_Handler(instr.elems[0]) #listo
+	when :Salida
+		return salida_Handler(instr.elems[0])    ### Escrita pero no probada por problema de expry falta call
+	when :Salida_Con_Salto
+		return salida_Handler(instr.elems[0])  ## Escrita pero no probada por expr y call
+	when :Condicional
+		return condF_Handler(instr.elems[0])
+	when :Llamada_de_Funcion
+		return llamada_Handler(instr.elems[0])
+	when :Expresion
+		return expr_Handler(instr.elems[0]) 
+	end
+end
+
+#Manejador de instrucciones de retorno dentro de una funcion
+#expr es de la clase Expr
+def return_Handler(namefunc,expr)
+	typeExpr = expression_Handler(expr)
+	if typeExpr == :TYPEN
+		tipoExpr = "number"
+	elsif typeExpr == :TYPEB
+		tipoExpr = "boolean"
+	end
+
+	typeRet = $symTable.lookup(namefunc)[0]
+
+	if typeRet == nil
+		puts "ERROR: tipo de retorno '#{tipoExpr}' inesperado para '#{namefunc}'"
+		return 1
+	elsif typeRet != typeExpr
+		if typeRet== :TYPEN
+			tipoRetorno= "number"
+		elsif typeRet == :TYPEB
+			tipoRetorno = "boolean"
+		end
+		puts "ERROR: tipo de retorno '#{tipoExpr}' inesperado para '#{namefunc}', 
+			se esperaba tipo de retorno '#{tipoRetorno}'"
+		return 1
+	end
+	return 0
+end
+
 
 
 #Manejador de nombres de funciones
+#func es del tipo var
 def nombreF_Handler(func)
 	nombre = func.term.id
 	if ($symTable.lookup(nombre)==nil)
@@ -145,18 +236,19 @@ def nombreF_Handler(func)
 	end	 
 end 
 
-#Manejador de lista de instrucciones de una función
+#Manejador de lista de instrucciones de un porgram
 def LInst_Handler(elem)
 	instError =  Inst_Handler(elem.elem)
 
 	listInstError = 0
 	if (elem.list!=nil)
-		listInstError= LInst_Handler(elem.list)
+		listInstError= LInst_Handler(namefunc,elem.list)
 	end
 	return listInstError + instError
 end
 
 #Manejador de Program
+#elem es del tipo Linst
 def prog_Handler(elem)
 	# Asignación de una nueva tabla.
 	symTableAux = SymbolTable.new($symTable)
@@ -191,8 +283,6 @@ def Inst_Handler(instr)
 	case instr.types[0]
 	when :Bloque
 		return bloque_Handler(instr.elems[0]) #listo
-	when  :Retorno
-		return return_Handler(instr.elems[0])
 	when :Asignacion
 		return asign_Handler(instr.elems[0].elems[0].term.id,instr.elems[0].elems[1]) #listo
 	when :Iteracion
