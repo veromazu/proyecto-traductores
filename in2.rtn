@@ -1,7 +1,33 @@
-program
-    with
-        boolean p;
-    do
-        p = 27;
-    end; 
+func mel(boolean y,number h,number p)
+begin
+	return 34354643*4545;
 end;
+
+func vero(number a)->boolean
+begin
+	with 
+	boolean p,q;
+	do 
+	p=true;
+	q=false;
+	if (p or q) then
+		return ( p or q );
+		end;
+	end;
+end;
+
+program
+	with number x,y,z;
+	do
+		if x>0 then
+			with 
+			number x;
+			do
+			write 2+ 3;
+			end;
+			end;
+	end;
+	with boolean y;
+	do end;
+end;	
+ 
