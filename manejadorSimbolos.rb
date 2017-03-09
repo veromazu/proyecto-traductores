@@ -105,16 +105,15 @@ def Inst_Handler(instr)
 	when :Lectura
 		return lect_Handler(instr.elems[0]) #listo
 	when :Salida
-		return salida_Handler(instr.elems[0])
+		return salida_Handler(instr.elems[0])    ### Escrita pero no probada por problema de expry falta call
 	when :Salida_Con_Salto
-		return salida_Handler(instr.elems[0])
+		return salida_Handler(instr.elems[0])  ## Escrita pero no probada por expr y call
 	when :Condicional
-		return cond_Handler(instr.elems[0]) #listo con errores en la expr
+		return cond_Handler(instr.elems[0])
 	when :Llamada_de_Funcion
 		return llamada_Handler(instr.elems[0])
 	when :Expresion
-		puts "Entro expression_Handler"
-		return expression_Handler(instr.elems[0]) #listo con detalles
+		return expr_Handler(instr.elems[0]) 
 	end
 end
 
@@ -188,6 +187,19 @@ def lect_Handler(lect)
 	end
 
 end
+
+def salida_Handler(write)
+	valType = write.types[0]
+	case valType
+	when :Expresion
+		return expr_Handler(write.elems[0])
+	when :Call 
+		return llamada_Handler(write.elems[0])
+	when :valor
+		return salida_Handler(write.elems[0]) + salida_Handler(write.elems[1])
+	end
+end
+
 
 def cond_Handler(cond)
 	cond_error = 0
@@ -339,12 +351,19 @@ def ListI_Handler(type,list)
 	end
 end
 
+def expr_Handler(expr)
+	if expression_Handler(expr) == nil
+		puts "EXPRESION ERROR: Error en los tipos de la expresion"
+		return 1
+	else 
+		return 0
+	end
+end
 
 
 def expression_Handler(expr)
 	# Procesar como binaria
 	if expr.instance_of?(BinExp)
-		
 		return binExp_Handler(expr)
 	# Procesar como unaria
 	elsif expr.instance_of?(UnaExp)
@@ -361,8 +380,10 @@ def expression_Handler(expr)
 			typeVar = $symTable.lookup(idVar)
 			if typeVar!=nil
 				typeVar = typeVar[0]
+			else
+				puts "ERROR: Variale '#{idVar}' no declarada en este entorno"
+				return typeVar
 			end
-			return typeVar
 		when :DIGIT
 			return :TYPEN
 		when :TRUE
@@ -382,10 +403,8 @@ end
 def binExp_Handler(expr)
 	typeExpr1 = expression_Handler(expr.elems[0])
 	typeExpr2 = expression_Handler(expr.elems[1])
-	if (typeExpr1 != typeExpr2)
-		puts "error de tipos"
-		return 1
-	end
+
+	
 	case expr.op
 	when :Suma,:Resta,:Multiplicacion
 

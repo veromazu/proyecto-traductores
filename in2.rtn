@@ -2,16 +2,7 @@ program
 	with number x,y,z;
 	boolean vero = true;
 	do
-	if x> 30 then
-		with 
-			boolean jose = false;
-			number ed = 8;
-		do
-		if (jose == vero) then
-			read ed;
-		end;
-		end;
-	end;
+	write f + k;
 end;
 end;	
  
