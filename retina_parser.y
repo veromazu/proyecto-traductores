@@ -60,6 +60,13 @@ rule
 
     wis
     :DO  LInst END SEMICOLON {result=Bloque.new(:declaraciones,nil,:instrucciones,val[1])}
+    |WITH Ldecl DO LInst END SEMICOLON {result=Bloque.new(:declaraciones,val[1],:instrucciones,val[3])}
+    |WITH Ldecl DO END SEMICOLON {result=Bloque.new(:declaraciones,val[1])}
+    |WITH DO END SEMICOLON {result=Bloque.new(:declaraciones,nil,:instrucciones,nil)}
+    ;
+
+    wisf
+    :DO  LInstf END SEMICOLON {result=Bloque.new(:declaraciones,nil,:instrucciones,val[1])}
     |WITH Ldecl DO funcInst END SEMICOLON {result=Bloque.new(:declaraciones,val[1],:instrucciones,val[3])}
     |WITH DO END SEMICOLON {result=Bloque.new(:declaraciones,nil,:instrucciones,nil)}
     ;
@@ -98,7 +105,24 @@ rule
 
     funcInst
     :
-    |LInst
+    |LInstf
+    ;
+
+    LInstf
+    : Instf  {result=ListaInst.new(:Instruccion,val[0])}
+    | Instf LInstf  {result=ListaInst.new(:Instruccion,val[0],val[1])}
+
+    Instf
+    : wisf  {result=Inst.new(:Bloque,val[0])}
+    | RETURN Expr SEMICOLON {result=Inst.new(:Retorno,val[1])}
+    | Assign  {result=Inst.new(:Asignacion,val[0])}
+    | IteratorF  {result=Inst.new(:Iteracion,val[0])}
+    | READ Var SEMICOLON  {result=Inst.new(:Lectura,val[1])}    ###### FALTA ACOMODAR ESTOOOO ########
+    | WRITE writable SEMICOLON  {result=Write.new(:Salida,val[1])}
+    | WRITELN writable SEMICOLON  {result=Write.new(:Salida_Con_Salto,val[1])}
+    | CondF  {result=Inst.new(:Condicional,val[0])}
+    | Call SEMICOLON {result=Inst.new(:Llamada_de_Funcion,val[0])}
+    | Expr SEMICOLON {result=Inst.new(:Expresion,val[0])}
     ;
 
     LInst
@@ -107,7 +131,6 @@ rule
 
     Inst
     : wis  {result=Inst.new(:Bloque,val[0])}
-    | RETURN Expr SEMICOLON {result=Inst.new(:Retorno,val[1])}
     | Assign  {result=Inst.new(:Asignacion,val[0])}
     | Iterator  {result=Inst.new(:Iteracion,val[0])}
     | READ Var SEMICOLON  {result=Inst.new(:Lectura,val[1])}    ###### FALTA ACOMODAR ESTOOOO ########
@@ -144,6 +167,12 @@ rule
     | REPEAT Expr TIMES LInst END SEMICOLON  {result=RLoop.new(:Ciclo_Repeat,:Times,val[1],:Instrucciones,val[3])}
     ;
 
+    IteratorF
+    : WHILE Expr DO LInstf END SEMICOLON  {result=WLoop.new(:Ciclo_While,:Condicion,val[1],:Do,val[3])}
+    | FOR Var FROM Expr TO Expr by DO LInstf END SEMICOLON  {result= FLoop.new(:Ciclo_For,:For,val[1],:From,val[3],:To,val[5],:By,val[6],:Instrucciones,val[8])}
+    | REPEAT Expr TIMES LInstf END SEMICOLON  {result=RLoop.new(:Ciclo_Repeat,:Times,val[1],:Instrucciones,val[3])}
+    ;
+
     by
     :
     | BY Expr  {result=By.new(val[1])}
@@ -154,6 +183,10 @@ rule
     |IF Expr THEN LInst ELSE LInst END SEMICOLON  {result=Cond.new(:Condicion,val[1],:Instrucciones,val[3],:Instrucciones_Else,val[5])}
     ;
 
+    CondF
+    :IF Expr THEN LInstf END SEMICOLON  {result=Cond.new(:Condición,val[1],:Instrucciones,val[3])}
+    |IF Expr THEN LInstf ELSE LInstf END SEMICOLON  {result=Cond.new(:Condicion,val[1],:Instrucciones,val[3],:Instrucciones_Else,val[5])}
+    ;
     Call   #######
     : Var LPARENT ListParam RPARENT {result=Call.new(:nombre,val[0],:argumentos,val[2])}
     | Var LPARENT RPARENT {result=Call.new(:nombre,val[0])}

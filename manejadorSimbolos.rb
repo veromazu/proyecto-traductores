@@ -15,60 +15,117 @@ end
 
 #Manejador de alcances
 def scope_Handler(scope)
-	#Asignacion de una nueva tabla.
-	symTableAux = SymbolTable.new($symTable)
-	$symTable = symTableAux
-	#Manejo de la estructura.
+
+
 	listFuncError = 0
 	if (scope.elems[0]!=nil)
 		listFuncError = listFunc_Handler(scope.elems[0])
 	end
 	progError = prog_Handler(scope.elems[1])
 
-	$tableStack << $symTable
-	$symTable = $symTable.father
-	# Si ya se analizo todo el programa, se imprimen cada
-	# de las tablas (si no hubo errores).
-	if ($symTable == nil)
-		if (listFuncError> 0) or (progError > 0)
-			puts "No se mostrara la tabla de simbolos"
-			abort
-		end
-		puts "Tabla de simbolos:"
-		$tableStack.reverse!
-		$tableStack.each do |st|
-			st.print_Table
-		end
-	end
+
+
 	return listFuncError + progError
 end
 
 #Manejador de lista de Funciones.
 def listFunc_Handler(elem)
+	# Asignación de una nueva tabla.
+	symTableAux = SymbolTable.new($symTable)
+	$symTable = symTableAux
+
+	#Manejo de la esperabatructura.
+	nombreError = nombreF_Handler(elem.elem.elems[0])
+
 	funcError =  Func_Handler(elem.elem)
 	listFuncError = 0
 	if (elem.list!=nil)
 		listFuncError = listFunc_Handler(elem.list)
 	end
+	# Se empila la tabla del scope en la pila de tablas.
+	$tableStack << $symTable
+	$symTable = $symTable.father
+	# Si ya se analizo todo el programa, se imprimen cada
+	# de las tablas (si no hubo errores).
+	if ($symTable == nil)
+		if (funcError > 0) or (listFuncError > 0)
+			puts "Symbol table will not be shown."
+			abort
+		end
+		puts "Symbol Table:list func"
+		$tableStack.reverse!
+		$tableStack.each do |st|
+			st.print_Table
+		end
+	end
 	return listFuncError + funcError
 end
 #Manejador de Funciones
 def Func_Handler(func)
-	nombreError = nombreF_Handler(func.elems[0])
+	# Asignación de una nueva tabla.
+	symTableAux = SymbolTable.new($symTable)
+	$symTable = symTableAux
+
+
+	
+
 	paramsError = 0
 	if (func.elems[1] != nil)
-		paramsError = param_Handler(func.elems[1])
+		paramsError = param_Handler(nombre,func.elems[1])
 	end
-	typeRError = 0
-	if (func.elems[2] != nil)
-		typeRError = typeR_Handler(func.elems[2])
+
+	# Se empila la tabla del scope en la pila de tablas.
+	$tableStack << $symTable
+	$symTable = $symTable.father
+	# Si ya se analizo todo el programa, se imprimen cada
+	# de las tablas (si no hubo errores).
+	if ($symTable == nil)
+		if (nombreError > 0) or (param_Error > 0)
+			puts "Symbol table will not be shown."
+			abort
+		end
+		puts "Symbol Table: func"
+		$tableStack.reverse!
+		$tableStack.each do |st|
+			st.print_Table
+		end
 	end
-	fInsError = 0
-	if (func.elems[3] != nil)
-		fInsError = LInst_Handler(func.elems[3])    #### Acá revisar que sea directo con LInst o necesito un manejador para FInst.
-	end
-	return nombreError + paramsError + typeRError + fInsError
+
+
+
+
+=begin
+typeRError = 0
+if (func.elems[2] != nil)
+	typeRError = typeR_Handler(func.elems[2])
 end
+fInsError = 0
+if (func.elems[3] != nil)
+	fInsError = LInst_Handler(func.elems[3])    #### Acá revisar que sea directo con LInst o necesito un manejador para FInst.
+end
+=end
+return 0 #+ paramsError + typeRError + fInsError
+end
+
+def param_Handler(nombre,param)
+	puts "ENTRO"
+	
+	#decl = param.
+end
+
+#Manejador de nombres de funciones
+def nombreF_Handler(func)
+	nombre = func.term.id
+	if ($symTable.lookup(nombre)==nil)
+		#pos[0] tipo ret
+		#pos [1] arreglo de tipos de parametros
+		($symTable.insert(nombre,[nil,nil]))
+		return 0 
+	else 
+		puts "ERROR: Funcion '#{nombre}' previamente declarada"
+		return 1
+	end	 
+end 
 
 #Manejador de lista de instrucciones de una función
 def LInst_Handler(elem)
@@ -83,11 +140,31 @@ end
 
 #Manejador de Program
 def prog_Handler(elem)
+	# Asignación de una nueva tabla.
+	symTableAux = SymbolTable.new($symTable)
+	$symTable = symTableAux
+
 	instError =  Inst_Handler(elem.elem)
 	listInstError = 0
 	if (elem.list!=nil)
 		listInstError= LInst_Handler(elem.list)
 	end
+		$tableStack << $symTable
+	$symTable = $symTable.father
+	# Si ya se analizo todo el programa, se imprimen cada
+	# de las tablas (si no hubo errores).
+	if ($symTable == nil)
+		if (instError > 0) or (listInstError > 0)
+			puts "Symbol table will not be shown."
+			abort
+		end
+		puts "Symbol Table: prog"
+		$tableStack.reverse!
+		$tableStack.each do |st|
+			st.print_Table
+		end
+	end
+
 	return listInstError + instError
 end
 
@@ -238,7 +315,7 @@ def bloque_Handler(wis)
 	$symTable = $symTable.father
 
 	if ($symTable == nil)
-		if (declError > 0) or (instrError > 0)
+		if (declError > 0) or (listInstError > 0)
 			puts "No se mostrara la tabla de simbolos"
 			abort
 		end

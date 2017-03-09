@@ -75,18 +75,20 @@ class SymbolTable
 		
 		if (@symTable.empty?)
 			(lvl).times{print " "}
-			print "- No variables declared at this scope -"
+			puts "- No variables declared at this scope -"
 		else
 			@symTable.each do |k,v|
 				if v[0] == :TYPEN
 					tipo = "number"
-				else
+				elsif v[0] == :TYPEB
 					tipo = "boolean"
 				end
 
 				(lvl+1).times { print " "}
-				puts "#{k} : #{tipo} "
+				print "#{k} : #{tipo} "
+
 			end
+			puts 
 		end
 	end
 end

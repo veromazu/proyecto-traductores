@@ -27,11 +27,7 @@ program
         with
             number angle = n;
         do
-            while angle <= 360 do
-                rotater(n);
-                circle(100);
-                angle = angle + n;
-            end;
+
         end;
     end;
 end;

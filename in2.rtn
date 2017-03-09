@@ -1,16 +1,12 @@
+func mel()
+begin
+end;
+
 program
-	with number k,f,z;
-	boolean vero = true;
+	with number x,y,z;
 	do
-	write f + k;
-	with number a;
-	do a = f;
-	write 5+5;
 	end;
-end;
-with number y;
-do 
-y = y;
-end;
+	with boolean y;
+	do end;
 end;	
  
