@@ -209,7 +209,7 @@ def cond_Handler(cond)
 	puts inst2
 
 	if (expression_Handler(expr)!= :TYPEB)
-		puts "CONDITIONAL ERRO : La condicion debe ser del tipo : 'boolean'"
+		puts "CONDITIONAL ERROR : La condicion debe ser del tipo : 'boolean'"
 	else
 		cond_error = LInst_Handler(inst1) #Aqui explota si es una expr
 	end

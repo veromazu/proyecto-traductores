@@ -1,8 +1,16 @@
 program
-	with number x,y,z;
+	with number k,f,z;
 	boolean vero = true;
 	do
 	write f + k;
+	with number a;
+	do a = f;
+	write 5+5;
+	end;
+end;
+with number y;
+do 
+y = y;
 end;
 end;	
  
