@@ -39,11 +39,12 @@ def main
 	# Create lexer
 	lexer = Lexer.new()
 	if lexer.identifier(input)
-		lexer.printTokens
+		#lexer.printTokens
 		parser=Parser.new(lexer)
 		begin
 			ast = parser.parse(lexer)
 			program_Handler(ast)
+
 		rescue => e
 			SyntaxError.new()
 			puts "Error sintactico: #{e}"

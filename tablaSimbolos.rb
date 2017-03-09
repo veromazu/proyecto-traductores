@@ -72,16 +72,21 @@ class SymbolTable
 
 	def print_Table
 		lvl = get_lvl
-		for i in 1..lvl
-			print "\t"
-		end
+		
 		if (@symTable.empty?)
+			(lvl).times{print " "}
 			print "- No variables declared at this scope -"
 		else
-			@symTable.each do |k|
-				print "#{k[1][0]} #{k[0]} "
+			@symTable.each do |k,v|
+				if v[0] == :TYPEN
+					tipo = "number"
+				else
+					tipo = "boolean"
+				end
+
+				(lvl+1).times { print " "}
+				puts "#{k} : #{tipo} "
 			end
 		end
-		puts
 	end
 end

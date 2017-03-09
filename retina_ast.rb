@@ -58,6 +58,7 @@ class Ldecl
    # y type5 es Instrucciones. var es el nombre de la función, list es la lista de parámetros,
    # typeret es el tipo de retorno, inst es un conjunto de instrucciones.
     attr_accessor :types
+    attr_accessor :type1
     attr_accessor :elems
     def initialize(type1,type2,var,type3=nil,list=nil,type4=nil,typeret=nil,type5=nil,inst=nil,type6=nil,var6=nil)
         @type1=type1
@@ -171,7 +172,16 @@ class ListID<ListaInst;end
 class ListD < Bloque;end
 class Writable<Bloque;end
 class Asignable<Bloque;end
-class By<Bloque;end
+
+class By
+    attr_accessor :salto
+    def initialize(salto)
+        @salto=salto
+    end
+    def printAST(lvl)
+        @salto.printAST(lvl)
+    end
+end
 
     
 
@@ -269,7 +279,7 @@ end
 # op es :Inverso_Aditivo y expr es la expresion.
 class UnaExp
     attr_accessor :op
-    attr_accessor :expr
+    attr_accessor :elem
     def initialize(op, expr)
         @elem = expr
         @op = op

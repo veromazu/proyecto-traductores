@@ -16,9 +16,9 @@
 
 $tokens = {
 /^number\s/ 											=> :TYPEN,
-	/^boolean/										=> :TYPEB,															
-	/^true\s/										=> :TRUE,
-	/^false\s/										=> :FALSE,					
+	/^boolean\s/										=> :TYPEB,															
+	/^true/										=> :TRUE,
+	/^false/										=> :FALSE,					
 	/^and\s/										=> :AND,
 	/^not\s/										=>:NOT,
 	/^or\s/											=>:OR,

@@ -81,7 +81,7 @@ rule
 
     Ldecl
     :type Assign {result=Ldecl.new(:declaracion,:tipo,val[0],:asignacion,val[1])}
-    |type Assign Ldecl  {result=Ldecl.new(:declaracion,:tipo,val[0],:asignacion,val[1])}
+    |type Assign Ldecl  {result=Ldecl.new(:declaracion,:tipo,val[0],:asignacion,val[1],:declaracion,val[2])}
     |type ListID SEMICOLON   {result=Ldecl.new(:declaracion,:tipo,val[0],:Lista_ID,val[1])}
     |type ListID SEMICOLON Ldecl  {result=Ldecl.new(:Lista_Decl,:tipo,val[0],:Lista_ID,val[1],:declaracion,val[3])}
     ; 
@@ -135,18 +135,18 @@ rule
 
     Asignable #Puedo asignar cualquiera de estos a una variable
     :Expr  {result=Asignable.new(:Expresion,val[0])}
-    |Call   {result=Asignable.new(:Llamada_de_Funcionf,val[0])}
+    |Call   {result=Asignable.new(:Llamada_de_Funcion,val[0])}
     ;
 
     Iterator
     : WHILE Expr DO LInst END SEMICOLON  {result=WLoop.new(:Ciclo_While,:Condicion,val[1],:Do,val[3])}
-    | FOR Var FROM Expr TO Expr by DO LInst END SEMICOLON  {result= FLoop.new(:Ciclo_For,:For,val[1],:From,val[3],:To,val[5],:By,nil,:Instrucciones,val[8])}
+    | FOR Var FROM Expr TO Expr by DO LInst END SEMICOLON  {result= FLoop.new(:Ciclo_For,:For,val[1],:From,val[3],:To,val[5],:By,val[6],:Instrucciones,val[8])}
     | REPEAT Expr TIMES LInst END SEMICOLON  {result=RLoop.new(:Ciclo_Repeat,:Times,val[1],:Instrucciones,val[3])}
     ;
 
     by
     :
-    | BY Expr  {result=By.new(:By,val[1])}
+    | BY Expr  {result=By.new(val[1])}
     ;
 
     Cond
@@ -179,6 +179,7 @@ rule
     | Expr DIV Expr                {result = BinExp.new(:Division_Entera, val[0], val[2])}
     | Expr MOD Expr                 {result = BinExp.new(:Resto_Entero, val[0], val[2])}
     | LESS Expr  =UMINUS                 {result = UnaExp.new(:Inverso_Aditivo , val[1])}
+    | NOT Expr                        {result = UnaExp.new(:Negacion , val[1])}
     | LPARENT Expr RPARENT            {result = ParExp.new(:Expresion, val[1])}
     | Expr OR Expr                    {result = BinExp.new(:Or , val[0],val[2])}
     | Expr AND Expr                   {result = BinExp.new(:And, val[0], val[2])}
