@@ -50,8 +50,8 @@ def listFunc_Handler(elem)
 	# Si ya se analizo todo el programa, se imprimen cada
 	# de las tablas (si no hubo errores).
 	if ($symTable == nil)
-		if (funcError > 0) or (nombreError > 0)
-			puts "Symbol table will not be shown."
+		if (funcError > 0) or (nombreError > 0 or listFuncError>0)
+			puts "No se mostrará la tabla de simbolos."
 			abort
 		end
 		#puts "Alcance: Funciones"
@@ -60,18 +60,18 @@ def listFunc_Handler(elem)
 		#	st.print_Table
 		#end
 	end
-	return listFuncError + funcError
+	return listFuncError + funcError + nombreError
 end
 #Manejador de Funciones
 #func es de la clase Func
 def Func_Handler(func)
-	puts "Entre a funcHandler"
+
 	# Asignación de una nueva tabla.
 	symTableAux = SymbolTable.new($symTable)
 	$symTable = symTableAux
 
 	namefunc= func.elems[0].term.id
-	puts "#{namefunc}"
+
 	
 
 	paramsError = 0
@@ -95,8 +95,8 @@ def Func_Handler(func)
 	# Si ya se analizo todo el programa, se imprimen cada
 	# de las tablas (si no hubo errores).
 	if ($symTable == nil)
-		if (paramError > 0)
-			puts "Symbol table will not be shown."
+		if (paramError > 0 or fInsError>0)
+			puts "No se mostrará tabla de símbolos."
 			abort
 		end
 		puts "Alcance #{namefunc}:"
@@ -169,7 +169,7 @@ end
 def InstF_Handler(namefunc, instr)
 case instr.types[0]
 	when :Bloque
-		return bloqueF_Handler(instr.elems[0]) #listo
+		return bloqueF_Handler(namefunc,instr.elems[0]) #listo
 	when  :Retorno
 		return return_Handler(namefunc,instr.elems[0])
 	when :Asignacion
@@ -183,7 +183,7 @@ case instr.types[0]
 	when :Salida_Con_Salto
 		return salida_Handler(instr.elems[0])  ## Escrita pero no probada por expr y call
 	when :Condicional
-		return condF_Handler(instr.elems[0])
+		return condF_Handler(namefunc,instr.elems[0])
 	when :Llamada_de_Funcion
 		return llamada_Handler(instr.elems[0])
 	when :Expresion
@@ -212,8 +212,7 @@ def return_Handler(namefunc,expr)
 		elsif typeRet == :TYPEB
 			tipoRetorno = "boolean"
 		end
-		puts "ERROR: tipo de retorno '#{tipoExpr}' inesperado para '#{namefunc}', 
-			se esperaba tipo de retorno '#{tipoRetorno}'"
+		puts "ERROR: tipo de retorno '#{tipoExpr}' inesperado para '#{namefunc}', se esperaba tipo de retorno '#{tipoRetorno}'"
 		return 1
 	end
 	return 0
@@ -236,15 +235,110 @@ def nombreF_Handler(func)
 	end	 
 end 
 
-#Manejador de lista de instrucciones de un porgram
-def LInst_Handler(elem)
-	instError =  Inst_Handler(elem.elem)
+def bloqueF_Handler(namefunc,wis)
+	symTableAux = SymbolTable.new($symTable)
+	$symTable = symTableAux
+	declError=0
+	if (wis.elems[0] !=nil)
+		declError = decl_Handler(wis.elems[0])
 
-	listInstError = 0
-	if (elem.list!=nil)
-		listInstError= LInst_Handler(namefunc,elem.list)
 	end
-	return listInstError + instError
+	listInstError=0
+
+	if (wis.elems[1] !=nil)
+		listInstError = LInstF_Handler(namefunc,wis.elems[1])
+	end
+	$tableStack << $symTable
+	$symTable = $symTable.father
+
+	if ($symTable == nil)
+		if (declError > 0) or (listInstError > 0)
+			puts "No se mostrara la tabla de simbolos"
+			abort
+		end
+		puts "Subalcances:"
+		$tableStack.reverse!
+		$tableStack.each do |st|
+			st.print_Table
+		end
+	end
+
+	return declError + listInstError
+
+end
+
+#Manejador de iteradores
+def iteratorF_Handler(namefunc,iter)
+	iter_error = 0
+	expr = iter.elems[0]
+	inst = iter.elems[1]
+	case iter.type1
+
+	when :Ciclo_While
+		if (expression_Handler(expr)!= :TYPEB)
+			puts "ITERATION ERROR: Se esperaba condicion del tipo 'boolean'"
+			return 1
+		else
+			iter_error = LInstF_Handler(namefunc,inst)
+		end
+			return iter_error
+	
+	when :Ciclo_Repeat
+
+		if (expression_Handler(expr)!= :TYPEN)
+			puts "ITERATION ERROR: Se esperaba expresion del tipo 'number'"
+			return 1
+		else
+			iter_error = LInstF_Handler(namefunc,inst)
+		end
+			return iter_error
+	when :Ciclo_For
+		expr = iter.elems[1]
+		expr2 = iter.elems[2]
+		by = iter.elems[3]
+		inst = iter.elems[4]
+		err=0
+		
+		if (by != nil)
+			if ((expression_Handler(expr) != :TYPEN) or (expression_Handler(expr2) != :TYPEN))
+				puts "ITERATION ERROR: Se esperaba rango del tipo 'number'"
+				err = 1
+			end
+			if 	(expression_Handler(by.salto)!= :TYPEN)
+				puts "ITERATION ERROR: Se esperaba salto 'by' del tipo 'number'"
+				err += 1
+			else
+				iter_error = LInstF_Handler(namefunc,inst) 
+			end 	
+		else
+			if ((expression_Handler(expr) != :TYPEN) or (expression_Handler(expr2) != :TYPEN))
+				puts "ITERATION ERROR: Se esperaba rango del tipo 'number'"
+				error = 1
+			else 
+				iter_error = LInstF_Handler(namefunc,inst) 
+			end 
+		end
+	end
+	return err
+end 
+
+def condF_Handler(namefunc,cond)
+	cond_error = 0
+	expr = cond.elems[0]
+	inst1= cond.elems[1]
+	inst2= cond.elems[2]
+
+
+	if (expression_Handler(expr)!= :TYPEB)
+		puts "CONDITIONAL ERROR : La condicion debe ser del tipo : 'boolean'"
+	else
+		cond_error = LInstF_Handler(namefunc,inst1) #Aqui explota si es una expr
+	end
+	if (inst2 != nil)
+		cond_error = cond_error +	LInstF_Handler(namefunc,inst2) 
+	end
+
+	return cond_error
 end
 
 #Manejador de Program
@@ -278,21 +372,33 @@ def prog_Handler(elem)
 	return listInstError + instError
 end
 
+
+#Manejador de lista de instrucciones de un porgram
+def LInst_Handler(elem)
+	instError =  Inst_Handler(elem.elem)
+
+	listInstError = 0
+	if (elem.list!=nil)
+		listInstError= LInst_Handler(namefunc,elem.list)
+	end
+	return listInstError + instError
+end
+
 #Manejador de instrucciones
 def Inst_Handler(instr)
 	case instr.types[0]
 	when :Bloque
-		return bloque_Handler(instr.elems[0]) #listo
+		return bloque_Handler(instr.elems[0]) 
 	when :Asignacion
-		return asign_Handler(instr.elems[0].elems[0].term.id,instr.elems[0].elems[1]) #listo
+		return asign_Handler(instr.elems[0].elems[0].term.id,instr.elems[0].elems[1]) 
 	when :Iteracion
-		return iterator_Handler(instr.elems[0]) #listo
+		return iterator_Handler(instr.elems[0])
 	when :Lectura
-		return lect_Handler(instr.elems[0]) #listo
+		return lect_Handler(instr.elems[0]) 
 	when :Salida
-		return salida_Handler(instr.elems[0])    ### Escrita pero no probada por problema de expry falta call
+		return salida_Handler(instr.elems[0])   
 	when :Salida_Con_Salto
-		return salida_Handler(instr.elems[0])  ## Escrita pero no probada por expr y call
+		return salida_Handler(instr.elems[0]) 
 	when :Condicional
 		return cond_Handler(instr.elems[0])
 	when :Llamada_de_Funcion
@@ -335,7 +441,7 @@ def iterator_Handler(iter)
 		expr = iter.elems[1]
 		expr2 = iter.elems[2]
 		by = iter.elems[3]
-		puts "#{by} soy byyyyy"
+
 		inst = iter.elems[4]
 		err=0
 		
@@ -365,7 +471,7 @@ end
 def lect_Handler(lect)
 	var= lect.term.id
 	if ($symTable.lookup(var)==nil)
-		puts "variable #{var} no declarada en este alcance"
+		puts "ERROR: Variable #{var} no declarada en este alcance"
 		return 1
 	else
 		return 0
@@ -391,7 +497,7 @@ def cond_Handler(cond)
 	expr = cond.elems[0]
 	inst1= cond.elems[1]
 	inst2= cond.elems[2]
-	puts inst2
+
 
 	if (expression_Handler(expr)!= :TYPEB)
 		puts "CONDITIONAL ERROR : La condicion debe ser del tipo : 'boolean'"
@@ -472,8 +578,8 @@ def decAsig_Handler(dec,type)
 
 		dError = asign_Handler(nameVar,asignable) 
 	else 
-		puts  "ERROR: variable '#{dec.elems[0].term.id}' was declared before" \
-				" at the same scope."
+		puts  "ERROR: variable '#{dec.elems[0].term.id}' fue declarada antes" \
+				" en el mismo alcance."
 		abort
 		return 1
 	end
@@ -488,7 +594,7 @@ def asign_Handler(idVar,asig)
 	tipoAsig = asig.types[0]
 	valAsig = asig.elems[0]
 	if ($symTable.lookup(idVar)==nil)
-		puts "Error de Asignacion: variable '#{idVar}' no ha sido declarada."
+		puts "ASSIGN ERROR: variable '#{idVar}' no ha sido declarada."
 		return 1
 	else 
 		typeVar=$symTable.lookup(idVar)[0]
@@ -496,10 +602,23 @@ def asign_Handler(idVar,asig)
 		when :Expresion
 			
 			typeExpr=expression_Handler(valAsig)
+
+
 			if(typeVar != typeExpr)
 
-				puts "ASSIGN ERROR: #{typeExpr} expression assigned to #{typeVar} "\
-			"variable '#{idVar}'."
+				if typeExpr == :TYPEN
+					tipoExpr = "number"
+				elsif typeExpr == :TYPEB
+					tipoExpr = "boolean"
+				end
+
+				if typeVar == :TYPEN
+					tipoVar = "number"
+				elsif typeVar == :TYPEB
+					tipoVar = "boolean"
+				end
+
+				puts "ASSIGN ERROR: Expresion de tipo '#{tipoExpr}' y se esperaba una de tipo '#{tipoVar}' para variable #{idVar}."
 				return 1
 			end
 
@@ -507,7 +626,7 @@ def asign_Handler(idVar,asig)
 			valAsig=valAsig.elems[0]
 			typeExpr = typeCall_Handler(valAsig)
 			if(typeVar != typeExpr)
-				puts "ASSIGN ERROR: #{typeExpr} expression assigned to #{typeVar} "\
+				puts "ASSIGN ERROR: #{typeExpr} expresión asiganda de tipo '#{typeVar}' "\
 			"variable '#{idVar}'."
 				return 1
 			end
@@ -578,7 +697,7 @@ def expression_Handler(expr)
 			return :TYPEB	
 		end
 	else
-		puts "ERROR: hubo un errror expression_Handler."		
+		puts "ERROR: hubo un error expression_Handler."		
 	end
 end
 
