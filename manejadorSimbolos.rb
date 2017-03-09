@@ -48,30 +48,42 @@ def listFunc_Handler(elem)
 	# Si ya se analizo todo el programa, se imprimen cada
 	# de las tablas (si no hubo errores).
 	if ($symTable == nil)
-		if (funcError > 0) or (listFuncError > 0)
+		if (funcError > 0) or (nombreError > 0)
 			puts "Symbol table will not be shown."
 			abort
 		end
-		puts "Symbol Table:list func"
-		$tableStack.reverse!
-		$tableStack.each do |st|
-			st.print_Table
-		end
+		#puts "Alcance: Funciones"
+		#$tableStack.reverse!
+		#$tableStack.each do |st|
+		#	st.print_Table
+		#end
 	end
 	return listFuncError + funcError
 end
 #Manejador de Funciones
 def Func_Handler(func)
+	puts "Entre a funcHandler"
 	# Asignación de una nueva tabla.
 	symTableAux = SymbolTable.new($symTable)
 	$symTable = symTableAux
 
-
+	namefunc= func.elems[0].term.id
+	puts "#{namefunc}"
 	
 
 	paramsError = 0
 	if (func.elems[1] != nil)
-		paramsError = param_Handler(nombre,func.elems[1])
+		paramsError = param_Handler(namefunc,func.elems[1])
+	end
+
+	if (func.elems[2] != nil)
+		tipoRetorno = func.elems[2].elems[0].val.symbol
+		($symTable.update(namefunc,[tipoRetorno,nil]))
+	end
+	fInsError = 0
+	if (func.elems[3] != nil)
+		#fInsError = LInst_Handler(func.elems[3]) 
+		fInsRetError = LInstRet_Handler(func.elems[3])   #### Igual que el otro manejador peri si veo un return veo que sea del mismo tipo ret de la funciin
 	end
 
 	# Se empila la tabla del scope en la pila de tablas.
@@ -80,38 +92,44 @@ def Func_Handler(func)
 	# Si ya se analizo todo el programa, se imprimen cada
 	# de las tablas (si no hubo errores).
 	if ($symTable == nil)
-		if (nombreError > 0) or (param_Error > 0)
+		if (paramError > 0)
 			puts "Symbol table will not be shown."
 			abort
 		end
-		puts "Symbol Table: func"
+		puts "Alcance #{namefunc}:"
 		$tableStack.reverse!
 		$tableStack.each do |st|
 			st.print_Table
 		end
 	end
-
-
-
-
-=begin
-typeRError = 0
-if (func.elems[2] != nil)
-	typeRError = typeR_Handler(func.elems[2])
-end
-fInsError = 0
-if (func.elems[3] != nil)
-	fInsError = LInst_Handler(func.elems[3])    #### Acá revisar que sea directo con LInst o necesito un manejador para FInst.
-end
-=end
-return 0 #+ paramsError + typeRError + fInsError
+return  paramsError + fInsError
 end
 
 def param_Handler(nombre,param)
-	puts "ENTRO"
-	
-	#decl = param.
+	paramError = paramDec_Handler(param.elems[0],param.elems[1].term.id)
+	listError=0
+	if param.instance_of?(List)
+		listError=param_Handler(nombre,param.list)
+	end
+	return listError + paramError
 end
+
+
+
+def paramDec_Handler(type,id)
+	type=type.val.symbol
+
+	if !($symTable.contains(id))
+		$symTable.insert(id, [type, nil])
+	else
+		puts "ERROR: variable '#{id}' fue declarada antes " \
+				" para la misma Funcion."
+		return 1
+	end
+	return 0
+end
+
+
 
 #Manejador de nombres de funciones
 def nombreF_Handler(func)
@@ -158,7 +176,7 @@ def prog_Handler(elem)
 			puts "Symbol table will not be shown."
 			abort
 		end
-		puts "Symbol Table: prog"
+		puts "Alcance _program:"
 		$tableStack.reverse!
 		$tableStack.each do |st|
 			st.print_Table
@@ -319,7 +337,7 @@ def bloque_Handler(wis)
 			puts "No se mostrara la tabla de simbolos"
 			abort
 		end
-		puts "Tabla de Simbolos"
+		puts "Subalcances:"
 		$tableStack.reverse!
 		$tableStack.each do |st|
 			st.print_Table
@@ -364,8 +382,9 @@ def decAsig_Handler(dec,type)
 
 		dError = asign_Handler(nameVar,asignable) 
 	else 
-		#puts  "ERROR: variable '#{dec.elems[0].term.id}' was declared before" \
-				#{}" at the same scope."
+		puts  "ERROR: variable '#{dec.elems[0].term.id}' was declared before" \
+				" at the same scope."
+		abort
 		return 1
 	end
 	return dError

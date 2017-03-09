@@ -1,10 +1,18 @@
-func mel()
+func mel(boolean y)->boolean
 begin
+
 end;
 
 program
 	with number x,y,z;
 	do
+		if x>0 then
+			with 
+			number x;
+			do
+			write 2+ 3;
+			end;
+			end;
 	end;
 	with boolean y;
 	do end;
