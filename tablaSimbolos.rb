@@ -108,7 +108,7 @@ class SymbolTable
 		if (@symTable.empty?)
 			puts " None "
 		else	
-				
+			
 			@symTable.each do |k,v|
 				if v[0] == :TYPEN	
 					tipo = "number"
@@ -116,7 +116,7 @@ class SymbolTable
 					tipo = "boolean"
 				end
 				puts
-				(lvl+1).times { print " "}
+				(lvl+2).times { print " "}
 				print"#{k} : #{tipo} "
 
 			end

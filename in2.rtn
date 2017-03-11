@@ -14,13 +14,13 @@ end;
 func incremental_forward(number steps)
 begin
     for i from 1 to steps do
-        forward(i);
+        forward();
     end;
 end;
 
 func circle(number radio)
 begin
-    arc(360, radio);
+    arc(23,23);
 end;
 
 program
@@ -34,7 +34,7 @@ program
         do
             while angle <= 360 do
                 rotater(n);
-                circle(100);
+                circle(3);
                 angle = angle + n;
             end;
         end;

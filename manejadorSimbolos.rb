@@ -71,6 +71,29 @@ def listFunc_Handler(elem)
 
 	return nombreError + listFuncError +funcError
 end
+
+#Manejador de Program
+#elem es del tipo Linst
+def prog_Handler(elem)
+
+
+	listInstError = 0
+	if (elem.list!=nil)
+		listInstError= LInst_Handler(elem.list)
+	end
+	instError =  Inst_Handler(elem.elem)
+
+	if  instError > 0 or listInstError >0
+		return 1
+	else
+		return 0
+	end
+end
+
+########################################################
+# Manejo de declaraciones e instrucciones de funciones #
+########################################################
+
 #Manejador de Funciones
 #func es de la clase Func
 def Func_Handler(func)
@@ -101,6 +124,7 @@ def Func_Handler(func)
 
 return  paramsError + fInsError 
 end
+
 #Manejador de una lista de parámetros de una función
 #param es de la clase ListD o de la clase List
 def param_Handler(nombre,param)
@@ -117,7 +141,7 @@ def param_Handler(nombre,param)
 end
 
 
-
+#Manejador de parámetros en la definición de una función
 def paramDec_Handler(nombre,type,id)
 	type=type.val.symbol
 
@@ -223,6 +247,7 @@ def nombreF_Handler(func)
 	end	 
 end 
 
+#Manejador de Bloques with dentro de una función
 def bloqueF_Handler(namefunc,wis)
 	nivel_alcance = $symTable.cont
 	if nivel_alcance == nil
@@ -259,7 +284,7 @@ def bloqueF_Handler(namefunc,wis)
 
 end
 
-#Manejador de iteradores
+#Manejador de iteradores dentro de una función
 def iteratorF_Handler(namefunc,iter)
 	iter_error = 0
 	expr = iter.elems[0]
@@ -268,7 +293,7 @@ def iteratorF_Handler(namefunc,iter)
 
 	when :Ciclo_While
 		if (expression_Handler(expr)!= :TYPEB)
-			puts "ITERATION ERROR: Se esperaba condicion del tipo 'boolean'"
+			puts "ERROR: Se esperaba condicion del tipo 'boolean'"
 			return 1
 		else
 			iter_error = LInstF_Handler(namefunc,inst)
@@ -278,7 +303,7 @@ def iteratorF_Handler(namefunc,iter)
 	when :Ciclo_Repeat
 
 		if (expression_Handler(expr)!= :TYPEN)
-			puts "ITERATION ERROR: Se esperaba expresion del tipo 'number'"
+			puts "ERROR: Se esperaba expresion del tipo 'number'"
 			return 1
 		else
 			iter_error = LInstF_Handler(namefunc,inst)
@@ -297,18 +322,18 @@ def iteratorF_Handler(namefunc,iter)
 		iter_error = 0
 		if (by != nil)
 			if ((expression_Handler(expr) != :TYPEN) or (expression_Handler(expr2) != :TYPEN))
-				puts "ITERATION ERROR: Se esperaba rango del tipo 'number'"
+				puts "ERROR: Se esperaba rango del tipo 'number'"
 				err = 1
 			end
 			if 	(expression_Handler(by.salto)!= :TYPEN)
-				puts "ITERATION ERROR: Se esperaba salto 'by' del tipo 'number'"
+				puts "ERROR: Se esperaba salto 'by' del tipo 'number'"
 				err += 1
 			else
 				iter_error = LInstF_Handler(namefunc,inst) 
 			end 	
 		else
 			if ((expression_Handler(expr) != :TYPEN) or (expression_Handler(expr2) != :TYPEN))
-				puts "ITERATION ERROR: Se esperaba rango del tipo 'number'"
+				puts "ERROR: Se esperaba rango del tipo 'number'"
 				err = 1
 			else 
 				iter_error = LInstF_Handler(namefunc,inst) 
@@ -320,6 +345,7 @@ def iteratorF_Handler(namefunc,iter)
 	return err + iter_error
 end 
 
+#Manejador de condicionales dentro de una función
 def condF_Handler(namefunc,cond)
 	cond_error = 0
 	expr = cond.elems[0]
@@ -328,7 +354,7 @@ def condF_Handler(namefunc,cond)
 
 
 	if (expression_Handler(expr)!= :TYPEB)
-		puts "CONDITIONAL ERROR : La condicion debe ser del tipo : 'boolean'"
+		puts "ERROR : La condicion debe ser del tipo : 'boolean'"
 		return 1
 	else
 		cond_error = LInstF_Handler(namefunc,inst1) 
@@ -340,23 +366,6 @@ def condF_Handler(namefunc,cond)
 	return cond_error
 end
 
-#Manejador de Program
-#elem es del tipo Linst
-def prog_Handler(elem)
-
-
-	listInstError = 0
-	if (elem.list!=nil)
-		listInstError= LInst_Handler(elem.list)
-	end
-	instError =  Inst_Handler(elem.elem)
-
-	if  instError > 0 or listInstError >0
-		return 1
-	else
-		return 0
-	end
-end
 
 
 #Manejador de lista de instrucciones de un porgram
@@ -410,39 +419,63 @@ def llamada_Handler(llamada)
 
 	case func
 	when "home", "closeeye", "openeye"
-
 		if (parametros == nil)
 			return 0
 		else 
-			puts "ERROR: Cantidad inválida de argumentos para #{func}"
+			puts "ERROR: Cantidad inválida de argumentos para '#{func}'"
 			return 1
 		end
 	when "forward", "backward", "rotater", "rotatel"
-		if (parametros.list!=nil or parametros==nil)
-			puts "ERROR: Cantidad inválida de argumentos para #{func}"
-				return 1
-		else
-			if (expression_Handler(parametros.elem)!= :TYPEN)
-
-				puts "ERROR: Argumento inválido boolean para #{func}"
-				return 1
-			else 
-				return 0
+		if (parametros !=nil)
+			if (parametros.list!=nil)
+				puts "ERROR: Cantidad inválida de argumentos para '#{func}'"
+					return 1
+			else
+				tipo=expression_Handler(parametros.elem)
+				if (tipo != :TYPEN)
+					if tipo == :TYPEB
+						puts "ERROR: Argumento inválido boolean para '#{func}'"
+						return 1
+					else 
+						return 1 
+					end
+				else 
+					return 0
+				end
 			end
+		else
+			puts "ERROR: Cantidad inválida de argumentos para '#{func}'"
+			return 1
 		end
+
 	when "setposition", "arc"
 		if (parametros !=nil)
 			if (parametros.list==nil or parametros.list.list!=nil)
-				puts "ERROR: Cantidad inválida de argumentos para #{func}"
+				puts "ERROR: Cantidad inválida de argumentos para '#{func}'"
 				return 1
 			else 
-				if (expression_Handler(parametros.elem)!= :TYPEN  or expression_Handler(parametros.list.elem)!= :TYPEN)
-					puts "ERROR: Argumento inválido boolean para #{func}"
-					return 1 
+				tipo1 = expression_Handler(parametros.elem)
+				tipo2 = expression_Handler(parametros.list.elem)
+				if (tipo1 != :TYPEN )
+					if (tipo1 == :TYPEB )
+						puts "ERROR: Argumento inválido boolean para '#{func}'"
+						return 1
+					else
+						return 1
+					end
+
+				elsif (tipo2 != :TYPEN)
+					if (tipo2 == :TYPEB )
+						puts "ERROR: Argumento inválido boolean para'#{func}'"
+						return 1
+					else
+						return 1
+					end
+				else 
+					return 0
 				end
 			end
 		end
-
 
 	else
 		if ($symTable.lookup(func) != nil)
@@ -471,11 +504,12 @@ def llamada_Handler(llamada)
 				else
 					cantArgCall =1
 				end
+
 			end
 
 			#Error de cantidad de argumentos
 			if cantArgCall != $cantArgFunc
-				puts "ERROR: Cantidad inválida de argumentos para #{func}"
+				puts "ERROR: Cantidad inválida de argumentos para '#{func}'"
 				return 1
 
 			#Error por tipo de argumentos
@@ -490,18 +524,22 @@ def llamada_Handler(llamada)
 						elsif tipoCall == :TYPEB
 							tipo = "boolean"
 						end
-						puts "ERROR: Argumento inválido '#{tipo}' para #{func}"
+						puts "ERROR: Argumento inválido '#{tipo}' para '#{func}'"
 						return 1
 					end
 					parametros = parametros.list
 
 				end
 			end
+
 		return 0
 	else 
 		puts "ERROR: Funcion #{func} no declarada"
 		return 1
 	end
+	end
+	return 0
+
 end
 
 #Manejador de iteradores
@@ -513,7 +551,7 @@ def iterator_Handler(iter)
 
 	when :Ciclo_While
 		if (expression_Handler(expr)!= :TYPEB)
-			puts "ITERATION ERROR: Se esperaba condicion del tipo 'boolean'"
+			puts "ERROR: Se esperaba condicion del tipo 'boolean'"
 			return 1
 		else
 			iter_error = LInst_Handler(inst)
@@ -523,7 +561,7 @@ def iterator_Handler(iter)
 	when :Ciclo_Repeat
 
 		if (expression_Handler(expr)!= :TYPEN)
-			puts "ITERATION ERROR: Se esperaba expresion del tipo 'number'"
+			puts "ERROR: Se esperaba expresion del tipo 'number'"
 			return 1
 		else
 			iter_error = LInst_Handler(inst)
@@ -543,18 +581,18 @@ def iterator_Handler(iter)
 		
 		if (by != nil)
 			if ((expression_Handler(expr) != :TYPEN) or (expression_Handler(expr2) != :TYPEN))
-				puts "ITERATION ERROR: Se esperaba rango del tipo 'number'"
+				puts "ERROR: Se esperaba rango del tipo 'number'"
 				err = 1
 			end
 			if 	(expression_Handler(by.salto)!= :TYPEN)
-				puts "ITERATION ERROR: Se esperaba salto 'by' del tipo 'number'"
+				puts "ERROR: Se esperaba salto 'by' del tipo 'number'"
 				err += 1
 			else
 				iter_error = LInst_Handler(inst) 
 			end 	
 		else
 			if ((expression_Handler(expr) != :TYPEN) or (expression_Handler(expr2) != :TYPEN))
-				puts "ITERATION ERROR: Se esperaba rango del tipo 'number'"
+				puts "ERROR: Se esperaba rango del tipo 'number'"
 				err = 1
 			else 
 				iter_error = LInst_Handler(inst) 
@@ -566,10 +604,11 @@ def iterator_Handler(iter)
 	return err + iter_error
 end 
 
+#Manejador de instrucciones Read
 def lect_Handler(lect)
 	var = lect.term.id
 	if ($symTable.lookup(var)==nil)
-		puts "ERROR: Variable #{var} no declarada en este alcance"
+		puts "ERROR: Variable '#{var}' no declarada en este alcance"
 		return 1
 	else
 		return 0
@@ -577,6 +616,7 @@ def lect_Handler(lect)
 
 end
 
+#Manjador de instrucciones Write
 def salida_Handler(write)
 	valType = write.types[0]
 	case valType
@@ -591,7 +631,7 @@ def salida_Handler(write)
 	end
 end
 
-
+#Manejador de Consdicionales
 def cond_Handler(cond)
 	cond_error = 0
 	expr = cond.elems[0]
@@ -600,7 +640,7 @@ def cond_Handler(cond)
 
 
 	if (expression_Handler(expr)!= :TYPEB)
-		puts "CONDITIONAL ERROR : La condicion debe ser del tipo : 'boolean'"
+		puts "ERROR : La condicion debe ser del tipo : 'boolean'"
 		return 1
 	else
 		cond_error = LInst_Handler(inst1) 
@@ -612,7 +652,7 @@ def cond_Handler(cond)
 	return cond_error
 end
 
-
+#MAnejador de bloques with
 def bloque_Handler(wis)
 	nivel_alcance = $symTable.cont
 	if nivel_alcance == nil
@@ -639,7 +679,7 @@ end
 
 
 
-##### Decl handleeeer ###########
+# Manejador de instrucciones de declaración
 def decl_Handler(decl)
 	dError=0
 	case decl.types[1]
@@ -663,6 +703,7 @@ def decl_Handler(decl)
 	return dError + dListError
 end
 
+#Manejador de Asignaciones en una declaracion
 def decAsig_Handler(dec,type)
 	dError=0
 	nameVar = dec.elems[0].term.id
@@ -689,7 +730,7 @@ def asign_Handler(idVar,asig)
 	tipoAsig = asig.types[0]
 	valAsig = asig.elems[0]
 	if ($symTable.lookup(idVar)==nil)
-		puts "ASSIGN ERROR: variable '#{idVar}' no ha sido declarada."
+		puts "ERROR: variable '#{idVar}' no ha sido declarada."
 		return 1
 	else 
 		typeVar=$symTable.lookup(idVar)[0]
@@ -713,7 +754,7 @@ def asign_Handler(idVar,asig)
 					tipoVar = "boolean"
 				end
 
-				puts "ASSIGN ERROR: Expresion de tipo '#{tipoExpr}' y se esperaba una de tipo '#{tipoVar}' para variable #{idVar}."
+				puts "ERROR: Expresion de tipo '#{tipoExpr}' y se esperaba una de tipo '#{tipoVar}' para variable '#{idVar}'."
 				return 1
 			end
 
@@ -726,6 +767,7 @@ def asign_Handler(idVar,asig)
 	return 0
 end
 
+#Manejador de tipo de valor de retorno al hacer una asigncion a un llamada de función
 def typeCall_Handler(valAsig,typeVar)
 
 	funcNombre = valAsig.term.id
@@ -738,16 +780,17 @@ def typeCall_Handler(valAsig,typeVar)
 			tipoVar = "boolean"
 		end
 		if tipo != typeVar
-			puts "ERROR: Expresion de tipo #{tipoVar} inválido para #{funcNombre}. "
+			puts "ERROR: Expresion de tipo '#{tipoVar}' inválido para '#{funcNombre}'. "
 			return 1
 		end
 	else
-		puts "ERROR: Funcion #{funcNombre} no declarada"
+		puts "ERROR: Funcion '#{funcNombre}' no declarada"
 		return 1
 	end
 	return 0
 end
 
+#Manejador de lista de identificadores 
 def ListI_Handler(type,list)
 	id=list.elem.term.id
 	listID=list.list
@@ -765,6 +808,7 @@ def ListI_Handler(type,list)
 	end
 end
 
+#Manejador de instrucciones como expresión
 def expr_Handler(expr)
 	if expression_Handler(expr) == nil
 		puts "EXPRESION ERROR: Error en los tipos de la expresion"
@@ -774,7 +818,7 @@ def expr_Handler(expr)
 	end
 end
 
-
+# Función que dada una expresión retorna su tipo
 def expression_Handler(expr)
 	# Procesar como binaria
 	if expr.instance_of?(BinExp)
