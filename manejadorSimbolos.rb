@@ -408,59 +408,95 @@ def llamada_Handler(llamada)
 
 	$funcionParam = [] 
 
-	if ($symTable.lookup(func) != nil)
-		$cantArgFunc = 0
-		$tableStack.each do |t|
+	case func
+	when "home", "closeeye", "openeye"
 
-			if (t.nombre == "Alcance "+ func)
-				tablafunc = t 
-				$cantArgFunc = tablafunc.param.size
-				$funcionParam = tablafunc.param
-				break
-			end
-		end
-		#Cálculo de cantidad de argumentos en la llamada
-		cantArgCall = 0
 		if (parametros == nil)
-			cantArgCall = 0
-		else
-			if parametros.list != nil
-				cantArgCall = 2
-				aux=parametros.list
-				while (aux.list!=nil)
-					cantArgCall += 1
-					aux = aux.list
-				end
-			else
-				cantArgCall =1
-			end
-		end
-
-		#Error de cantidad de argumentos
-		if cantArgCall != $cantArgFunc
+			return 0
+		else 
 			puts "ERROR: Cantidad inválida de argumentos para #{func}"
 			return 1
-
-		#Error por tipo de argumentos
+		end
+	when "forward", "backward", "rotater", "rotatel"
+		if (parametros.list!=nil or parametros==nil)
+			puts "ERROR: Cantidad inválida de argumentos para #{func}"
+				return 1
 		else
-			for i in 0..($cantArgFunc-1)
-				aux = parametros.elem
-				tipoCall = expression_Handler(aux)
-				tipoDef = $funcionParam[i]
-				if tipoCall != tipoDef
-					if tipoCall == :TYPEN	
-						tipo = "number"
-					elsif tipoCall == :TYPEB
-						tipo = "boolean"
-					end
-					puts "ERROR: Argumento inválido '#{tipo}' para #{func}"
-					return 1
-				end
-				parametros = parametros.list
+			if (expression_Handler(parametros.elem)!= :TYPEN)
+
+				puts "ERROR: Argumento inválido boolean para #{func}"
+				return 1
+			else 
+				return 0
 			end
-			return 0
+		end
+	when "setposition", "arc"
+		if (parametros !=nil)
+			if (parametros.list==nil or parametros.list.list!=nil)
+				puts "ERROR: Cantidad inválida de argumentos para #{func}"
+				return 1
+			else 
+				if (expression_Handler(parametros.elem)!= :TYPEN  or expression_Handler(parametros.list.elem)!= :TYPEN)
+					puts "ERROR: Argumento inválido boolean para #{func}"
+					return 1 
+				end
+			end
 		end
 
+
+	else
+		if ($symTable.lookup(func) != nil)
+			$cantArgFunc = 0
+			$tableStack.each do |t|
+
+				if (t.nombre == "Alcance "+ func)
+					tablafunc = t 
+					$cantArgFunc = tablafunc.param.size
+					$funcionParam = tablafunc.param
+					break
+				end
+			end
+			#Cálculo de cantidad de argumentos en la llamada
+			cantArgCall = 0
+			if (parametros == nil)
+				cantArgCall = 0
+			else
+				if parametros.list != nil
+					cantArgCall = 2
+					aux=parametros.list
+					while (aux.list!=nil)
+						cantArgCall += 1
+						aux = aux.list
+					end
+				else
+					cantArgCall =1
+				end
+			end
+
+			#Error de cantidad de argumentos
+			if cantArgCall != $cantArgFunc
+				puts "ERROR: Cantidad inválida de argumentos para #{func}"
+				return 1
+
+			#Error por tipo de argumentos
+			else
+				for i in 0..($cantArgFunc-1)
+					aux = parametros.elem
+					tipoCall = expression_Handler(aux)
+					tipoDef = $funcionParam[i]
+					if tipoCall != tipoDef
+						if tipoCall == :TYPEN	
+							tipo = "number"
+						elsif tipoCall == :TYPEB
+							tipo = "boolean"
+						end
+						puts "ERROR: Argumento inválido '#{tipo}' para #{func}"
+						return 1
+					end
+					parametros = parametros.list
+
+				end
+			end
 		return 0
 	else 
 		puts "ERROR: Funcion #{func} no declarada"
