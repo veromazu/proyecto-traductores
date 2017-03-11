@@ -81,8 +81,14 @@ class Ldecl
         end
     end
 end
+#Clase para la impresion de un ciclo While
+class WLoop<Ldecl;end
+#Clase para la impresion de ciclos For
+class FLoop<Ldecl;end
+#Clase para la impresion de ciclos Repear
+class RLoop<Ldecl;end
 
-
+#Clase para imprimir Funciones
 class Func
     attr_accessor :types
     attr_accessor :elems
@@ -101,6 +107,9 @@ class Func
         end
     end
 end
+
+#Clase para la impresion de condicionales
+class Cond<Func;end
 
 #Clase para imprimir bloques with.
 # Recibe: lisdecl que es una lista de declaraciones de la clase ListD y listinst es una lista de instrucciones de la clase Inst
@@ -122,7 +131,27 @@ class Bloque
         end
     end
 end
+
+#Clase para la impresion de Instrucciones
 class Inst<Bloque;end
+#Clase par imprimir una lista de argumentos de una función
+class ListD < Bloque;end
+#Clase para imrimir los elementos de una intruccion Write
+class Writable<Bloque;end
+#Clase para la impresion de elementos de una asignacion
+class Asignable<Bloque;end
+#Clase para la impresion de llamadas de funcion
+class Call<Bloque;end
+#Clase para la impreion de lista de Instrucciones
+class LInst<Bloque;end
+#Clase para la impresion de una instruccion Write
+class Write<Bloque;end 
+#Clase para la impresion de una instruccion de Retorno
+class Retorno<Bloque;end
+#Clase para la impreion de instruccion Assign
+class Assign < Bloque;end
+
+#Clase para imprimir una lista de argumentos en la definicion de una función.
 class List
     attr_accessor :types
     attr_accessor :elems
@@ -145,6 +174,7 @@ class List
     end
 end
 
+#Clase para imprimir una lista de instrucciones dentro de un programa
 class ListaInst
     attr_accessor :type
     attr_accessor :elem
@@ -164,15 +194,15 @@ class ListaInst
         end
     end
 end
-class ListaFunc<ListaInst;end
-class ListParam<ListaInst;end
-class ListID<ListaInst;end
-#Clase par imprimir una lista de argumentos de una función
-# list es la lista de la clase ListD, type1 es :Argumento y type2 es de la clase Esp
-class ListD < Bloque;end
-class Writable<Bloque;end
-class Asignable<Bloque;end
 
+#Clase para la impresion de Lista de funciones
+class ListaFunc<ListaInst;end
+#Clase para la impresion de Lista de Parámtros de una llamade de funcion
+class ListParam<ListaInst;end
+#Clase para la impresion de lista de identificadores en una declaracion
+class ListID<ListaInst;end
+
+#Clase para la impresion del salto By en los ciclos For
 class By
     attr_accessor :salto
     def initialize(salto)
@@ -184,7 +214,6 @@ class By
 end
 
     
-
 #Clase para imprimir los tipos de datos boolean o number.
 # Recibe: type es boolean o number.
 class Type
@@ -202,10 +231,7 @@ class Type
     end
 end
 
-class LInst<Bloque;end
-class Write<Bloque;end  #########################
-class Retorno<Bloque;end
-
+#Clase par la impresion de instrucciones Read
 class Read
     attr_accessor :type
     attr_accessor :val
@@ -234,18 +260,6 @@ class Str
         puts "valor: #{@cadena.id}"
     end
 end
-
-#Clase para imprimir las asignaciones 
-# Recibe: type1 es :VARIABLE y type2 es :EXPRESSION
-
-class Assign < Bloque;end
-class WLoop<Ldecl;end
-class FLoop<Ldecl;end
-class RLoop<Ldecl;end
-class Cond<Func;end
-class Call<Bloque;end
-
-
 
 ###################################
 # Clases asociadas a expresiones. #
@@ -311,7 +325,7 @@ class ParExp
     end 
 end
 
-#Clase par la impresión de Terms : identificadores, literales booleanos y literales nuḿéricos
+#Clase para la impresión de Terms : identificadores, literales booleanos y literales nuḿéricos
 class Terms
     attr_accessor :nameTerm
     attr_accessor :term
