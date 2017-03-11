@@ -46,7 +46,7 @@ def main
 			program_Handler(ast)
 
 		rescue => e
-			SyntaxError.new()
+			SyntaxError.new(e)
 			puts "Error sintactico: #{e}"
 		end
 	end

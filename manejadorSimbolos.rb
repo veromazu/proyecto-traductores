@@ -67,7 +67,7 @@ def Func_Handler(func)
 	namefunc= func.elems[0].term.id
 
 	# Asignación de una nueva tabla.
-	symTableAux = SymbolTable.new(namefunc,$symTable)
+	symTableAux = SymbolTable.new("Alcance #{namefunc}",$symTable)
 	$symTable = symTableAux
 
 
@@ -225,7 +225,11 @@ def nombreF_Handler(func)
 end 
 
 def bloqueF_Handler(namefunc,wis)
-	symTableAux = SymbolTable.new("Subalcances",$symTable)
+	nivel_alcance = $symTable.cont
+	if nivel_alcance == nil
+		nivel_alcance = 0
+	end
+	symTableAux = SymbolTable.new("Alcance",$symTable,nil,nivel_alcance + 1)
 	$symTable = symTableAux
 	declError=0
 	if (wis.elems[0] !=nil)
@@ -400,21 +404,68 @@ end
 #Manejador de llamadas de funciones
 def llamada_Handler(llamada)
 	func = llamada.elems[0].term.id
+	parametros = llamada.elems[1]
+	funcionParam = $symTable.lookup_param(func)
+	puts "param : #{funcionParam}"
+	puts "epa : #{$symTable.lookup(func)[1]}" 
+	if ($symTable.lookup(func) != nil)
+		cantArgFunc = funcionParam.size
+		#$tableStack.each do |t|
+		#	if (t.nombre == func)
+		#		$tablafunc = t 
+		#		print"param"
+		#		puts $tablafunc.param
+		#	end
+		#end
+		puts "Arg #{cantArgFunc}"
 
-	if ($symTable.lookup(func))
-		tabla = $symTable.find_table(func)
-		#print tabla.param
+		#Cálculo de cantidad de argumentos en la llamada
+		cantArgCall = 0
+		if (parametros == nil)
+			cantArgCall = 0
+		else
+			if parametros.list != nil
+				cantArgCall = 2
+				aux=parametros.list
+				while (aux.list!=nil)
+					cantArgCall += 1
+					aux = aux.list
+				end
+			else
+				cantArgCall =1
+			end
+		end
+		puts" Cant en la llamada #{cantArgCall}"
+
+		#Error de cantidad de argumentos
+		if cantArgCall != cantArgFunc
+			puts "ERROR: Cantidad inválida de argumentos para #{func}"
+			return 1
+
+		#Error por tipo de argumentos
+		else
+			for i in 0..cantArgFunc
+				parametros = parametros.elem
+				tipoCall = expression_Handler(arg)
+				tipoDef = funcionParam[i]
+				if tipoCall != tipoDef
+					if tipoDef == :TYPEN	
+						tipo = "number"
+					elsif v[0] == :TYPEB
+						tipo = "boolean"
+					end
+					puts "ERROR: Tipo inválido #{tipo} para #{funcion}"
+					return 1
+				end
+			end
+		end
+
 		return 0
 	else 
 		puts "ERROR: Funcion #{func} no declarada"
 		return 1
 	end
-
-
-	if (llamada.elems[1]!=nil)
-		
-	end
-
+	return 0
 end
 
 #Manejador de iteradores
@@ -524,7 +575,11 @@ end
 
 
 def bloque_Handler(wis)
-	symTableAux = SymbolTable.new("bloque",$symTable)
+	nivel_alcance = $symTable.cont
+	if nivel_alcance == nil
+		nivel_alcance = 0
+	end
+	symTableAux = SymbolTable.new("Alcance",$symTable,nil,nivel_alcance + 1)
 	$symTable = symTableAux
 	declError=0
 

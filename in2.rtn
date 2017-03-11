@@ -10,12 +10,8 @@ begin
         return y;
     end;
 end;
-
-
-
-
 program
-	min(5+5);
+	min(35);
 	with 
 	number x;
 	do 
