@@ -232,12 +232,12 @@ def bloqueF_Handler(namefunc,wis)
 	symTableAux = SymbolTable.new("Alcance",$symTable,nil,nivel_alcance + 1)
 	$symTable = symTableAux
 	declError=0
+	listInstError=0
+
 	if (wis.elems[0] !=nil)
 		declError = decl_Handler(wis.elems[0])
 
 	end
-	listInstError=0
-
 	if (wis.elems[1] !=nil)
 		listInstError = LInstF_Handler(namefunc,wis.elems[1])
 	end
@@ -345,11 +345,11 @@ end
 def prog_Handler(elem)
 
 
-	instError =  Inst_Handler(elem.elem)
 	listInstError = 0
 	if (elem.list!=nil)
 		listInstError= LInst_Handler(elem.list)
 	end
+	instError =  Inst_Handler(elem.elem)
 
 
 
@@ -359,12 +359,13 @@ end
 
 #Manejador de lista de instrucciones de un porgram
 def LInst_Handler(elem)
-	instError =  Inst_Handler(elem.elem)
 
 
 	if (elem.list!=nil)
 		listInstError= LInst_Handler(elem.list) 
 	end
+	
+	instError =  Inst_Handler(elem.elem)
 	if (listInstError!=nil)
 		return listInstError + instError
 	else
@@ -404,20 +405,21 @@ end
 def llamada_Handler(llamada)
 	func = llamada.elems[0].term.id
 	parametros = llamada.elems[1]
-	funcionParam = $symTable.lookup_param(func)
-	puts "param : #{funcionParam}"
-	puts "epa : #{$symTable.lookup_param(func)}" 
+
+	$funcionParam = [] 
+	#puts "param : #{funcionParam}"
+	#puts "epa : #{$symTable.lookup(func)[1]}" 
 	if ($symTable.lookup(func) != nil)
-		cantArgFunc = funcionParam.size
+		$cantArgFunc = 0
 		$tableStack.each do |t|
-			if (t.nombre == func)
-				$tablafunc = t 
-				print"param"
-				puts $tablafunc.param
+
+			if (t.nombre == "Alcance "+ func)
+				tablafunc = t 
+				$cantArgFunc = tablafunc.param.size
+				$funcionParam = tablafunc.param
+				break
 			end
 		end
-		puts "Arg #{cantArgFunc}"
-
 		#Cálculo de cantidad de argumentos en la llamada
 		cantArgCall = 0
 		if (parametros == nil)
@@ -434,30 +436,35 @@ def llamada_Handler(llamada)
 				cantArgCall =1
 			end
 		end
-		puts" Cant en la llamada #{cantArgCall}"
 
 		#Error de cantidad de argumentos
-		if cantArgCall != cantArgFunc
+		if cantArgCall != $cantArgFunc
 			puts "ERROR: Cantidad inválida de argumentos para #{func}"
 			return 1
 
 		#Error por tipo de argumentos
 		else
-			for i in 0..cantArgFunc
-				parametros = parametros.elem
+			for i in 0..($cantArgFunc -1)
+				if (i==0)
+					parametros = parametros.elem
+				else
+					parametros = parametros
+				end
+
 				tipoCall = expression_Handler(parametros)
-				tipoDef = funcionParam[i]
+				tipoDef = $funcionParam[i]
 				if tipoCall != tipoDef
 					if tipoDef == :TYPEN	
 						tipo = "number"
-					elsif v[0] == :TYPEB
+					elsif tipoDef == :TYPEB
 						tipo = "boolean"
 					end
-					puts "ERROR: Tipo inválido #{tipo} para #{funcion}"
+					puts "ERROR: Tipo inválido #{tipo} para #{func}"
 					return 1
 				end
 			end
 		end
+
 		return 0
 	else 
 		puts "ERROR: Funcion #{func} no declarada"
@@ -580,12 +587,12 @@ def bloque_Handler(wis)
 	symTableAux = SymbolTable.new("Alcance",$symTable,nil,nivel_alcance + 1)
 	$symTable = symTableAux
 	declError=0
+	listInstError=0
+
 	if (wis.elems[0] !=nil)
 		declError = decl_Handler(wis.elems[0])
 
 	end
-	listInstError=0
-
 	if (wis.elems[1] !=nil)
 		listInstError =  LInst_Handler(wis.elems[1])
 	end

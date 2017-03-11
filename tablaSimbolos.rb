@@ -66,6 +66,7 @@ class SymbolTable
 		end
 	end
 
+
 	def lookup_param(key)
 		if !(contains(key))
 			if (@father != nil)
@@ -93,18 +94,21 @@ class SymbolTable
 	def print_Table
 		lvl = get_lvl
 		(lvl).times{print " "}
-		puts "#{@nombre} #{@cont}: "
-		(lvl + 1).times{print " "}
-		print "Variables: "
+
+		puts "#{@nombre}: "
+		if @nombre  == "Programa principal"
+			(lvl + 1).times{print " "}
+			print "Funciones: "
+		else 
+			(lvl + 1).times{print " "}
+
+			print "Variables: "
+		end
+
 		if (@symTable.empty?)
 			puts " None "
 		else	
-				if !(@param.empty?)
-					puts
-					puts "LISTA DE PARAM de #{@nombre}"
-					print @param
-					puts
-				end
+				
 			@symTable.each do |k,v|
 				if v[0] == :TYPEN	
 					tipo = "number"
