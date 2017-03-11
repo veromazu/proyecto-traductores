@@ -1,4 +1,4 @@
-func min(number x, boolean y) -> number
+func min(number x, number y) -> number
 begin
     with
         boolean b;
@@ -10,12 +10,8 @@ begin
         return y;
     end;
 end;
-
-
-
-
 program
-	min(5+5);
+	min(35,e,4,t,2);
 	with 
 	number z;
 	do z = 5;

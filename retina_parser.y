@@ -256,7 +256,29 @@ class SyntacticError < RuntimeError
         if @token.eql? "$" then
             "Unexpected EOF"
         else
-           " Línea #{@token.position[0]}, Column #{@token.position[1]}: token inesperado : #{@token.symbol} : #{@token.id}"
+            case @token.symbol
+                when :TYPEN,:TYPEB
+                tokenName="tipo de dato"
+            when :TRUE,:FALSE
+                tokenName="literal booleano"
+            when :AND,:NOT,:OR
+                tokenName="operador booleano"
+            when :PROGRAM,:BEGIN,:END,:WITH,:DO,:IF,:THEN,:READ,:ELSE,:WHILE,:FOR,:REPEAT,:WRITE,:WRITELN,:FROM,:TO,:BY,:FUNC,:RETURN,:RETURN2
+                tokenName="palabra reservada"
+            when :EQUIVALENT,:LESSTHAN,:DISTINCT,:GETHAN,:LESSTHAN,:GREATTHAN
+                tokenName="operador de comparación"
+            when :LPARENT,:RPARENT,:EQUAL,:SEMICOLON,:COLON,:RCURLY,:LCURLY
+                tokenName="signo"
+            when :PLUS,:MOD,:DIV,:MOD2,:DIV2,:MULT,:LESS
+                tokenName="operador aritmético"
+            when :ID
+                tokenName="identificador"
+            when :STRING
+                tokenName="string"
+            when :DIGIT
+                tokenName="literal numérico"
+            end
+           return " Línea #{@token.position[0]}, Column #{@token.position[1]}: token inesperado : "<< tokenName << " : #{@token.id}"
         end
     end
 end

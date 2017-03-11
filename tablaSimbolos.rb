@@ -18,13 +18,14 @@ class SymbolTable
 	attr_accessor :father
 	attr_accessor :nombre
 	attr_accessor :param
+	attr_accessor :cont
 
-
-	def initialize(nombre,father = nil,param=nil)
+	def initialize(nombre,father = nil,param=nil,cont=nil)
 		@symTable = Hash.new
 		@father = father
 		@nombre = nombre
 		@param = []
+		@cont=cont
 	end
 	
 	def insert(key, values)
@@ -65,6 +66,18 @@ class SymbolTable
 		end
 	end
 
+	def lookup_param(key)
+		if !(contains(key))
+			if (@father != nil)
+				return @father.lookup(key)
+			else
+				return nil
+			end
+		else
+			return @param
+		end
+	end
+
 	
 
 	def get_lvl
@@ -80,7 +93,7 @@ class SymbolTable
 	def print_Table
 		lvl = get_lvl
 		(lvl).times{print " "}
-		puts "#{@nombre}: "
+		puts "#{@nombre} #{@cont}: "
 		(lvl + 1).times{print " "}
 		print "Variables: "
 		if (@symTable.empty?)
