@@ -12,6 +12,7 @@ begin
 end;
 program
 	min(35, true );
+	min(4,5);
 	with 
 	number x;
 	do 
