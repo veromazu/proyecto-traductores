@@ -13,7 +13,16 @@ end;
 program
 	min(35,e,4,t,2);
 	with 
+	number x;
+	do 
+	end;
+	with 
 	number z;
 	do z = 5;
+	for i from 1 to 5 
+	do
+		z = 4;
+		5+5;
+	end;
 	end;
 end;

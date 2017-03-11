@@ -28,9 +28,10 @@ def scope_Handler(scope)
 	progError = prog_Handler(scope.elems[1])
 	$tableStack << $symTable
 	$symTable = $symTable.father
+
 	if ($symTable == nil)
 		if (progError > 0) or (listFuncError > 0)
-			puts "Symbol table will not be shown."
+			puts "La tabla de simbolos  no será mostrada"
 			abort
 		end
 		puts "Tabla de Simbolos"
@@ -285,10 +286,14 @@ def iteratorF_Handler(namefunc,iter)
 		end
 			return iter_error
 	when :Ciclo_For
+		symTableAux = SymbolTable.new("Ciclo_For",$symTable)
+		$symTable = symTableAux
+		var = iter.elems[0].term.id
 		expr = iter.elems[1]
 		expr2 = iter.elems[2]
 		by = iter.elems[3]
 		inst = iter.elems[4]
+		$symTable.insert(var,[:TYPEN,nil])
 		err=0
 		
 		if (by != nil)
@@ -310,8 +315,10 @@ def iteratorF_Handler(namefunc,iter)
 				iter_error = LInstF_Handler(namefunc,inst) 
 			end 
 		end
+		$tableStack << $symTable
+		$symTable = $symTable.father
 	end
-	return err
+	return err + iter_error
 end 
 
 def condF_Handler(namefunc,cond)
@@ -354,11 +361,15 @@ end
 def LInst_Handler(elem)
 	instError =  Inst_Handler(elem.elem)
 
-	listInstError = 0
+
 	if (elem.list!=nil)
-		listInstError= LInst_Handler(namefunc,elem.list)
+		listInstError= LInst_Handler(elem.list) 
 	end
-	return listInstError + instError
+	if (listInstError!=nil)
+		return listInstError + instError
+	else
+		return instError
+	end
 end
 
 #Manejador de instrucciones
@@ -432,7 +443,8 @@ def llamada_Handler(llamada)
 				end
 			end
 		end
-	else 	
+		return 0
+	else 
 		puts "ERROR: Funcion #{func} no declarada"
 		return 1
 	end
@@ -465,9 +477,13 @@ def iterator_Handler(iter)
 		end
 			return iter_error
 	when :Ciclo_For
+		symTableAux = SymbolTable.new("Ciclo_For",$symTable)
+		$symTable = symTableAux
+		var = iter.elems[0].term.id
 		expr = iter.elems[1]
 		expr2 = iter.elems[2]
 		by = iter.elems[3]
+		$symTable.insert(var,[:TYPEN,nil])
 
 		inst = iter.elems[4]
 		err=0
@@ -491,8 +507,10 @@ def iterator_Handler(iter)
 				iter_error = LInst_Handler(inst) 
 			end 
 		end
+		$tableStack << $symTable
+		$symTable = $symTable.father
 	end
-	return err
+	return err + iter_error
 end 
 
 def lect_Handler(lect)
@@ -558,18 +576,6 @@ def bloque_Handler(wis)
 	end
 	$tableStack << $symTable
 	$symTable = $symTable.father
-
-	if ($symTable == nil)
-		if (declError > 0) or (listInstError > 0)
-			puts "No se mostrara la tabla de simbolos"
-			abort
-		end
-		puts "Subalcances:"
-		$tableStack.reverse!
-		$tableStack.each do |st|
-			st.print_Table
-		end
-	end
 
 	return declError + listInstError
 
@@ -735,6 +741,7 @@ def expression_Handler(expr)
 	else
 		puts "ERROR: hubo un error expression_Handler."		
 	end
+
 end
 
 
