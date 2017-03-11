@@ -409,24 +409,39 @@ def llamada_Handler(llamada)
 	puts "epa : #{$symTable.lookup(func)[1]}" 
 	if ($symTable.lookup(func) != nil)
 		cantArgFunc = funcionParam.size
-
+		#$tableStack.each do |t|
+		#	if (t.nombre == func)
+		#		$tablafunc = t 
+		#		print"param"
+		#		puts $tablafunc.param
+		#	end
+		#end
 		puts "Arg #{cantArgFunc}"
+
+		#Cálculo de cantidad de argumentos en la llamada
 		cantArgCall = 0
 		if (parametros == nil)
 			cantArgCall = 0
 		else
-			cantArgCall = 1
-			aux=parametros.list
-			while (aux.list!=nil)
-				cantArgCall += 1
-				aux = aux.list
+			if parametros.list != nil
+				cantArgCall = 2
+				aux=parametros.list
+				while (aux.list!=nil)
+					cantArgCall += 1
+					aux = aux.list
+				end
+			else
+				cantArgCall =1
 			end
 		end
 		puts" Cant en la llamada #{cantArgCall}"
 
+		#Error de cantidad de argumentos
 		if cantArgCall != cantArgFunc
 			puts "ERROR: Cantidad inválida de argumentos para #{func}"
 			return 1
+
+		#Error por tipo de argumentos
 		else
 			for i in 0..cantArgFunc
 				parametros = parametros.elem
