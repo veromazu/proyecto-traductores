@@ -11,7 +11,7 @@ begin
     end;
 end;
 program
-	min(35);
+	min(35, true );
 	with 
 	number x;
 	do 
