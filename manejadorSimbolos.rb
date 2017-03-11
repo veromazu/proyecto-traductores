@@ -48,9 +48,6 @@ end
 #Manejador de lista de Funciones.
 #elem es de la clase ListaFunc
 def listFunc_Handler(elem)
-	# Asignación de una nueva tabla.
-	symTableAux = SymbolTable.new("funciones",$symTable)
-	$symTable = symTableAux
 
 	#Manejo de la esperabatructura.
 	nombreError = nombreF_Handler(elem.elem.elems[0])
@@ -61,22 +58,7 @@ def listFunc_Handler(elem)
 		listFuncError = listFunc_Handler(elem.list)
 	end
 	# Se empila la tabla del scope en la pila de tablas.
-	$tableStack << $symTable
-	$symTable = $symTable.father
-	# Si ya se analizo todo el programa, se imprimen cada
-	# de las tablas (si no hubo errores).
-	if ($symTable == nil)
-		if (funcError > 0) or (nombreError > 0 or listFuncError>0)
-			puts "No se mostrará la tabla de simbolos."
-			abort
-		end
-		#puts "Alcance: Funciones"
-		#$tableStack.reverse!
-		#$tableStack.each do |st|
-		#	st.print_Table
-		#end
-	end
-	return listFuncError + funcError + nombreError
+	return nombreError + listFuncError +funcError
 end
 #Manejador de Funciones
 #func es de la clase Func
@@ -109,7 +91,7 @@ def Func_Handler(func)
 	$tableStack << $symTable
 	$symTable = $symTable.father
 
-return  paramsError + fInsError
+return  paramsError + fInsError + fInsRetError
 end
 #Manejador de una lista de parámetros de una función
 #param es de la clase ListD o de la clase List
@@ -133,7 +115,7 @@ def paramDec_Handler(nombre,type,id)
 
 	if !($symTable.contains(id))
 		$symTable.insert(id, [type, nil])
-		$symTable.param << [id,type] 
+		$symTable.param << type 
 	
 		tipoRetorno = $symTable.lookup(nombre)[0]
 		#tiposArg = $symTable.lookup(nombre)[1]
@@ -350,9 +332,7 @@ end
 #Manejador de Program
 #elem es del tipo Linst
 def prog_Handler(elem)
-	# Asignación de una nueva tabla.
-	symTableAux = SymbolTable.new("Programa",$symTable)
-	$symTable = symTableAux
+
 
 	instError =  Inst_Handler(elem.elem)
 	listInstError = 0
@@ -360,21 +340,7 @@ def prog_Handler(elem)
 		listInstError= LInst_Handler(elem.list)
 	end
 
-	$tableStack << $symTable
-	$symTable = $symTable.father
-	# Si ya se analizo todo el programa, se imprimen cada
-	# de las tablas (si no hubo errores).
-	if ($symTable == nil)
-		if (instError > 0) or (listInstError > 0)
-			puts "Symbol table will not be shown."
-			abort
-		end
-		puts "Tabla de Simbolos"
-		$tableStack.reverse!
-		$tableStack.each do |st|
-			st.print_Table
-		end
-	end
+
 
 	return listInstError + instError
 end
@@ -430,12 +396,12 @@ def llamada_Handler(llamada)
 			end
 		end
 	else 	
-		puts "Funcion #{func} no declarada"
+		puts "ERROR: Funcion #{func} no declarada"
 	end
 
 
 	if (llamada.elems[1]!=nil)
-		puts "Tiene parametros"
+		
 	end
 
 	return 0
