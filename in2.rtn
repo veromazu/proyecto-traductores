@@ -11,7 +11,7 @@ begin
     end;
 end;
 program
-	min(35, true );
+	min(3,4+7);
 	with 
 	number x;
 	do 
@@ -27,7 +27,7 @@ program
 	end;
 	with 
 	number z;
-	do z = 5;
+	do 
 	for i from 1 to 5 
 	do
 		z = 4;

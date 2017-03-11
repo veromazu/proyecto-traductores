@@ -41,7 +41,7 @@ rule
 
     # Simbolo inicial: define un programa en Retina e incorpora el alcance.
     S
-    :  Scope {result = S.new(val[0]);result.printAST(0)}
+    :  Scope {result = S.new(val[0])}
     ;   
     
     # Alcance: le quita la recursividad al simbolo inicial.

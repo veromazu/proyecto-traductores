@@ -444,24 +444,21 @@ def llamada_Handler(llamada)
 
 		#Error por tipo de argumentos
 		else
-			for i in 0..($cantArgFunc -1)
-				if (i==0)
-					parametros = parametros.elem
-				else
-					parametros = parametros
-				end
-
-				tipoCall = expression_Handler(parametros)
+			for i in 0..($cantArgFunc-1)
+				aux = parametros.elem
+				tipoCall = expression_Handler(aux)
 				tipoDef = $funcionParam[i]
 				if tipoCall != tipoDef
-					if tipoDef == :TYPEN	
+					if tipoCall == :TYPEN	
 						tipo = "number"
-					elsif tipoDef == :TYPEB
+					elsif tipoCall == :TYPEB
 						tipo = "boolean"
 					end
-					puts "ERROR: Tipo inválido #{tipo} para #{func}"
+					puts "ERROR: Argumento inválido '#{tipo}' para #{func}"
 					return 1
 				end
+				parametros = parametros.list
+
 			end
 		end
 
@@ -692,8 +689,8 @@ def asign_Handler(idVar,asig)
 			return callError
 			
 		end
-		return 0
 	end
+	return 0
 end
 
 def typeCall_Handler(valAsig,typeVar)

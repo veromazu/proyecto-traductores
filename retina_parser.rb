@@ -833,7 +833,7 @@ Racc_debug_parser = false
 
 module_eval(<<'.,.,', 'retina_parser.y', 43)
   def _reduce_1(val, _values, result)
-    result = S.new(val[0]);result.printAST(0)
+    result = S.new(val[0])
     result
   end
 .,.,
