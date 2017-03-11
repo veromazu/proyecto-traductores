@@ -4,6 +4,12 @@ begin
         boolean b;
     do
         b = x < y;
+        home();
+        closeeye();
+        setposition(5,true);
+        arc(6);
+
+        forward( x);
         if b then
             return x;
         end;
@@ -11,7 +17,7 @@ begin
     end;
 end;
 program
-	min(35, true );
+	min(35, 4);
 	min(4,5);
 	with 
 	number x;
@@ -28,11 +34,12 @@ program
 	end;
 	with 
 	number z;
-	do z = 5;
+	do 
 	for i from 1 to 5 
 	do
 		z = 4;
 		5+5;
 	end;
+
 	end;
 end;

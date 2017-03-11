@@ -95,7 +95,7 @@ class SymbolTable
 		lvl = get_lvl
 		(lvl).times{print " "}
 
-		puts "#{@nombre}: "
+		puts "#{@nombre} #{@cont}:"
 		if @nombre  == "Programa principal"
 			(lvl + 1).times{print " "}
 			print "Funciones: "

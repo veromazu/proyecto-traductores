@@ -295,7 +295,7 @@ def iteratorF_Handler(namefunc,iter)
 		inst = iter.elems[4]
 		$symTable.insert(var,[:TYPEN,nil])
 		err=0
-		
+		iter_error = 0
 		if (by != nil)
 			if ((expression_Handler(expr) != :TYPEN) or (expression_Handler(expr2) != :TYPEN))
 				puts "ITERATION ERROR: Se esperaba rango del tipo 'number'"
@@ -405,70 +405,102 @@ end
 def llamada_Handler(llamada)
 	func = llamada.elems[0].term.id
 	parametros = llamada.elems[1]
+
 	$funcionParam = [] 
-	#puts "param : #{funcionParam}"
-	#puts "epa : #{$symTable.lookup(func)[1]}" 
-	if ($symTable.lookup(func) != nil)
-		$cantArgFunc = 0
-		$tableStack.each do |t|
-
-			if (t.nombre == "Alcance "+ func)
-				tablafunc = t 
-				$cantArgFunc = tablafunc.param.size
-				$funcionParam = tablafunc.param
-				break
-			end
-		end
-
-		#Cálculo de cantidad de argumentos en la llamada
-		cantArgCall = 0
+	case func
+	when "home", "closeeye", "openeye"
 		if (parametros == nil)
-			cantArgCall = 0
-		else
-			if parametros.list != nil
-				cantArgCall = 2
-				aux=parametros.list
-				while (aux.list!=nil)
-					cantArgCall += 1
-					aux = aux.list
-				end
-			else
-				cantArgCall =1
-			end
-		end
-
-		#Error de cantidad de argumentos
-		if cantArgCall != $cantArgFunc
+			return 0
+		else 
 			puts "ERROR: Cantidad inválida de argumentos para #{func}"
 			return 1
-
-		#Error por tipo de argumentos
+		end
+	when "forward", "backward", "rotater", "rotatel"
+		if (parametros.list!=nil or parametros==nil)
+			puts "ERROR: Cantidad inválida de argumentos para #{func}"
+				return 1
 		else
-			for i in 0..($cantArgFunc -1)
-				if (i==0)
-					parametros = parametros.elem
-				else
-					parametros = parametros
-				end
+			if (expression_Handler(parametros.elem)!= :TYPEN)
 
-				tipoCall = expression_Handler(parametros)
-				tipoDef = $funcionParam[i]
-				if tipoCall != tipoDef
-					if tipoDef == :TYPEN	
-						tipo = "number"
-					elsif tipoDef == :TYPEB
-						tipo = "boolean"
-					end
-					puts "ERROR: Tipo inválido #{tipo} para #{func}"
-					return 1
+				puts "ERROR: Argumento inválido boolean para #{func}"
+				return 1
+			else 
+				return 0
+			end
+		end
+	when "setposition", "arc"
+		if (parametros !=nil)
+			if (parametros.list==nil or parametros.list.list!=nil)
+				puts "ERROR: Cantidad inválida de argumentos para #{func}"
+				return 1
+			else 
+				if (expression_Handler(parametros.elem)!= :TYPEN  or expression_Handler(parametros.list.elem)!= :TYPEN)
+					puts "ERROR: Argumento inválido boolean para #{func}"
+					return 1 
 				end
 			end
 		end
+
+
+	else
+		if ($symTable.lookup(func) != nil)
+			$cantArgFunc = 0
+			$tableStack.each do |t|
+
+				if (t.nombre == "Alcance "+ func)
+					tablafunc = t 
+					$cantArgFunc = tablafunc.param.size
+					$funcionParam = tablafunc.param
+					break
+				end
+			end
+			#Cálculo de cantidad de argumentos en la llamada
+			cantArgCall = 0
+			if (parametros == nil)
+				cantArgCall = 0
+			else
+				if parametros.list != nil
+					cantArgCall = 2
+					aux=parametros.list
+					while (aux.list!=nil)
+						cantArgCall += 1
+						aux = aux.list
+					end
+				else
+					cantArgCall =1
+				end
+			end
+
+			#Error de cantidad de argumentos
+			if cantArgCall != $cantArgFunc
+				puts "ERROR: Cantidad inválida de argumentos para #{func}"
+				return 1
+
+			#Error por tipo de argumentos
+			else
+				for i in 0..($cantArgFunc-1)
+					aux = parametros.elem
+					tipoCall = expression_Handler(aux)
+					tipoDef = $funcionParam[i]
+					if tipoCall != tipoDef
+						if tipoCall == :TYPEN	
+							tipo = "number"
+						elsif tipoCall == :TYPEB
+							tipo = "boolean"
+						end
+						puts "ERROR: Argumento inválido '#{tipo}' para #{func}"
+						return 1
+					end
+					parametros = parametros.list
+
+				end
+			end
 
 		return 0
 	else 
 		puts "ERROR: Funcion #{func} no declarada"
 		return 1
+	end
 	end
 	return 0
 end
@@ -687,17 +719,35 @@ def asign_Handler(idVar,asig)
 
 		when :Llamada_de_Funcion
 			valAsig=valAsig.elems[0]
-			typeExpr = typeCall_Handler(valAsig)
-			if(typeVar != typeExpr)
-				puts "ASSIGN ERROR: #{typeExpr} expresión asiganda de tipo '#{typeVar}' "\
-			"variable '#{idVar}'."
-				return 1
-			end
-		end
-		return 0
-	end
+			callError = typeCall_Handler(valAsig,typeVar)
 
-	#if para cuando ya fue asignada.
+			return callError
+			
+		end
+	end
+	return 0
+end
+
+def typeCall_Handler(valAsig,typeVar)
+
+	funcNombre = valAsig.term.id
+	funcion = $symTable.lookup(funcNombre)
+	if (funcion != nil)
+		tipo = funcion[0]
+		if typeVar == :TYPEN
+			tipoVar = "number"
+		elsif typeVar == :TYPEB
+			tipoVar = "boolean"
+		end
+		if tipo != typeVar
+			puts "ERROR: Expresion de tipo #{tipoVar} inválido para #{funcNombre}. "
+			return 1
+		end
+	else
+		puts "ERROR: Funcion #{funcNombre} no declarada"
+		return 1
+	end
+	return 0
 end
 
 def ListI_Handler(type,list)
