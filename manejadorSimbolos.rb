@@ -295,7 +295,7 @@ def iteratorF_Handler(namefunc,iter)
 		inst = iter.elems[4]
 		$symTable.insert(var,[:TYPEN,nil])
 		err=0
-		
+		iter_error = 0
 		if (by != nil)
 			if ((expression_Handler(expr) != :TYPEN) or (expression_Handler(expr2) != :TYPEN))
 				puts "ITERATION ERROR: Se esperaba rango del tipo 'number'"
@@ -406,16 +406,16 @@ def llamada_Handler(llamada)
 	parametros = llamada.elems[1]
 	funcionParam = $symTable.lookup_param(func)
 	puts "param : #{funcionParam}"
-	puts "epa : #{$symTable.lookup(func)[1]}" 
+	puts "epa : #{$symTable.lookup_param(func)}" 
 	if ($symTable.lookup(func) != nil)
 		cantArgFunc = funcionParam.size
-		#$tableStack.each do |t|
-		#	if (t.nombre == func)
-		#		$tablafunc = t 
-		#		print"param"
-		#		puts $tablafunc.param
-		#	end
-		#end
+		$tableStack.each do |t|
+			if (t.nombre == func)
+				$tablafunc = t 
+				print"param"
+				puts $tablafunc.param
+			end
+		end
 		puts "Arg #{cantArgFunc}"
 
 		#Cálculo de cantidad de argumentos en la llamada
@@ -445,7 +445,7 @@ def llamada_Handler(llamada)
 		else
 			for i in 0..cantArgFunc
 				parametros = parametros.elem
-				tipoCall = expression_Handler(arg)
+				tipoCall = expression_Handler(parametros)
 				tipoDef = funcionParam[i]
 				if tipoCall != tipoDef
 					if tipoDef == :TYPEN	
@@ -680,17 +680,35 @@ def asign_Handler(idVar,asig)
 
 		when :Llamada_de_Funcion
 			valAsig=valAsig.elems[0]
-			typeExpr = typeCall_Handler(valAsig)
-			if(typeVar != typeExpr)
-				puts "ASSIGN ERROR: #{typeExpr} expresión asiganda de tipo '#{typeVar}' "\
-			"variable '#{idVar}'."
-				return 1
-			end
+			callError = typeCall_Handler(valAsig,typeVar)
+
+			return callError
+			
 		end
 		return 0
 	end
+end
 
-	#if para cuando ya fue asignada.
+def typeCall_Handler(valAsig,typeVar)
+
+	funcNombre = valAsig.term.id
+	funcion = $symTable.lookup(funcNombre)
+	if (funcion != nil)
+		tipo = funcion[0]
+		if typeVar == :TYPEN
+			tipoVar = "number"
+		elsif typeVar == :TYPEB
+			tipoVar = "boolean"
+		end
+		if tipo != typeVar
+			puts "ERROR: Expresion de tipo #{tipoVar} inválido para #{funcNombre}. "
+			return 1
+		end
+	else
+		puts "ERROR: Funcion #{funcNombre} no declarada"
+		return 1
+	end
+	return 0
 end
 
 def ListI_Handler(type,list)

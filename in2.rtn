@@ -10,19 +10,10 @@ begin
         return y;
     end;
 end;
-program
-	min(35);
-	with 
-	number x;
+program 
+with
+	boolean x;
 	do 
-	end;
-	with 
-	number z;
-	do z = 5;
-	for i from 1 to 5 
-	do
-		z = 4;
-		5+5;
-	end;
+	 x = md(a);
 	end;
 end;
