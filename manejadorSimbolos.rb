@@ -33,7 +33,7 @@ end
 #elem es de la clase ListaFunc
 def listFunc_Handler(elem)
 	# Asignación de una nueva tabla.
-	symTableAux = SymbolTable.new($symTable)
+	symTableAux = SymbolTable.new("funciones",$symTable)
 	$symTable = symTableAux
 
 	#Manejo de la esperabatructura.
@@ -65,12 +65,12 @@ end
 #Manejador de Funciones
 #func es de la clase Func
 def Func_Handler(func)
+	namefunc= func.elems[0].term.id
 
 	# Asignación de una nueva tabla.
-	symTableAux = SymbolTable.new($symTable)
+	symTableAux = SymbolTable.new(namefunc,$symTable)
 	$symTable = symTableAux
 
-	namefunc= func.elems[0].term.id
 
 	
 
@@ -92,19 +92,7 @@ def Func_Handler(func)
 	# Se empila la tabla del scope en la pila de tablas.
 	$tableStack << $symTable
 	$symTable = $symTable.father
-	# Si ya se analizo todo el programa, se imprimen cada
-	# de las tablas (si no hubo errores).
-	if ($symTable == nil)
-		if (paramError > 0 or fInsError>0)
-			puts "No se mostrará tabla de símbolos."
-			abort
-		end
-		puts "Alcance #{namefunc}:"
-		$tableStack.reverse!
-		$tableStack.each do |st|
-			st.print_Table
-		end
-	end
+
 return  paramsError + fInsError
 end
 #Manejador de una lista de parámetros de una función
@@ -129,6 +117,8 @@ def paramDec_Handler(nombre,type,id)
 
 	if !($symTable.contains(id))
 		$symTable.insert(id, [type, nil])
+		$symTable.param << [id,type] 
+	
 		tipoRetorno = $symTable.lookup(nombre)[0]
 		#tiposArg = $symTable.lookup(nombre)[1]
 		#if tiposArg == nil
@@ -175,7 +165,7 @@ case instr.types[0]
 	when :Asignacion
 		return asign_Handler(instr.elems[0].elems[0].term.id,instr.elems[0].elems[1]) #listo
 	when :Iteracion
-		return iteratorF_Handler(instr.elems[0]) #listo
+		return iteratorF_Handler(namefunc,instr.elems[0]) #listo
 	when :Lectura
 		return lect_Handler(instr.elems[0]) #listo
 	when :Salida
@@ -236,7 +226,7 @@ def nombreF_Handler(func)
 end 
 
 def bloqueF_Handler(namefunc,wis)
-	symTableAux = SymbolTable.new($symTable)
+	symTableAux = SymbolTable.new("Subalcances",$symTable)
 	$symTable = symTableAux
 	declError=0
 	if (wis.elems[0] !=nil)
@@ -345,7 +335,7 @@ end
 #elem es del tipo Linst
 def prog_Handler(elem)
 	# Asignación de una nueva tabla.
-	symTableAux = SymbolTable.new($symTable)
+	symTableAux = SymbolTable.new("Programa",$symTable)
 	$symTable = symTableAux
 
 	instError =  Inst_Handler(elem.elem)
@@ -353,7 +343,8 @@ def prog_Handler(elem)
 	if (elem.list!=nil)
 		listInstError= LInst_Handler(elem.list)
 	end
-		$tableStack << $symTable
+
+	$tableStack << $symTable
 	$symTable = $symTable.father
 	# Si ya se analizo todo el programa, se imprimen cada
 	# de las tablas (si no hubo errores).
@@ -362,7 +353,7 @@ def prog_Handler(elem)
 			puts "Symbol table will not be shown."
 			abort
 		end
-		puts "Alcance _program:"
+		puts "Tabla de Simbolos"
 		$tableStack.reverse!
 		$tableStack.each do |st|
 			st.print_Table
@@ -411,6 +402,28 @@ end
 ############################################
 # Manejo de las instrucciones del programa #
 ############################################
+
+#Manejador de llamadas de funciones
+def llamada_Handler(llamada)
+	func = llamada.elems[0].term.id
+
+	if ($symTable.lookup(func))
+		$tableStack.each do |t|
+			if (t.nombre == func)
+				$tablafunc = t 
+			end
+		end
+	else 	
+		puts "Funcion #{func} no declarada"
+	end
+
+
+	if (llamada.elems[1]!=nil)
+		puts "Tiene parametros"
+	end
+
+	return 0
+end
 
 #Manejador de iteradores
 def iterator_Handler(iter)
@@ -513,7 +526,7 @@ end
 
 
 def bloque_Handler(wis)
-	symTableAux = SymbolTable.new($symTable)
+	symTableAux = SymbolTable.new("bloque",$symTable)
 	$symTable = symTableAux
 	declError=0
 	if (wis.elems[0] !=nil)
@@ -560,6 +573,7 @@ def decl_Handler(decl)
 
 		dError = ListI_Handler(type,lista)
 
+
 	end
 	listD = decl.elems[2]
 	dListError = 0
@@ -573,7 +587,10 @@ def decAsig_Handler(dec,type)
 	dError=0
 	nameVar = dec.elems[0].term.id
 	asignable = dec.elems[1]
-	if !($symTable.contains(nameVar))	
+
+	
+	if ($symTable.lookup(nameVar)==nil)
+	#if !($symTable.contains(nameVar))	
 		$symTable.insert(nameVar,[type,nil])
 
 		dError = asign_Handler(nameVar,asignable) 
@@ -640,7 +657,8 @@ end
 def ListI_Handler(type,list)
 	id=list.elem.term.id
 	listID=list.list
-	if !($symTable.contains(id))
+
+	if !($symTable.lookup(id))
 		$symTable.insert(id, [type, nil])
 		if (listID!= nil)
 			return ListI_Handler(type,listID)

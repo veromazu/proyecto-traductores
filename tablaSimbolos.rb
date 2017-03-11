@@ -16,10 +16,15 @@ En este archivo se implementan las funciones para las tabla de simbolos.
 class SymbolTable
 
 	attr_accessor :father
+	attr_accessor :nombre
+	attr_accessor :param
 
-	def initialize(father = nil)
+
+	def initialize(nombre,father = nil,param=nil)
 		@symTable = Hash.new
 		@father = father
+		@nombre = nombre
+		@param = []
 	end
 	
 	def insert(key, values)
@@ -60,6 +65,8 @@ class SymbolTable
 		end
 	end
 
+	
+
 	def get_lvl
 		auxTab = self
 		lvl = 0
@@ -73,23 +80,30 @@ class SymbolTable
 	def print_Table
 		lvl = get_lvl
 		(lvl).times{print " "}
+		puts "#{@nombre}: "
+		(lvl + 1).times{print " "}
 		print "Variables: "
 		if (@symTable.empty?)
 			puts " None "
-		else
+		else	
+				if !(@param.empty?)
+					puts "LISTA DE PARAM"
+					print @param
+				end
 			@symTable.each do |k,v|
-				if v[0] == :TYPEN
+				if v[0] == :TYPEN	
 					tipo = "number"
 				elsif v[0] == :TYPEB
 					tipo = "boolean"
 				end
 				puts
 				(lvl+1).times { print " "}
-				puts"#{k} : #{tipo} "
+				print"#{k} : #{tipo} "
 
 			end
 			
 		end
+		puts
 		puts 
 	end
 end

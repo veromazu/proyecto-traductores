@@ -1,33 +1,19 @@
-func mel(boolean y,number h,number p)
+func min(number x, number y) -> number
 begin
-	return 34354643*4545;
+    with
+        boolean b;
+    do
+        b = x < y;
+        if b then
+            return x;
+        end;
+        return y;
+    end;
 end;
 
-func vero(number a)->boolean
-begin
-	with 
-	boolean p,q;
-	do 
-	p=true;
-	q=false;
-	if (p or q) then
-		return ( p or q );
-		end;
-	end;
-end;
+
+
 
 program
-	with number x,y,z;
-	do
-		if x>0 then
-			with 
-			number x;
-			do
-			write 2+ 3;
-			end;
-			end;
-	end;
-	with boolean y;
-	do end;
-end;	
- 
+	min(5+5);
+end;
