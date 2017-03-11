@@ -16,6 +16,9 @@ end
 #Manejador de alcances
 #scope es del tipo scope
 def scope_Handler(scope)
+	# Asignación de una nueva tabla.
+	symTableAux = SymbolTable.new("Programa principal",$symTable)
+	$symTable = symTableAux
 
 
 	listFuncError = 0
@@ -23,6 +26,19 @@ def scope_Handler(scope)
 		listFuncError = listFunc_Handler(scope.elems[0])
 	end
 	progError = prog_Handler(scope.elems[1])
+	$tableStack << $symTable
+	$symTable = $symTable.father
+	if ($symTable == nil)
+		if (progError > 0) or (listFuncError > 0)
+			puts "Symbol table will not be shown."
+			abort
+		end
+		puts "Tabla de Simbolos"
+		$tableStack.reverse!
+		$tableStack.each do |st|
+			st.print_Table
+		end
+	end
 
 
 

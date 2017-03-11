@@ -87,8 +87,10 @@ class SymbolTable
 			puts " None "
 		else	
 				if !(@param.empty?)
-					puts "LISTA DE PARAM"
+					puts
+					puts "LISTA DE PARAM de #{@nombre}"
 					print @param
+					puts
 				end
 			@symTable.each do |k,v|
 				if v[0] == :TYPEN	
