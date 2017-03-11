@@ -19,6 +19,15 @@ program
 	with 
 	number x;
 	do 
+		with 
+		number y;
+		do 
+		 with 
+		 number z;
+		 do 
+		 end;
+		end;
+
 	end;
 	with 
 	number z;

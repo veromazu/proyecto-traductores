@@ -65,6 +65,19 @@ class SymbolTable
 		end
 	end
 
+	def find_table(nombre)
+		auxTab = self
+		puts "ENTRE"
+		puts auxTab.nombre
+		while (auxTab.father!=nil)
+			if (auxTab.nombre == nombre)
+				return auxTab
+			else
+				auxTab = auxTab.father
+			end
+		end
+	end
+
 	
 
 	def get_lvl
@@ -81,17 +94,18 @@ class SymbolTable
 		lvl = get_lvl
 		(lvl).times{print " "}
 		puts "#{@nombre}: "
-		(lvl + 1).times{print " "}
-		print "Variables: "
+		if @nombre  == "Programa principal"
+			(lvl + 1).times{print " "}
+			print "Funciones: "
+		else 
+			(lvl + 1).times{print " "}
+
+			print "Variables: "
+		end
 		if (@symTable.empty?)
 			puts " None "
 		else	
-				if !(@param.empty?)
-					puts
-					puts "LISTA DE PARAM de #{@nombre}"
-					print @param
-					puts
-				end
+				
 			@symTable.each do |k,v|
 				if v[0] == :TYPEN	
 					tipo = "number"

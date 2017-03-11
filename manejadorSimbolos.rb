@@ -355,12 +355,13 @@ end
 
 #Manejador de lista de instrucciones de un porgram
 def LInst_Handler(elem)
-	instError =  Inst_Handler(elem.elem)
 
 
 	if (elem.list!=nil)
 		listInstError= LInst_Handler(elem.list) 
 	end
+	
+	instError =  Inst_Handler(elem.elem)
 	if (listInstError!=nil)
 		return listInstError + instError
 	else
@@ -401,11 +402,8 @@ def llamada_Handler(llamada)
 	func = llamada.elems[0].term.id
 
 	if ($symTable.lookup(func))
-		$tableStack.each do |t|
-			if (t.nombre == func)
-				$tablafunc = t 
-			end
-		end
+		tabla = $symTable.find_table(func)
+		#print tabla.param
 		return 0
 	else 
 		puts "ERROR: Funcion #{func} no declarada"
@@ -529,15 +527,15 @@ def bloque_Handler(wis)
 	symTableAux = SymbolTable.new("bloque",$symTable)
 	$symTable = symTableAux
 	declError=0
+
+	if (wis.elems[1] !=nil)
+		listInstError =  LInst_Handler(wis.elems[1])
+	end
 	if (wis.elems[0] !=nil)
 		declError = decl_Handler(wis.elems[0])
 
 	end
 	listInstError=0
-
-	if (wis.elems[1] !=nil)
-		listInstError =  LInst_Handler(wis.elems[1])
-	end
 	$tableStack << $symTable
 	$symTable = $symTable.father
 
