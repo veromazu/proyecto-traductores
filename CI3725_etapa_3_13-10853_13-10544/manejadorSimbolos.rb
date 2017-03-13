@@ -150,8 +150,8 @@ def paramDec_Handler(nombre,type,id)
 		$symTable.param << type 
 	
 	else
-		puts "ERROR: variable '#{id}' fue declarada antes " \
-				" para la misma Funcion."
+		raise SemanticError.new ("variable '#{id}' fue declarada antes " \
+				" para la misma Funcion.")
 		return 1
 	end
 	return 0
@@ -218,7 +218,7 @@ def return_Handler(namefunc,expr)
 	typeRet = $symTable.lookup(namefunc)[0]
 
 	if typeRet == nil
-		puts "ERROR: tipo de retorno '#{tipoExpr}' inesperado para '#{namefunc}'"
+		raise SemanticError.new "tipo de retorno '#{tipoExpr}' inesperado para '#{namefunc}'"
 		return 1
 	elsif typeRet != typeExpr
 		if typeRet== :TYPEN
@@ -226,7 +226,7 @@ def return_Handler(namefunc,expr)
 		elsif typeRet == :TYPEB
 			tipoRetorno = "boolean"
 		end
-		puts "ERROR: tipo de retorno '#{tipoExpr}' inesperado para '#{namefunc}', se esperaba tipo de retorno '#{tipoRetorno}'"
+		raise SemanticError.new "tipo de retorno '#{tipoExpr}' inesperado para '#{namefunc}', se esperaba tipo de retorno '#{tipoRetorno}'"
 		return 1
 	end
 	return 0
@@ -242,7 +242,7 @@ def nombreF_Handler(func)
 		($symTable.insert(nombre,[nil,nil]))
 		return 0 
 	else 
-		puts "ERROR: Funcion '#{nombre}' previamente declarada"
+		raise SemanticError.new " Funcion '#{nombre}' previamente declarada"
 		return 1
 	end	 
 end 
@@ -293,7 +293,7 @@ def iteratorF_Handler(namefunc,iter)
 
 	when :Ciclo_While
 		if (expression_Handler(expr)!= :TYPEB)
-			puts "ERROR: Se esperaba condicion del tipo 'boolean'"
+			raise SemanticError.new " Se esperaba condicion del tipo 'boolean'"
 			return 1
 		else
 			iter_error = LInstF_Handler(namefunc,inst)
@@ -303,7 +303,7 @@ def iteratorF_Handler(namefunc,iter)
 	when :Ciclo_Repeat
 
 		if (expression_Handler(expr)!= :TYPEN)
-			puts "ERROR: Se esperaba expresion del tipo 'number'"
+			raise SemanticError.new " Se esperaba expresion del tipo 'number'"
 			return 1
 		else
 			iter_error = LInstF_Handler(namefunc,inst)
@@ -322,18 +322,18 @@ def iteratorF_Handler(namefunc,iter)
 		iter_error = 0
 		if (by != nil)
 			if ((expression_Handler(expr) != :TYPEN) or (expression_Handler(expr2) != :TYPEN))
-				puts "ERROR: Se esperaba rango del tipo 'number'"
+				raise SemanticError.new " Se esperaba rango del tipo 'number'"
 				err = 1
 			end
 			if 	(expression_Handler(by.salto)!= :TYPEN)
-				puts "ERROR: Se esperaba salto 'by' del tipo 'number'"
+				raise SemanticError.new "Se esperaba salto 'by' del tipo 'number'"
 				err += 1
 			else
 				iter_error = LInstF_Handler(namefunc,inst) 
 			end 	
 		else
 			if ((expression_Handler(expr) != :TYPEN) or (expression_Handler(expr2) != :TYPEN))
-				puts "ERROR: Se esperaba rango del tipo 'number'"
+				raise SemanticError.new "Se esperaba rango del tipo 'number'"
 				err = 1
 			else 
 				iter_error = LInstF_Handler(namefunc,inst) 
@@ -354,7 +354,7 @@ def condF_Handler(namefunc,cond)
 
 
 	if (expression_Handler(expr)!= :TYPEB)
-		puts "ERROR : La condicion debe ser del tipo : 'boolean'"
+		raise SemanticError.new " La condicion debe ser del tipo : 'boolean'"
 		return 1
 	else
 		cond_error = LInstF_Handler(namefunc,inst1) 
@@ -422,19 +422,19 @@ def llamada_Handler(llamada)
 		if (parametros == nil)
 			return 0
 		else 
-			puts "ERROR: Cantidad inválida de argumentos para '#{func}'"
+			raise SemanticError.new "Cantidad inválida de argumentos para '#{func}'"
 			return 1
 		end
 	when "forward", "backward", "rotater", "rotatel"
 		if (parametros !=nil)
 			if (parametros.list!=nil)
-				puts "ERROR: Cantidad inválida de argumentos para '#{func}'"
+				raise SemanticError.new " Cantidad inválida de argumentos para '#{func}'"
 					return 1
 			else
 				tipo=expression_Handler(parametros.elem)
 				if (tipo != :TYPEN)
 					if tipo == :TYPEB
-						puts "ERROR: Argumento inválido boolean para '#{func}'"
+						raise SemanticError.new " Argumento inválido boolean para '#{func}'"
 						return 1
 					else 
 						return 1 
@@ -444,21 +444,21 @@ def llamada_Handler(llamada)
 				end
 			end
 		else
-			puts "ERROR: Cantidad inválida de argumentos para '#{func}'"
+			raise SemanticError.new "Cantidad inválida de argumentos para '#{func}'"
 			return 1
 		end
 
 	when "setposition", "arc"
 		if (parametros !=nil)
 			if (parametros.list==nil or parametros.list.list!=nil)
-				puts "ERROR: Cantidad inválida de argumentos para '#{func}'"
+				raise SemanticError.new " Cantidad inválida de argumentos para '#{func}'"
 				return 1
 			else 
 				tipo1 = expression_Handler(parametros.elem)
 				tipo2 = expression_Handler(parametros.list.elem)
 				if (tipo1 != :TYPEN )
 					if (tipo1 == :TYPEB )
-						puts "ERROR: Argumento inválido boolean para '#{func}'"
+						raise SemanticError.new " Argumento inválido boolean para '#{func}'"
 						return 1
 					else
 						return 1
@@ -466,7 +466,7 @@ def llamada_Handler(llamada)
 
 				elsif (tipo2 != :TYPEN)
 					if (tipo2 == :TYPEB )
-						puts "ERROR: Argumento inválido boolean para'#{func}'"
+						raise SemanticError.new " Argumento inválido boolean para'#{func}'"
 						return 1
 					else
 						return 1
@@ -509,7 +509,7 @@ def llamada_Handler(llamada)
 
 			#Error de cantidad de argumentos
 			if cantArgCall != $cantArgFunc
-				puts "ERROR: Cantidad inválida de argumentos para '#{func}'"
+				raise SemanticError.new " Cantidad inválida de argumentos para '#{func}'"
 				return 1
 
 			#Error por tipo de argumentos
@@ -524,7 +524,7 @@ def llamada_Handler(llamada)
 						elsif tipoCall == :TYPEB
 							tipo = "boolean"
 						end
-						puts "ERROR: Argumento inválido '#{tipo}' para '#{func}'"
+						raise SemanticError.new "Argumento inválido '#{tipo}' para '#{func}'"
 						return 1
 					end
 					parametros = parametros.list
@@ -534,7 +534,7 @@ def llamada_Handler(llamada)
 
 		return 0
 	else 
-		puts "ERROR: Funcion #{func} no declarada"
+		raise SemanticError.new " Funcion #{func} no declarada"
 		return 1
 	end
 	end
@@ -551,7 +551,7 @@ def iterator_Handler(iter)
 
 	when :Ciclo_While
 		if (expression_Handler(expr)!= :TYPEB)
-			puts "ERROR: Se esperaba condicion del tipo 'boolean'"
+			raise SemanticError.new "Se esperaba condicion del tipo 'boolean'"
 			return 1
 		else
 			iter_error = LInst_Handler(inst)
@@ -561,7 +561,7 @@ def iterator_Handler(iter)
 	when :Ciclo_Repeat
 
 		if (expression_Handler(expr)!= :TYPEN)
-			puts "ERROR: Se esperaba expresion del tipo 'number'"
+			raise SemanticError.new " Se esperaba expresion del tipo 'number'"
 			return 1
 		else
 			iter_error = LInst_Handler(inst)
@@ -581,18 +581,18 @@ def iterator_Handler(iter)
 		
 		if (by != nil)
 			if ((expression_Handler(expr) != :TYPEN) or (expression_Handler(expr2) != :TYPEN))
-				puts "ERROR: Se esperaba rango del tipo 'number'"
+				raise SemanticError.new "Se esperaba rango del tipo 'number'"
 				err = 1
 			end
 			if 	(expression_Handler(by.salto)!= :TYPEN)
-				puts "ERROR: Se esperaba salto 'by' del tipo 'number'"
+				raise SemanticError.new " Se esperaba salto 'by' del tipo 'number'"
 				err += 1
 			else
 				iter_error = LInst_Handler(inst) 
 			end 	
 		else
 			if ((expression_Handler(expr) != :TYPEN) or (expression_Handler(expr2) != :TYPEN))
-				puts "ERROR: Se esperaba rango del tipo 'number'"
+				raise SemanticError.new "Se esperaba rango del tipo 'number'"
 				err = 1
 			else 
 				iter_error = LInst_Handler(inst) 
@@ -608,7 +608,7 @@ end
 def lect_Handler(lect)
 	var = lect.term.id
 	if ($symTable.lookup(var)==nil)
-		puts "ERROR: Variable '#{var}' no declarada en este alcance"
+		raise SemanticError.new " Variable '#{var}' no declarada en este alcance"
 		return 1
 	else
 		return 0
@@ -640,7 +640,7 @@ def cond_Handler(cond)
 
 
 	if (expression_Handler(expr)!= :TYPEB)
-		puts "ERROR : La condicion debe ser del tipo : 'boolean'"
+		raise SemanticError.new " La condicion debe ser del tipo : 'boolean'"
 		return 1
 	else
 		cond_error = LInst_Handler(inst1) 
@@ -715,7 +715,7 @@ def decAsig_Handler(dec,type)
 
 		dError = asign_Handler(nameVar,asignable) 
 	else 
-		puts  "ERROR: variable '#{dec.elems[0].term.id}' fue declarada antes" \
+		raise SemanticError.new " variable '#{dec.elems[0].term.id}' fue declarada antes" \
 				" en el mismo alcance."
 		return 1
 	end
@@ -730,7 +730,7 @@ def asign_Handler(idVar,asig)
 	tipoAsig = asig.types[0]
 	valAsig = asig.elems[0]
 	if ($symTable.lookup(idVar)==nil)
-		puts "ERROR: variable '#{idVar}' no ha sido declarada."
+		raise SemanticError.new " variable '#{idVar}' no ha sido declarada."
 		return 1
 	else 
 		typeVar=$symTable.lookup(idVar)[0]
@@ -754,7 +754,7 @@ def asign_Handler(idVar,asig)
 					tipoVar = "boolean"
 				end
 
-				puts "ERROR: Expresion de tipo '#{tipoExpr}' y se esperaba una de tipo '#{tipoVar}' para variable '#{idVar}'."
+				raise SemanticError.new " Expresion de tipo '#{tipoExpr}' y se esperaba una de tipo '#{tipoVar}' para variable '#{idVar}'."
 				return 1
 			end
 
@@ -780,11 +780,11 @@ def typeCall_Handler(valAsig,typeVar)
 			tipoVar = "boolean"
 		end
 		if tipo != typeVar
-			puts "ERROR: Expresion de tipo '#{tipoVar}' inválido para '#{funcNombre}'. "
+			raise SemanticError.new " Expresion de tipo '#{tipoVar}' inválido para '#{funcNombre}'. "
 			return 1
 		end
 	else
-		puts "ERROR: Funcion '#{funcNombre}' no declarada"
+		raise SemanticError.new " Funcion '#{funcNombre}' no declarada"
 		return 1
 	end
 	return 0
@@ -802,7 +802,7 @@ def ListI_Handler(type,list)
 		end
 		return 0
 	else
-		puts "ERROR: variable '#{id}' fue declarada antes " \
+		raise SemanticError.new " variable '#{id}' fue declarada antes " \
 				" en el mismo alcance."
 		return 1
 	end
@@ -811,7 +811,7 @@ end
 #Manejador de instrucciones como expresión
 def expr_Handler(expr)
 	if expression_Handler(expr) == nil
-		puts "EXPRESION ERROR: Error en los tipos de la expresion"
+		raise SemanticError.new " Error en los tipos de la expresion"
 		return 1
 	else 
 		return 0
@@ -839,7 +839,7 @@ def expression_Handler(expr)
 			if typeVar!=nil
 				typeVar = typeVar[0]
 			else
-				puts "ERROR: Variale '#{idVar}' no declarada en este entorno"
+				raise SemanticError.new " Variale '#{idVar}' no declarada en este entorno"
 			end
 			return typeVar
 		when :DIGIT
@@ -850,7 +850,7 @@ def expression_Handler(expr)
 			return :TYPEB	
 		end
 	else
-		puts "ERROR: hubo un error expression_Handler."	
+		raise SemanticError.new "Hubo un error expression_Handler."	
 		return nil
 	end
 
@@ -930,4 +930,15 @@ def unaExp_Handler(expr)
 			return nil
 		end
 	end
+end
+
+class SemanticError < RuntimeError
+
+    def initialize(info)
+        @info=info
+    end
+
+    def to_s
+    	puts "ERROR: #{@info}"
+    end
 end

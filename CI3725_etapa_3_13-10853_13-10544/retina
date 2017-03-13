@@ -42,12 +42,21 @@ def main
 		parser=Parser.new(lexer)
 		begin
 			ast = parser.parse(lexer)
-			program_Handler(ast)
+			
 
 		rescue => e
 			SyntaxError.new(e)
 			puts "Error sintactico: #{e}"
 		end
+		
+		begin
+			program_Handler(ast)
+		rescue => e
+			SyntaxError.new(e)
+			e.to_s
+		end
+
+
 	else
 		lexer.printErrors
 	end
