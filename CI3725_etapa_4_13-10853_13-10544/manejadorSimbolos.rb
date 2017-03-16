@@ -719,7 +719,7 @@ end
 #Manejador de instrucciones como expresión
 def expr_Handler(expr)
 	if expression_Handler(expr) == nil
-		raise SemanticError.new " Error en los tipos de la expresion"
+		raise SemanticError.new "ERROR: Error en los tipos de la expresion"
 	end
 end
 
@@ -756,7 +756,6 @@ def expression_Handler(expr)
 		end
 	else
 		raise SemanticError.new "Hubo un error expression_Handler."	
-		return nil
 	end
 
 end
@@ -769,14 +768,16 @@ def binExp_Handler(expr)
 	typeExpr1 = expression_Handler(expr.elems[0])
 	typeExpr2 = expression_Handler(expr.elems[1])
 
-	
+	 #ver para imprimir fila y columna de error
 	case expr.op
 	when :Suma,:Resta,:Multiplicacion
 
 		if (typeExpr1 == :TYPEN) and (typeExpr2 == :TYPEN)
 			return :TYPEN 
-		else
-			return nil
+		elsif (typeExpr1 == :TYPEB) 
+			raise SemanticError.new "Tipo de expresión 'boolean' inesperado para operador aritmético" 
+		elsif (typeExpr2 == :TYPEB)
+			raise SemanticError.new "Tipo de expresión 'boolean' inesperado para operador aritmético"
 		end
 	when :Menor_que,:Mayor_que,:Menor_O_Igual_Que,:Mayor_O_Igual_Que,:Distinto_que
 		if (typeExpr1 == :TYPEN) and (typeExpr2 == :TYPEN)
@@ -785,29 +786,31 @@ def binExp_Handler(expr)
 		elsif (typeExpr1 == :TYPEB) and (typeExpr2 == :TYPEB)
 			return :TYPEB
 		else
-			return nil
+			raise SemanticError.new "Tipos de expresión distintos para operación de comparación"
 		end
 
 	when :Or,:And
 		if (typeExpr1 == :TYPEB) and (typeExpr2 == :TYPEB)
 			return :TYPEB
 		else
-			return nil
+			raise SemanticError.new "Tipos de expresión distintos para operación de comparación"
 		end
 	when :Equivalencia,:Distinto_que
 		if (typeExpr1 == :TYPEN) and (typeExpr2 == :TYPEN)
-			return :TYPEN
+			return :TYPEB
 		elsif (typeExpr1 == :TYPEB) and (typeExpr2 == :TYPEB)
 			return :TYPEB
 		else
-			return nil
+			raise SemanticError.new "Tipos de expresión distintos para operación de comparación"
 		end
 	when :Division_Exacta,:Resto_Exacto,:Division_Entera,:Resto_Entero
 		if (typeExpr1 == :TYPEN) and (typeExpr2 == :TYPEN)
 			return :TYPEN
-		else
-			return nil
-		end		 	 
+		elsif (typeExpr1 == :TYPEB) 
+			raise SemanticError.new "Tipo de expresión 'boolean' inesperado para operador aritmético"
+		elsif (typeExpr2 == :TYPEB)
+			raise SemanticError.new "Tipo de expresión 'boolean' inesperado para operador aritmético"
+		end 	 		 	 
 	end
 end
 
@@ -826,13 +829,13 @@ def unaExp_Handler(expr)
 		if typeExpr == :TYPEN
 			return :TYPEN
 		else
-			return nil
+			raise SemanticError.new "Tipo de expresión 'boolean' inesperado para operador iverso aditivo : '-'"
 		end
 	when :Negacion
 		if typeExpr == :TYPEB
 			return :TYPEB
 		else
-			return nil
+			raise SemanticError.new "Tipo de expresión 'number' inesperado para operador 'not'"
 		end
 	end
 end

@@ -1,9 +1,10 @@
-func min(number x, number y) -> number
+func min(number x, boolean y) -> number
 begin
     with
         boolean b;
+        number k;
     do
-        b = x < y;
+        b =  (k<x)==not x;
         if b then 
             return x;
         end;
@@ -14,7 +15,7 @@ end;
 func incremental_forward(number steps)
 begin
     for i from 1 to steps do
-        forward(i);
+        forward(not false or true);
     end;
 end;
 
