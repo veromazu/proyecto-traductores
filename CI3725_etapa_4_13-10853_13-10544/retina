@@ -1,0 +1,66 @@
+#! /usr/local/bin/ruby
+# encoding: utf-8
+
+require_relative 'retina_parser'
+require_relative 'retina_lexer'
+require_relative 'manejadorSimbolos'
+=begin
+
+UNIVERSIDAD SIMÓN BOLÍVAR
+Traductores e Interpretadores
+Fase 2 de Proyecto : Parser de Retina
+Elaborado por:
+	-Verónica Mazutiel, 13-10853
+	-Melanie Gomes, 13-10544
+
+=end
+
+def main
+
+	# Vemos que usuario ingrese el archivo
+	if ARGV[0].nil?
+		puts "Ingrese archivo."
+		return
+	end
+
+	# Verificamos extension '.rtn' de archivo
+	ARGV[0] =~ /\w+\.rtn/;
+	if $&.nil? 
+		puts "Extensión  inválida."
+		return
+	end
+
+	# Verificar existencia del archivo
+	if not File.file?(ARGV[0])
+		puts "Archivo no encontrado."
+		return
+	end
+	input = File::read(ARGV[0])
+	# Create lexer
+	lexer = Lexer.new()
+	if lexer.identifier(input)
+		parser=Parser.new(lexer)
+		begin
+			ast = parser.parse(lexer)
+			
+
+		rescue => e
+			SyntaxError.new(e)
+			puts "Error sintactico: #{e}"
+		end
+		
+		begin
+			program_Handler(ast)
+		rescue => e
+			SyntaxError.new(e)
+			e.to_s
+		end
+
+
+	else
+		lexer.printErrors
+	end
+end
+
+
+main
