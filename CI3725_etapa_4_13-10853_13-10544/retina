@@ -50,7 +50,8 @@ def main
 		end
 		
 		begin
-			program_Handler(ast)
+			analizador = Analizador.new(ast)
+			analizador.program_Handler
 		rescue => e
 			SyntaxError.new(e)
 			e.to_s

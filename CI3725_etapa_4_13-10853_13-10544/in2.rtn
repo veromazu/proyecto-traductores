@@ -4,7 +4,7 @@ begin
         boolean b;
         number k;
     do
-        b =  (k<x)==not x;
+        b =  (k<x);
         if b then 
             return x;
         end;

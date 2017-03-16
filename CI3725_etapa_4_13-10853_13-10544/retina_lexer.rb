@@ -213,31 +213,3 @@ class Lexer
 		end
 	end
 end
-=begin
-def main  
-	# Vemos que usuario ingrese el archivo
-	if ARGV[0].nil?
-		puts "Ingrese archivo."
-		return
-	end
-
-	# Verificamos extension '.rtn' de archivo
-	ARGV[0] =~ /\w+\.rtn/;
-	if $&.nil? 
-		puts "Extensión  inválida."
-		return
-	end
-
-	# Verificar existencia del archivo
-	if not File.file?(ARGV[0])
-		puts "Archivo no encontrado."
-		return
-	end
-	input = File::read(ARGV[0])
-	# Create lexer
-	lexer = Lexer.new()
-	lexer.identifier(input)
-
-end
-main
-=end 
