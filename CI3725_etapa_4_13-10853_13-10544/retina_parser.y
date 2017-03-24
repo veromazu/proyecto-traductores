@@ -180,11 +180,13 @@ rule
 
     Cond
     :IF Expr THEN LInst END SEMICOLON  {result=Cond.new(:Condición,val[1],:Instrucciones,val[3])}
+    |IF Expr THEN END SEMICOLON  {result=Cond.new(:Condición,val[1])}
     |IF Expr THEN LInst ELSE LInst END SEMICOLON  {result=Cond.new(:Condicion,val[1],:Instrucciones,val[3],:Instrucciones_Else,val[5])}
     ;
 
     CondF
     :IF Expr THEN LInstf END SEMICOLON  {result=Cond.new(:Condición,val[1],:Instrucciones,val[3])}
+    |IF Expr THEN END SEMICOLON  {result=Cond.new(:Condición,val[1])}
     |IF Expr THEN LInstf ELSE LInstf END SEMICOLON  {result=Cond.new(:Condicion,val[1],:Instrucciones,val[3],:Instrucciones_Else,val[5])}
     ;
     Call   #######

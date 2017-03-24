@@ -6,7 +6,6 @@ begin
     do
         b =  (k<x);
         if b then 
-            return x;
         end;
         return y;
     end;

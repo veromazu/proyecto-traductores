@@ -327,7 +327,7 @@ class Analizador
 
 		if (expression_Handler(expr)!= :TYPEB)
 			raise SemanticError.new " La condicion debe ser del tipo : 'boolean'"
-		else
+		elsif (inst1 != nil)
 			LInstF_Handler(namefunc,inst1) 
 		end
 		if (inst2 != nil)
@@ -852,7 +852,7 @@ class Analizador
 
 	class SemanticError < RuntimeError
 
-	    def initialize(tok,info)
+	    def initialize(tok=nil,info)
 	        @info=info
 	        @token=tok
 	    end
