@@ -422,7 +422,7 @@ class Analizador
 
 					elsif (tipo2 != :TYPEN)
 						if (tipo2 == :TYPEB )
-							raise SemanticError.new " Argumento inválido boolean para'#{func}'"
+							raise SemanticError.new  " Argumento inválido boolean para'#{func}'"
 						end
 					end
 				end
@@ -480,7 +480,7 @@ class Analizador
 					end
 				end
 			else 
-				raise SemanticError.new " Funcion #{func} no declarada"
+				raise SemanticError.new llamada.elems[0].term," Funcion #{func} no declarada"
 			end
 		end
 	end
@@ -843,15 +843,23 @@ class Analizador
 		end
 	end
 
+
+		# Raise semantic error if found
+	def on_error(id, token, stack)
+    	raise SemanticError::new(token)
+	end
+
+
 	class SemanticError < RuntimeError
 
-	    def initialize(info)
+	    def initialize(tok,info)
 	        @info=info
+	        @token=tok
 	    end
 
 	    def to_s
 	    	#Línea #{token.position[0]}, Column #{token.position[1]}
-	    	puts "ERROR: : #{@info}"
+	    	puts "ERROR: Línea #{@token.position[0]}, Column #{@token.position[1]}: #{@info}"
 	    end
 	end
 end
