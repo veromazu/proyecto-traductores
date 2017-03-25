@@ -40,10 +40,12 @@ class Analizador
 
 		listFuncError = 0
 		if (scope.elems[0]!=nil)
-			listFuncError = listFunc_Handler(scope.elems[0])
+			listFunc_Handler(scope.elems[0])
 		end
-		progError = prog_Handler(scope.elems[1])
+		prog_Handler(scope.elems[1])
 		$tableStack << $symTable
+
+		scope.symTable = $symTable
 		$symTable = $symTable.father
 
 		if ($symTable == nil)
@@ -61,9 +63,7 @@ class Analizador
 	def listFunc_Handler(elem)
 
 		nombreF_Handler(elem.elem.elems[0])
-
 		Func_Handler(elem.elem)
-		listFuncError = 0
 		if (elem.list!=nil)
 			listFunc_Handler(elem.list)
 		end
@@ -108,6 +108,7 @@ class Analizador
 			FInst_Handler(namefunc,func.elems[3])   
 		end
 
+		func.symTable = $symTable
 		# Se empila la tabla del scope en la pila de tablas.
 		$tableStack << $symTable
 		$symTable = $symTable.father
@@ -170,15 +171,15 @@ class Analizador
 	def InstF_Handler(namefunc, instr)
 	case instr.types[0]
 		when :Bloque
-			bloqueF_Handler(namefunc,instr.elems[0]) #listo
+			bloqueF_Handler(namefunc,instr.elems[0])
 		when  :Retorno
 			return_Handler(namefunc,instr.elems[0])
 		when :Asignacion
-			asign_Handler(instr.elems[0].elems[0].term.id,instr.elems[0].elems[1]) #listo
+			asign_Handler(instr.elems[0].elems[0].term.id,instr.elems[0].elems[1],instr.elems[0].elems[0].term) #listo
 		when :Iteracion
-			iteratorF_Handler(namefunc,instr.elems[0]) #listo
+			iteratorF_Handler(namefunc,instr.elems[0]) 
 		when :Lectura
-			lect_Handler(instr.elems[0]) #listo
+			lect_Handler(instr.elems[0])
 		when :Salida
 			salida_Handler(instr.elems[0])    
 		when :Salida_Con_Salto
@@ -225,22 +226,30 @@ class Analizador
 	def return_Call_Handler(namefunc,call)
 		funcion = $symTable.lookup(namefunc)
 		tipo_fun = funcion[0]
-		fun_llamada = $symTable.lookup(call.elems[0].term.id)
-		
-		if (fun_llamada != nil)
-			tipo_llamada = fun_llamada[0]
-			if tipo_llamada == :TYPEN
-				tipoVar = "number"
-			elsif tipo_llamada == :TYPEB
-				tipoVar = "boolean"
-			end
-			if tipo_fun != tipo_llamada
-				raise SemanticError.new " Retorno de tipo '#{tipoVar}' inválido para '#{namefunc}'.",call.elems[0].term
-			else
-				return llamada_Handler(call)
-			end
+		id_llamada = call.elems[0].term.id
+		case id_llamada
+		when "home", "closeeye", "openeye", "forward", "backward", "rotater", "rotatel", "setposition"
+			tipo_llamada = nil
 		else
-			raise SemanticError.new " Funcion '#{call.elems[0].term.id}' no declarada",call.elems[0].term
+			fun_llamada = $symTable.lookup(call.elems[0].term.id)
+			if (fun_llamada != nil)
+				tipo_llamada = fun_llamada[0]
+			else 
+				raise SemanticError.new " Funcion '#{call.elems[0].term.id}' no declarada",call.elems[0].term
+			end
+		end
+		if tipo_llamada == :TYPEN
+			tipoVar = "number"
+		elsif tipo_llamada == :TYPEB
+			tipoVar = "boolean"
+		else
+			tipoVar="nil"
+		end
+		if tipo_fun != tipo_llamada
+
+			raise SemanticError.new " Retorno de tipo '#{tipoVar}' inválido para '#{namefunc}'.",call.elems[0].term
+		else
+			return llamada_Handler(call)
 		end
 	end
 
@@ -253,7 +262,7 @@ class Analizador
 			#pos [1] arreglo de tipos de parametros
 			($symTable.insert(nombre,[nil,nil]))
 		else 
-			raise SemanticError.new " Funcion '#{nombre}' previamente declarada"
+			raise SemanticError.new " Funcion '#{nombre}' previamente declarada",func.term
 		end	 
 	end 
 
@@ -274,6 +283,7 @@ class Analizador
 		if (wis.elems[1] !=nil)
 			LInstF_Handler(namefunc,wis.elems[1])
 		end
+		wis.symTable = $symTable
 		$tableStack << $symTable
 		$symTable = $symTable.father
 
@@ -297,19 +307,23 @@ class Analizador
 
 		when :Ciclo_While
 			if (expression_Handler(expr)!= :TYPEB)
-				raise SemanticError.new " Se esperaba condicion del tipo 'boolean'"
+				raise SemanticError.new "Se esperaba condicion del tipo 'boolean', en Ciclo while : función: '#{namefunc}'"
 			else
-				LInstF_Handler(namefunc,inst)
+				if inst!=nil
+					LInstF_Handler(namefunc,inst)
+				end
 			end
 
 		
 		when :Ciclo_Repeat
 
 			if (expression_Handler(expr)!= :TYPEN)
-				raise SemanticError.new " Se esperaba expresion del tipo 'number'"
+				raise SemanticError.new " Se esperaba expresion del tipo 'number', en Ciclo repeat : función: '#{namefunc}"
 
 			else
-				LInstF_Handler(namefunc,inst)
+				if inst!=nil
+					LInstF_Handler(namefunc,inst)
+				end
 			end
 
 		when :Ciclo_For
@@ -324,22 +338,27 @@ class Analizador
 
 			if (by != nil)
 				if ((expression_Handler(expr) != :TYPEN) or (expression_Handler(expr2) != :TYPEN))
-					raise SemanticError.new " Se esperaba rango del tipo 'number'"
+					raise SemanticError.new "Linea #{iter.elems[0].term.position[0]}, Se esperaba rango del tipo 'number'"
 					
 				end
 				if 	(expression_Handler(by.salto)!= :TYPEN)
-					raise SemanticError.new "Se esperaba salto 'by' del tipo 'number'"
+					raise SemanticError.new "Linea #{iter.elems[0].term.position[0]}, Se esperaba salto 'by' del tipo 'number'"
 					
 				else
-					LInstF_Handler(namefunc,inst) 
+					if inst!=nil
+						LInstF_Handler(namefunc,inst) 
+					end
 				end 	
 			else
 				if ((expression_Handler(expr) != :TYPEN) or (expression_Handler(expr2) != :TYPEN))
-					raise SemanticError.new "Se esperaba rango del tipo 'number'"
+					raise SemanticError.new "Linea #{iter.elems[0].term.position[0]}, Se esperaba rango del tipo 'number'"
 				else 
-					LInstF_Handler(namefunc,inst) 
+					if inst!=nil
+						LInstF_Handler(namefunc,inst) 
+					end
 				end 
 			end
+			iter.symTable = $symTable
 			$tableStack << $symTable
 			$symTable = $symTable.father
 		end
@@ -354,7 +373,7 @@ class Analizador
 
 
 		if (expression_Handler(expr)!= :TYPEB)
-			raise SemanticError.new " La condicion debe ser del tipo : 'boolean'"
+			raise SemanticError.new "La condicion debe ser del tipo : 'boolean' en instrucción 'if'"
 		elsif (inst1 != nil)
 			LInstF_Handler(namefunc,inst1) 
 		end
@@ -383,7 +402,7 @@ class Analizador
 		when :Bloque
 			bloque_Handler(instr.elems[0]) 
 		when :Asignacion
-			asign_Handler(instr.elems[0].elems[0].term.id,instr.elems[0].elems[1]) 
+			asign_Handler(instr.elems[0].elems[0].term.id,instr.elems[0].elems[1],instr.elems[0].elems[0].term) 
 		when :Iteracion
 			iterator_Handler(instr.elems[0])
 		when :Lectura
@@ -434,7 +453,7 @@ class Analizador
 				raise SemanticError.new "Cantidad inválida de argumentos para '#{func}'",llamada.elems[0].term
 			end
 
-		when "setposition", "arc"
+		when "setposition"
 			if (parametros !=nil)
 				if (parametros.list==nil or parametros.list.list!=nil)
 					raise SemanticError.new " Cantidad inválida de argumentos para '#{func}'",llamada.elems[0].term
@@ -484,8 +503,7 @@ class Analizador
 					end
 
 				end
-				puts cantArgCall
-				puts $cantArgFunc
+
 				#Error de cantidad de argumentos
 				if cantArgCall != $cantArgFunc
 					raise SemanticError.new " Cantidad inválida de argumentos para '#{func}'",llamada.elems[0].term
@@ -523,17 +541,21 @@ class Analizador
 
 		when :Ciclo_While
 			if (expression_Handler(expr)!= :TYPEB)
-				raise SemanticError.new "Se esperaba condicion del tipo 'boolean'"
+				raise SemanticError.new "Se esperaba condicion del tipo 'boolean', en instrucción 'while'"
 			else
-				LInst_Handler(inst)
+				if inst!=nil
+					LInst_Handler(inst)
+				end
 			end
 		
 		when :Ciclo_Repeat
 
 			if (expression_Handler(expr)!= :TYPEN)
-				raise SemanticError.new " Se esperaba expresion del tipo 'number'"
+				raise SemanticError.new " Se esperaba expresion del tipo 'number' en instrucción 'repeat'"
 			else
-				LInst_Handler(inst)
+				if inst!=nil
+					LInst_Handler(inst)
+				end			
 			end
 		when :Ciclo_For
 			symTableAux = SymbolTable.new("Ciclo_For",$symTable)
@@ -549,22 +571,27 @@ class Analizador
 			
 			if (by != nil)
 				if ((expression_Handler(expr) != :TYPEN) or (expression_Handler(expr2) != :TYPEN))
-					raise SemanticError.new "Se esperaba rango del tipo 'number'"
+					raise SemanticError.new "Linea #{iter.elems[0].term.position[0]},Se esperaba rango del tipo 'number'"
 
 				end
 				if 	(expression_Handler(by.salto)!= :TYPEN)
-					raise SemanticError.new " Se esperaba salto 'by' del tipo 'number'"
+					raise SemanticError.new "Linea #{iter.elems[0].term.position[0]}, Se esperaba salto 'by' del tipo 'number'"
 
 				else
-					LInst_Handler(inst) 
+					if inst!=nil
+						LInst_Handler(inst)
+					end
 				end 	
 			else
 				if ((expression_Handler(expr) != :TYPEN) or (expression_Handler(expr2) != :TYPEN))
-					raise SemanticError.new "Se esperaba rango del tipo 'number'"
+					raise SemanticError.new "Linea #{iter.elems[0].term.position[0]},Se esperaba rango del tipo 'number'"
 				else 
-					LInst_Handler(inst) 
+					if inst!=nil
+						LInst_Handler(inst)
+					end 
 				end 
 			end
+			iter.symTable = $symTable
 			$tableStack << $symTable
 			$symTable = $symTable.father
 		end
@@ -574,7 +601,7 @@ class Analizador
 	def lect_Handler(lect)
 		var = lect.term.id
 		if ($symTable.lookup(var)==nil)
-			raise SemanticError.new " Variable '#{var}' no declarada en este alcance"
+			raise SemanticError.new " Variable '#{var}' no declarada en este alcance",lect.term
 		end
 	end
 
@@ -584,7 +611,7 @@ class Analizador
 		case valType
 		when :Expresion
 			expr_Handler(write.elems[0])
-		when :Call 
+		when :Llamada_de_Funcion 
 			llamada_Handler(write.elems[0])
 		when :valor
 			salida_Handler(write.elems[0])
@@ -595,18 +622,20 @@ class Analizador
 	#Manejador de Consdicionales
 	def cond_Handler(cond)
 		expr = cond.elems[0]
-		inst1= cond.elems[1]
-		inst2= cond.elems[2]
+		inst1 = cond.elems[1]
+		inst2 = cond.elems[2]
 
 
 		if (expression_Handler(expr)!= :TYPEB)
-			raise SemanticError.new " La condicion debe ser del tipo : 'boolean'"
+			raise SemanticError.new " La condicion debe ser del tipo : 'boolean', en instrucción 'if'"
 
 		else
-			LInst_Handler(inst1) 
-		end
-		if (inst2 != nil)
-			LInst_Handler(inst2) 
+			if (inst! != nil)
+				LInst_Handler(inst1) 
+			end
+			if (inst2 != nil)
+				LInst_Handler(inst2) 
+			end
 		end
 	end
 
@@ -627,8 +656,10 @@ class Analizador
 		if (wis.elems[1] !=nil)
 			LInst_Handler(wis.elems[1])
 		end
+		wis.symTable = $symTable
 		$tableStack << $symTable
 		$symTable = $symTable.father
+
 	end
 
 
@@ -656,30 +687,29 @@ class Analizador
 
 	#Manejador de Asignaciones en una declaracion
 	def decAsig_Handler(dec,type)
-
-		nameVar = dec.elems[0].term.id
+		token = dec.elems[0].term
+		nameVar = token.id
 		asignable = dec.elems[1]
 
-		
-		if ($symTable.lookup(nameVar)==nil)
+		if (!$symTable.contains(nameVar))
 			$symTable.insert(nameVar,[type,nil])
-
-			asign_Handler(nameVar,asignable) 
+			asign_Handler(nameVar,asignable,token) 
+			
 		else 
-			raise SemanticError.new " variable '#{dec.elems[0].term.id}' fue declarada antes" \
-					" en el mismo alcance."
+			raise SemanticError.new " Variable '#{nameVar}' fue declarada antes" \
+					" en el mismo alcance.",token
 		end
 	end
 
 	#### Manejador de Asignaciones #####
 	#idVar es del tipo term.id
 	#asig es de la clase asignable
-	def asign_Handler(idVar,asig)
+	def asign_Handler(idVar,asig,token)
 
 		tipoAsig = asig.types[0]
 		valAsig = asig.elems[0]
 		if ($symTable.lookup(idVar)==nil)
-			raise SemanticError.new " variable '#{idVar}' no ha sido declarada."
+			raise SemanticError.new " Variable '#{idVar}' no ha sido declarada.",token
 		else 
 			typeVar=$symTable.lookup(idVar)[0]
 			case tipoAsig
@@ -702,7 +732,7 @@ class Analizador
 						tipoVar = "boolean"
 					end
 
-					raise SemanticError.new " Expresion de tipo '#{tipoExpr}' y se esperaba una de tipo '#{tipoVar}' para variable '#{idVar}'."
+					raise SemanticError.new " Expresion de tipo '#{tipoExpr}' y se esperaba una de tipo '#{tipoVar}' para variable '#{idVar}'.",token
 				end
 
 			when :Llamada_de_Funcion
@@ -714,21 +744,27 @@ class Analizador
 
 	#Manejador de tipo de valor de retorno al hacer una asigncion a un llamada de función
 	def typeCall_Handler(valAsig,typeVar)
+		
+		if typeVar == :TYPEN
+			tipoVar = "number"
+		elsif typeVar == :TYPEB
+			tipoVar = "boolean"
+		end
 
 		funcNombre = valAsig.term.id
-		funcion = $symTable.lookup(funcNombre)
-		if (funcion != nil)
-			tipo = funcion[0]
-			if typeVar == :TYPEN
-				tipoVar = "number"
-			elsif typeVar == :TYPEB
-				tipoVar = "boolean"
-			end
-			if tipo != typeVar
-				raise SemanticError.new " Expresion de tipo '#{tipoVar}' inválido para '#{funcNombre}'. "
-			end
+		case funcNombre
+		when "home", "closeeye", "openeye", "forward", "backward", "rotater", "rotatel", "setposition"
+			raise SemanticError.new " Expresion de tipo '#{tipoVar}' inválido para '#{funcNombre}'. ",valAsig.term
 		else
-			raise SemanticError.new " Funcion '#{funcNombre}' no declarada"
+			funcion = $symTable.lookup(funcNombre)
+			if (funcion != nil)
+				tipo = funcion[0]	
+				if tipo != typeVar
+					raise SemanticError.new " Expresion de tipo '#{tipoVar}' inválido para '#{funcNombre}'. ",valAsig.term
+				end
+			else
+				raise SemanticError.new " Funcion '#{funcNombre}' no declarada",valAsig.term
+			end
 		end
 	end
 
@@ -737,14 +773,18 @@ class Analizador
 		id=list.elem.term.id
 		listID=list.list
 
-		if !($symTable.lookup(id))
-			$symTable.insert(id, [type, nil])
+		if (!$symTable.contains(id))
+			if type == :TYPEB
+				$symTable.insert(id, [type, false])
+			elsif type == :TYPEN
+				$symTable.insert(id, [type, 0])
+			end
 			if (listID!= nil)
 				ListI_Handler(type,listID)
 			end
 		else
 			raise SemanticError.new " variable '#{id}' fue declarada antes " \
-					" en el mismo alcance."
+					" en el mismo alcance.",list.elem.term
 		end
 	end
 
@@ -776,7 +816,7 @@ class Analizador
 				if typeVar!=nil
 					typeVar = typeVar[0]
 				else
-					raise SemanticError.new " Variale '#{idVar}' no declarada en este entorno"
+					raise SemanticError.new " Variale '#{idVar}' no declarada en este entorno",expr.term
 				end
 				return typeVar
 			when :DIGIT
@@ -889,7 +929,7 @@ class Analizador
 	    def to_s
 	    	#Línea #{token.position[0]}, Column #{token.position[1]}
 	    	if @token!=nil
-	    		puts "ERROR: Línea #{@token.position[0]}, Column #{@token.position[1]}: #{@info}"
+	    		puts "ERROR: Línea #{@token.position[0]}, Columna #{@token.position[1]}: #{@info}"
 	    	else
 	    		puts "ERROR:#{@info}"
 	    	end

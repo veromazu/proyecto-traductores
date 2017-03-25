@@ -5,22 +5,26 @@ begin
         number k;
     do
         b =  (k<x);
-        if b then 
+        while b do
+    
+            setposition(360,5);
         end;
-        return 5>3;
+        return 5;
     end;
 end;
 
 func incremental_forward(number steps)->number
 begin
-    for i from 1 to steps do
-        return min(1,2);
-    end;
+        return min(1,true);
+        for i from 1 to 5  by 3 do
+            min(1,true);
+        end;
+
 end;
 
 func circle(number radio)
 begin
-    arc(360, radio);
+    setposition(360, radio);
 end;
 
 program
@@ -33,9 +37,9 @@ program
             number angle = n;
         do
             while angle <= 360 do
-                rotater(n);
-                circle(15879878915/(3434%4) - 544544*(888div781));
-                angle = angle + n;
+            end;
+            for i from 1 to 5 by false do
+                min(1,true);
             end;
         end;
     end;

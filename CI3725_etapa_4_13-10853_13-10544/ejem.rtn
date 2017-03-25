@@ -1,0 +1,11 @@
+func min(number x, boolean y) -> number
+begin
+end;
+program
+    with 
+    number a;
+    do 
+        a=2;
+    end;
+
+end;

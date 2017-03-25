@@ -27,16 +27,21 @@ class S
     def printAST(lvl)
         @scope.printAST(0)
     end
+    def interprete(symTable)
+        @scope.interprete(symTable)
+    end
 end
 
 #Clase que le quita la recursividad al símbolo inicial.
 class Scope
     attr_accessor :types
     attr_accessor :elems
+    attr_accessor :symTable
     # Donde inst es de la clase Instr
     def initialize(type1,func=nil,type2,inst)
         @types=[type1,type2]
         @elems=[func,inst]
+        #@symTable = nil
     end
     def printAST(lvl)     
         for i in 0..1
@@ -48,6 +53,19 @@ class Scope
             end
         end
     end
+    def interprete(symTable)
+        if @elems[0] !=nil
+            @symTable = @elems[0].interprete(symTable)
+            print"1"
+            @symTable.print_Table
+        end
+        if @elems[1] !=nil
+            print"2"
+            @symTable = @elems[1].interprete(symTable)
+            @symTable.print_Table
+        end
+    end
+
 end
 
 
@@ -60,11 +78,13 @@ class Ldecl
     attr_accessor :types
     attr_accessor :type1
     attr_accessor :elems
+    attr_accessor :symTable
     def initialize(type1,type2,var,type3=nil,list=nil,type4=nil,typeret=nil,type5=nil,inst=nil,type6=nil,var6=nil)
         @type1=type1
 
         @types=[type2,type3,type4,type5,type6]
         @elems=[var,list,typeret,inst,var6]
+        @symTable = nil
 
     end
     def printAST(lvl)
@@ -80,6 +100,13 @@ class Ldecl
             end
         end
     end
+    def interprete(symtable)
+        for i in 0..4
+            if @elems[i] != nil
+                @elems[i].interprete(symTable)       
+            end
+        end
+    end
 end
 #Clase para la impresion de un ciclo While
 class WLoop<Ldecl;end
@@ -92,9 +119,12 @@ class RLoop<Ldecl;end
 class Func
     attr_accessor :types
     attr_accessor :elems
+    attr_accessor :symTable
+    #var4 son las instrucciones
     def initialize(type1,listDecl,type2=nil,listinst=nil,type3=nil,var3=nil,type4=nil,var4=nil)
         @types=[type1,type2,type3,type4]
         @elems=[listDecl,listinst,var3,var4]
+        #@symTable = nil
     end
     def printAST(lvl)     
         for i in 0..3
@@ -104,6 +134,14 @@ class Func
 
                 @elems[i].printAST(lvl+1)            
             end
+        end
+    end
+    def interprete(symTable)
+        if @elems[4] != nil
+            print "3"
+            @symTable = @elems[4].interprete(@symTable)
+            $symTable.print_Table
+
         end
     end
 end
@@ -116,9 +154,11 @@ class Cond<Func;end
 class Bloque
     attr_accessor :types
     attr_accessor :elems
+    attr_accessor :symTable
     def initialize(type1,listDecl,type2=nil,listinst=nil)
         @types=[type1,type2]
         @elems=[listDecl,listinst]
+        #@symTable = nil
     end
     def printAST(lvl)     
         for i in 0..1
@@ -130,16 +170,52 @@ class Bloque
             end
         end
     end
+    def interprete(symTable)
+        for i in 0..1
+            if @elems[i] != nil
+                @symTable = @elems[i].interprete(symTable)          
+            end
+        end
+    end
 end
 
 #Clase para la impresion de Instrucciones
 class Inst<Bloque;end
+
+class InstWisf < Bloque;
+    def interprete(symTable)
+        print"instAsign"
+       @symTable = @elems[0].interprete(symTable)
+       $symTable.print_Table
+    end
+end
+class InstWis < InstWisf;end
+class InstReturn < Bloque;end
+class InstReturn_call < Bloque;end
+class InstAsign < Bloque
+    def interprete(symTable)
+        print"instAsign"
+       @symTable = @elems[0].interprete(symTable)
+       $symTable.print_Table
+    end
+end
+class InstIteratorF < Bloque;end
+class InstRead < Bloque;end
+class InstCondF < Bloque;end
+class InstCall < Bloque;end
+class InstExpr< Bloque;end
+
 #Clase par imprimir una lista de argumentos de una función
 class ListD < Bloque;end
 #Clase para imrimir los elementos de una intruccion Write
 class Writable<Bloque;end
 #Clase para la impresion de elementos de una asignacion
-class Asignable<Bloque;end
+class Asignable_Expr<Bloque
+    def interprete(symTable)
+        return elems[0].interprete(symTable)
+    end
+end
+class Asignable_Call<Bloque;end
 #Clase para la impresion de llamadas de funcion
 class Call<Bloque;end
 #Clase para la impreion de lista de Instrucciones
@@ -149,7 +225,18 @@ class Write<Bloque;end
 #Clase para la impresion de una instruccion de Retorno
 class Retorno<Bloque;end
 #Clase para la impreion de instruccion Assign
-class Assign < Bloque;end
+class Assign < Bloque
+    def interprete(symTable)
+        valor = @elems[1].interprete(symTable)
+        tipo = symTable.lookup(idVar)[0]
+        @symTable.update(elems[0], [tipo, valor])
+        print "assign"
+        $symTable.print_Table
+
+        return @symTable
+    end
+end
+
 
 #Clase para imprimir una lista de argumentos en la definicion de una función.
 class List
@@ -193,10 +280,24 @@ class ListaInst
             @list.printAST(lvl)
         end
     end
+
+    def interprete(symTable)
+        @elem.intreprete(symTable)
+        if @list != nil
+           @symTable = @list.interprete(symTable)
+        end
+    end
 end
 
 #Clase para la impresion de Lista de funciones
-class ListaFunc<ListaInst;end
+class ListaFunc<ListaInst
+    def interprete(symTable)
+        @elem.interprete(symTable)
+        if (@list!=nil)
+            @symTable=@list.interprete(symTable)
+        end
+    end
+end
 #Clase para la impresion de Lista de Parámtros de una llamade de funcion
 class ListParam<ListaInst;end
 #Clase para la impresion de lista de identificadores en una declaracion
@@ -352,4 +453,12 @@ class Terms
             puts"valor:#{@term.id}"
         end
     end
+
+    def interprete(symTable)
+        if @nameTerm == :DIGIT
+            puts"asigno un digit"
+            return @term.id
+        end
+    end
+
 end

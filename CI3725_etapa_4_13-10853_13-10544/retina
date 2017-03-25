@@ -23,6 +23,11 @@ def main
 		return
 	end
 
+	if ARGV[1] != nil
+		puts "Argumento inválido #{ARGV[1]}"
+		return
+	end
+
 	# Verificamos extension '.rtn' de archivo
 	ARGV[0] =~ /\w+\.rtn/;
 	if $&.nil? 
@@ -57,6 +62,20 @@ def main
 			SyntaxError.new(e)
 			e.to_s
 		end
+=begin
+			if ($symTable == nil)
+
+				puts "Tabla de Simbolos"
+				$tableStack.reverse!
+				$tableStack.each do |st|
+					st.print_Table
+					ast.interprete(st)
+				end
+				end
+			while $symTable.father != nil
+				$symTable.father.print_Table
+			end
+=end
 
 
 	else
