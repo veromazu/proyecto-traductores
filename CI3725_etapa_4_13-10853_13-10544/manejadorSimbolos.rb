@@ -120,27 +120,28 @@ class Analizador
 	def param_Handler(nombre,param)
 
 		if param.instance_of?(ListD)
-			paramDec_Handler(nombre,param.elems[0],param.elems[1].term.id)
+			paramDec_Handler(nombre,param.elems[0],param.elems[1].term)
 
 		end
 		if param.instance_of?(List)
-			paramDec_Handler(nombre,param.elems[0],param.elems[1].term.id)
+			paramDec_Handler(nombre,param.elems[0],param.elems[1].term)
 			param_Handler(nombre,param.list)
 		end
 	end
 
 
 	#Manejador de parámetros en la definición de una función
-	def paramDec_Handler(nombre,type,id)
+	def paramDec_Handler(nombre,type,tok)
 		type=type.val.symbol
+		id=tok.id
 
 		if !($symTable.contains(id))
 			$symTable.insert(id, [type, nil])
 			$symTable.param << type 
 		
 		else
-			raise SemanticError.new ("variable '#{id}' fue declarada antes " \
-					" para la misma Funcion.")
+			raise SemanticError.new "variable '#{id}' fue declarada antes " \
+					" para la misma Funcion.",tok
 		end
 	end
 
@@ -179,9 +180,9 @@ class Analizador
 		when :Lectura
 			lect_Handler(instr.elems[0]) #listo
 		when :Salida
-			salida_Handler(instr.elems[0])    ### Escrita pero no probada por problema de expry falta call
+			salida_Handler(instr.elems[0])    
 		when :Salida_Con_Salto
-			salida_Handler(instr.elems[0])  ## Escrita pero no probada por expr y call
+			salida_Handler(instr.elems[0]) 
 		when :Condicional
 			condF_Handler(namefunc,instr.elems[0])
 		when :Llamada_de_Funcion
@@ -194,25 +195,52 @@ class Analizador
 	#Manejador de instrucciones de retorno dentro de una funcion
 	#expr es de la clase Expr
 	def return_Handler(namefunc,expr)
-		typeExpr = expression_Handler(expr)
-		if typeExpr == :TYPEN
-			tipoExpr = "number"
-		elsif typeExpr == :TYPEB
-			tipoExpr = "boolean"
-		end
-
-		typeRet = $symTable.lookup(namefunc)[0]
-
-		if typeRet == nil
-			raise SemanticError.new "tipo de retorno '#{tipoExpr}' inesperado para '#{namefunc}'"
-
-		elsif typeRet != typeExpr
-			if typeRet== :TYPEN
-				tipoRetorno= "number"
-			elsif typeRet == :TYPEB
-				tipoRetorno = "boolean"
+		if expr.instance_of?(Call)
+			return return_Call_Handler(namefunc,expr)
+		else
+			typeExpr = expression_Handler(expr)
+			if typeExpr == :TYPEN
+				tipoExpr = "number"
+			elsif typeExpr == :TYPEB
+				tipoExpr = "boolean"
 			end
-			raise SemanticError.new "tipo de retorno '#{tipoExpr}' inesperado para '#{namefunc}', se esperaba tipo de retorno '#{tipoRetorno}'"
+
+			typeRet = $symTable.lookup(namefunc)[0]
+
+			if typeRet == nil
+				raise SemanticError.new "Tipo de retorno '#{tipoExpr}' inesperado para '#{namefunc}'"
+
+			elsif typeRet != typeExpr
+				if typeRet== :TYPEN
+					tipoRetorno= "number"
+				elsif typeRet == :TYPEB
+					tipoRetorno = "boolean"
+				end
+				raise SemanticError.new "Tipo de retorno '#{tipoExpr}' inesperado para '#{namefunc}', se esperaba tipo de retorno '#{tipoRetorno}'"
+			end
+		end
+	end
+
+
+	def return_Call_Handler(namefunc,call)
+		funcion = $symTable.lookup(namefunc)
+		tipo_fun = funcion[0]
+		fun_llamada = $symTable.lookup(call.elems[0].term.id)
+		
+		if (fun_llamada != nil)
+			tipo_llamada = fun_llamada[0]
+			if tipo_llamada == :TYPEN
+				tipoVar = "number"
+			elsif tipo_llamada == :TYPEB
+				tipoVar = "boolean"
+			end
+			if tipo_fun != tipo_llamada
+				raise SemanticError.new " Retorno de tipo '#{tipoVar}' inválido para '#{namefunc}'.",call.elems[0].term
+			else
+				return llamada_Handler(call)
+			end
+		else
+			raise SemanticError.new " Funcion '#{call.elems[0].term.id}' no declarada",call.elems[0].term
 		end
 	end
 
@@ -387,42 +415,42 @@ class Analizador
 		case func
 		when "home", "closeeye", "openeye"
 			if (parametros != nil)
-				raise SemanticError.new "Cantidad inválida de argumentos para '#{func}'"
+				raise SemanticError.new "Cantidad inválida de argumentos para '#{func}'",llamada.elems[0].term
 			end
 		when "forward", "backward", "rotater", "rotatel"
 			if (parametros !=nil)
 				if (parametros.list!=nil)
-					raise SemanticError.new " Cantidad inválida de argumentos para '#{func}'"
+					raise SemanticError.new " Cantidad inválida de argumentos para '#{func}'",llamada.elems[0].term
 				else
 					tipo=expression_Handler(parametros.elem)
 					if (tipo != :TYPEN)
 						if tipo == :TYPEB
-							raise SemanticError.new " Argumento inválido boolean para '#{func}'"
+							raise SemanticError.new " Argumento inválido boolean para '#{func}'",llamada.elems[0].term
 						else 
 						end
 					end
 				end
 			else
-				raise SemanticError.new "Cantidad inválida de argumentos para '#{func}'"
+				raise SemanticError.new "Cantidad inválida de argumentos para '#{func}'",llamada.elems[0].term
 			end
 
 		when "setposition", "arc"
 			if (parametros !=nil)
 				if (parametros.list==nil or parametros.list.list!=nil)
-					raise SemanticError.new " Cantidad inválida de argumentos para '#{func}'"
+					raise SemanticError.new " Cantidad inválida de argumentos para '#{func}'",llamada.elems[0].term
 				else 
 					tipo1 = expression_Handler(parametros.elem)
 					tipo2 = expression_Handler(parametros.list.elem)
 					if (tipo1 != :TYPEN )
 						if (tipo1 == :TYPEB )
-							raise SemanticError.new " Argumento inválido boolean para '#{func}'"
+							raise SemanticError.new " Argumento inválido boolean para '#{func}'",llamada.elems[0].term
 						else
-							raise SemanticError.new " Argumento inválido para '#{func}'"
+							raise SemanticError.new " Argumento inválido para '#{func}'",llamada.elems[0].term
 						end
 
 					elsif (tipo2 != :TYPEN)
 						if (tipo2 == :TYPEB )
-							raise SemanticError.new  " Argumento inválido boolean para'#{func}'"
+							raise SemanticError.new  " Argumento inválido boolean para'#{func}'",llamada.elems[0].term
 						end
 					end
 				end
@@ -456,10 +484,11 @@ class Analizador
 					end
 
 				end
-
+				puts cantArgCall
+				puts $cantArgFunc
 				#Error de cantidad de argumentos
 				if cantArgCall != $cantArgFunc
-					raise SemanticError.new " Cantidad inválida de argumentos para '#{func}'"
+					raise SemanticError.new " Cantidad inválida de argumentos para '#{func}'",llamada.elems[0].term
 
 				#Error por tipo de argumentos
 				else
@@ -473,14 +502,14 @@ class Analizador
 							elsif tipoCall == :TYPEB
 								tipo = "boolean"
 							end
-							raise SemanticError.new "Argumento inválido '#{tipo}' para '#{func}'"
+							raise SemanticError.new "Argumento inválido '#{tipo}' para '#{func}'",llamada.elems[0].term
 						end
 						parametros = parametros.list
 
 					end
 				end
 			else 
-				raise SemanticError.new llamada.elems[0].term," Funcion #{func} no declarada"
+				raise SemanticError.new " Funcion #{func} no declarada",llamada.elems[0].term
 			end
 		end
 	end
@@ -852,14 +881,18 @@ class Analizador
 
 	class SemanticError < RuntimeError
 
-	    def initialize(tok=nil,info)
+	    def initialize(info,tok=nil)
 	        @info=info
 	        @token=tok
 	    end
 
 	    def to_s
 	    	#Línea #{token.position[0]}, Column #{token.position[1]}
-	    	puts "ERROR: Línea #{@token.position[0]}, Column #{@token.position[1]}: #{@info}"
+	    	if @token!=nil
+	    		puts "ERROR: Línea #{@token.position[0]}, Column #{@token.position[1]}: #{@info}"
+	    	else
+	    		puts "ERROR:#{@info}"
+	    	end
 	    end
 	end
 end

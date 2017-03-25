@@ -7,14 +7,14 @@ begin
         b =  (k<x);
         if b then 
         end;
-        return y;
+        return 5>3;
     end;
 end;
 
-func incremental_forward(number steps)
+func incremental_forward(number steps)->number
 begin
     for i from 1 to steps do
-        forward(not false or true);
+        return min(1,2);
     end;
 end;
 

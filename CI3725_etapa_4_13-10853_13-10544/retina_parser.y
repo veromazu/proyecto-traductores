@@ -114,10 +114,11 @@ rule
 
     Instf
     : wisf  {result=Inst.new(:Bloque,val[0])}
+    | RETURN Call SEMICOLON {result=Inst.new(:Retorno,val[1])}
     | RETURN Expr SEMICOLON {result=Inst.new(:Retorno,val[1])}
     | Assign  {result=Inst.new(:Asignacion,val[0])}
     | IteratorF  {result=Inst.new(:Iteracion,val[0])}
-    | READ Var SEMICOLON  {result=Inst.new(:Lectura,val[1])}    ###### FALTA ACOMODAR ESTOOOO ########
+    | READ Var SEMICOLON  {result=Inst.new(:Lectura,val[1])}   
     | WRITE writable SEMICOLON  {result=Write.new(:Salida,val[1])}
     | WRITELN writable SEMICOLON  {result=Write.new(:Salida_Con_Salto,val[1])}
     | CondF  {result=Inst.new(:Condicional,val[0])}
@@ -133,7 +134,7 @@ rule
     : wis  {result=Inst.new(:Bloque,val[0])}
     | Assign  {result=Inst.new(:Asignacion,val[0])}
     | Iterator  {result=Inst.new(:Iteracion,val[0])}
-    | READ Var SEMICOLON  {result=Inst.new(:Lectura,val[1])}    ###### FALTA ACOMODAR ESTOOOO ########
+    | READ Var SEMICOLON  {result=Inst.new(:Lectura,val[1])}    
     | WRITE writable SEMICOLON  {result=Write.new(:Salida,val[1])}
     | WRITELN writable SEMICOLON  {result=Write.new(:Salida_Con_Salto,val[1])}
     | Cond  {result=Inst.new(:Condicional,val[0])}
@@ -141,7 +142,7 @@ rule
     | Expr SEMICOLON {result=Inst.new(:Expresion,val[0])}
     ;
 
-    writable #Puedo imprimir vacio?
+    writable 
     :Expr  {result=Writable.new(:Expresion,val[0])}
     |Str   {result=Writable.new(:String,val[0])}
     |Call   {result=Writable.new(:Llamada_de_Funcion,val[0])}
@@ -189,7 +190,8 @@ rule
     |IF Expr THEN END SEMICOLON  {result=Cond.new(:Condición,val[1])}
     |IF Expr THEN LInstf ELSE LInstf END SEMICOLON  {result=Cond.new(:Condicion,val[1],:Instrucciones,val[3],:Instrucciones_Else,val[5])}
     ;
-    Call   #######
+    
+    Call   
     : Var LPARENT ListParam RPARENT {result=Call.new(:nombre,val[0],:argumentos,val[2])}
     | Var LPARENT RPARENT {result=Call.new(:nombre,val[0])}
     ;

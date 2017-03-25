@@ -42,6 +42,7 @@ def main
 		parser=Parser.new(lexer)
 		begin
 			ast = parser.parse(lexer)
+			#ast.printAST(0)
 			
 
 		rescue => e
