@@ -46,8 +46,8 @@ class Analizador
 		$tableStack << $symTable
 
 		scope.symTable = $symTable
-		$symTable = $symTable.father
-
+		#$symTable = $symTable.father
+=begin
 		if ($symTable == nil)
 
 			puts "Tabla de Simbolos"
@@ -56,6 +56,7 @@ class Analizador
 				st.print_Table
 			end
 		end
+=end
 	end
 
 	#Manejador de lista de Funciones.
@@ -286,6 +287,8 @@ class Analizador
 		wis.symTable = $symTable
 		$tableStack << $symTable
 		$symTable = $symTable.father
+=begin
+		$symTable = $symTable.father
 
 		if ($symTable == nil)
 
@@ -295,7 +298,7 @@ class Analizador
 				st.print_Table
 			end
 		end
-
+=end
 	end
 
 	#Manejador de iteradores dentro de una función
@@ -798,7 +801,9 @@ class Analizador
 	# Función que dada una expresión retorna su tipo
 	def expression_Handler(expr)
 		# Procesar como binaria
-		if expr.instance_of?(BinExp)
+		if (expr.instance_of?(BinExpSuma) or expr.instance_of?(BinExpResta) or expr.instance_of?(BinExpMult) or expr.instance_of?(BinExpDiv2) or expr.instance_of?(BinExpMod2) \
+			or expr.instance_of?(BinExpDiv) or expr.instance_of?(BinExpMod) or expr.instance_of?(BinExpOr) or expr.instance_of?(BinExpAnd) or expr.instance_of?(BinExpLT) \
+			or expr.instance_of?(BinExpGT) or expr.instance_of?(BinExpLET) or expr.instance_of?(BinExpGET) or expr.instance_of?(BinExpDist) or expr.instance_of?(BinExpEQ))
 			return binExp_Handler(expr)
 		# Procesar como unaria
 		elsif expr.instance_of?(UnaExp)
@@ -867,7 +872,8 @@ class Analizador
 			else
 				raise SemanticError.new "Tipos de expresión distintos para operación de comparación"
 			end
-		when :Equivalencia,:Distinto_que
+		when :Equivalencia,:Distinto_Que
+			puts "entree acaa"
 			if (typeExpr1 == :TYPEN) and (typeExpr2 == :TYPEN)
 				return :TYPEB
 			elsif (typeExpr1 == :TYPEB) and (typeExpr2 == :TYPEB)

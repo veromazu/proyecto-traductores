@@ -1331,49 +1331,49 @@ module_eval(<<'.,.,', 'retina_parser.y', 208)
 
 module_eval(<<'.,.,', 'retina_parser.y', 218)
   def _reduce_81(val, _values, result)
-    result = BinExp.new(:Suma, val[0], val[2])
+    result = BinExpSuma.new(:Suma, val[0], val[2])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'retina_parser.y', 219)
   def _reduce_82(val, _values, result)
-    result = BinExp.new(:Resta, val[0], val[2])
+    result = BinExpResta.new(:Resta, val[0], val[2])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'retina_parser.y', 220)
   def _reduce_83(val, _values, result)
-    result = BinExp.new(:Multiplicacion, val[0], val[2])
+    result = BinExpMult.new(:Multiplicacion, val[0], val[2])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'retina_parser.y', 221)
   def _reduce_84(val, _values, result)
-    result = BinExp.new(:Division_Exacta, val[0], val[2])
+    result = BinExpDiv2.new(:Division_Exacta, val[0], val[2])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'retina_parser.y', 222)
   def _reduce_85(val, _values, result)
-    result = BinExp.new(:Resto_Exacto, val[0], val[2])
+    result = BinExpMod2.new(:Resto_Exacto, val[0], val[2])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'retina_parser.y', 223)
   def _reduce_86(val, _values, result)
-    result = BinExp.new(:Division_Entera, val[0], val[2])
+    result = BinExpDiv.new(:Division_Entera, val[0], val[2])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'retina_parser.y', 224)
   def _reduce_87(val, _values, result)
-    result = BinExp.new(:Resto_Entero, val[0], val[2])
+    result = BinExpMod.new(:Resto_Entero, val[0], val[2])
     result
   end
 .,.,
@@ -1401,56 +1401,56 @@ module_eval(<<'.,.,', 'retina_parser.y', 227)
 
 module_eval(<<'.,.,', 'retina_parser.y', 228)
   def _reduce_91(val, _values, result)
-    result = BinExp.new(:Or , val[0],val[2])
+    result = BinExpOr.new(:Or , val[0],val[2])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'retina_parser.y', 229)
   def _reduce_92(val, _values, result)
-    result = BinExp.new(:And, val[0], val[2])
+    result = BinExpAnd.new(:And, val[0], val[2])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'retina_parser.y', 230)
   def _reduce_93(val, _values, result)
-    result = BinExp.new(:Menor_que, val[0], val[2])
+    result = BinExpLT.new(:Menor_que, val[0], val[2])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'retina_parser.y', 231)
   def _reduce_94(val, _values, result)
-    result = BinExp.new(:Mayor_que, val[0], val[2])
+    result = BinExpGT.new(:Mayor_que, val[0], val[2])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'retina_parser.y', 232)
   def _reduce_95(val, _values, result)
-    result = BinExp.new(:Menor_O_Igual_Que, val[0], val[2])
+    result = BinExpLET.new(:Menor_O_Igual_Que, val[0], val[2])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'retina_parser.y', 233)
   def _reduce_96(val, _values, result)
-    result = BinExp.new(:Mayor_O_Igual_Que, val[0], val[2])
+    result = BinExpGET.new(:Mayor_O_Igual_Que, val[0], val[2])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'retina_parser.y', 234)
   def _reduce_97(val, _values, result)
-    result = BinExp.new(:Distinto_Que, val[0], val[2])
+    result = BinExpDist.new(:Distinto_Que, val[0], val[2])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'retina_parser.y', 235)
   def _reduce_98(val, _values, result)
-    result = BinExp.new(:Equivalencia,val[0],val[2])
+    result = BinExpEQ.new(:Equivalencia,val[0],val[2])
     result
   end
 .,.,

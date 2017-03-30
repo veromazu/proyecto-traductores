@@ -1,11 +1,16 @@
 func min(number x, boolean y) -> number
 begin
+	with 
+    boolean k;
+    do 
+        k = true and (((false or true) or false) and not true) and true;
+    end;
 end;
 program
     with 
     number a;
     do 
-        a=2;
+        a=100+((10+5) mod 3-(7 div 2 -23.5%2)/1 +(-4));
     end;
 
 end;

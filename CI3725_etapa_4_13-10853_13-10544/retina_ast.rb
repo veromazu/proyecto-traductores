@@ -27,8 +27,8 @@ class S
     def printAST(lvl)
         @scope.printAST(0)
     end
-    def interprete(symTable)
-        @scope.interprete(symTable)
+    def interprete()
+        @scope.interprete()
     end
 end
 
@@ -41,7 +41,7 @@ class Scope
     def initialize(type1,func=nil,type2,inst)
         @types=[type1,type2]
         @elems=[func,inst]
-        #@symTable = nil
+        @symTable = nil
     end
     def printAST(lvl)     
         for i in 0..1
@@ -53,16 +53,19 @@ class Scope
             end
         end
     end
-    def interprete(symTable)
+    def interprete()
+        #puts "Scope de Scope"
+        #@symTable.print_Table
         if @elems[0] !=nil
-            @symTable = @elems[0].interprete(symTable)
-            print"1"
-            @symTable.print_Table
+            @elems[0].interprete(@symTable)
+            #print"1 Scope de funciones"
+            #@symTable.print_Table
         end
         if @elems[1] !=nil
-            print"2"
-            @symTable = @elems[1].interprete(symTable)
-            @symTable.print_Table
+            
+            @elems[1].interprete(@symTable)
+            #print"2 Scope de instrucciones"
+            #@symTable.print_Table
         end
     end
 
@@ -101,11 +104,14 @@ class Ldecl
         end
     end
     def interprete(symtable)
-        for i in 0..4
-            if @elems[i] != nil
-                @elems[i].interprete(symTable)       
-            end
+        if @elems[4] != nil
+            @elems[4].interprete(symTable)
         end
+        #for i in 0..4
+        #    if @elems[i] != nil
+        #        @elems[i].interprete(symTable)       
+        #    end
+        #end
     end
 end
 #Clase para la impresion de un ciclo While
@@ -121,10 +127,10 @@ class Func
     attr_accessor :elems
     attr_accessor :symTable
     #var4 son las instrucciones
-    def initialize(type1,listDecl,type2=nil,listinst=nil,type3=nil,var3=nil,type4=nil,var4=nil)
+    def initialize(type1,var1,type2=nil,var2=nil,type3=nil,var3=nil,type4=nil,var4=nil)
         @types=[type1,type2,type3,type4]
-        @elems=[listDecl,listinst,var3,var4]
-        #@symTable = nil
+        @elems=[var1,var2,var3,var4]
+        @symTable = nil
     end
     def printAST(lvl)     
         for i in 0..3
@@ -137,11 +143,12 @@ class Func
         end
     end
     def interprete(symTable)
-        if @elems[4] != nil
-            print "3"
-            @symTable = @elems[4].interprete(@symTable)
-            $symTable.print_Table
-
+        if @elems[3] != nil      
+            #print "3 Funciones ANTES"
+            #@symTable.print_Table    
+            @elems[3].interprete(@symTable)
+            #print "3 Funciones"
+            #@symTable.print_Table
         end
     end
 end
@@ -158,7 +165,7 @@ class Bloque
     def initialize(type1,listDecl,type2=nil,listinst=nil)
         @types=[type1,type2]
         @elems=[listDecl,listinst]
-        #@symTable = nil
+        @symTable = nil
     end
     def printAST(lvl)     
         for i in 0..1
@@ -173,7 +180,8 @@ class Bloque
     def interprete(symTable)
         for i in 0..1
             if @elems[i] != nil
-                @symTable = @elems[i].interprete(symTable)          
+                @elems[i].interprete(@symTable) 
+                #@symTable.print_Table         
             end
         end
     end
@@ -184,19 +192,28 @@ class Inst<Bloque;end
 
 class InstWisf < Bloque;
     def interprete(symTable)
-        print"instAsign"
-       @symTable = @elems[0].interprete(symTable)
-       $symTable.print_Table
+        
+       @elems[0].interprete(symTable)
+       #puts"instAsignWisf"
+       #symTable.print_Table
+    end
+
+end
+class InstWis < InstWisf
+    def interprete(symTable)
+        
+        @elems[0].interprete(symTable)
+        #print"instAsignWis"
+        #@symTable.print_Table
     end
 end
-class InstWis < InstWisf;end
 class InstReturn < Bloque;end
 class InstReturn_call < Bloque;end
 class InstAsign < Bloque
     def interprete(symTable)
-        print"instAsign"
-       @symTable = @elems[0].interprete(symTable)
-       $symTable.print_Table
+       @elems[0].interprete(symTable)
+       # print"instAsign"
+       #symTable.print_Table
     end
 end
 class InstIteratorF < Bloque;end
@@ -211,8 +228,8 @@ class ListD < Bloque;end
 class Writable<Bloque;end
 #Clase para la impresion de elementos de una asignacion
 class Asignable_Expr<Bloque
-    def interprete(symTable)
-        return elems[0].interprete(symTable)
+    def interprete()
+        return elems[0].interprete()
     end
 end
 class Asignable_Call<Bloque;end
@@ -221,19 +238,26 @@ class Call<Bloque;end
 #Clase para la impreion de lista de Instrucciones
 class LInst<Bloque;end
 #Clase para la impresion de una instruccion Write
-class Write<Bloque;end 
+class Write<Bloque
+    def interprete(symtable)
+        elems[0].interprete(symTable)
+    end
+end
+
+
 #Clase para la impresion de una instruccion de Retorno
 class Retorno<Bloque;end
 #Clase para la impreion de instruccion Assign
 class Assign < Bloque
     def interprete(symTable)
-        valor = @elems[1].interprete(symTable)
+        idVar = @elems[0].interprete()
+        valor = @elems[1].interprete()
+        puts "valor #{valor}"
         tipo = symTable.lookup(idVar)[0]
-        @symTable.update(elems[0], [tipo, valor])
+        puts "el tipo es #{tipo}"
+        symTable.update(idVar, [tipo, valor])
         print "assign"
-        $symTable.print_Table
-
-        return @symTable
+        symTable.print_Table
     end
 end
 
@@ -282,9 +306,9 @@ class ListaInst
     end
 
     def interprete(symTable)
-        @elem.intreprete(symTable)
+        @elem.interprete(symTable)
         if @list != nil
-           @symTable = @list.interprete(symTable)
+           @list.interprete(symTable)
         end
     end
 end
@@ -294,7 +318,7 @@ class ListaFunc<ListaInst
     def interprete(symTable)
         @elem.interprete(symTable)
         if (@list!=nil)
-            @symTable=@list.interprete(symTable)
+            @list.interprete(symTable)
         end
     end
 end
@@ -366,7 +390,7 @@ end
 # Clases asociadas a expresiones. #
 ###################################
 
-#Clase para la impresion de operacines binarias.
+#Clase de operacines binarias.
 class BinExp
     attr_accessor :op
     attr_accessor :elems
@@ -389,6 +413,159 @@ class BinExp
         end
     end
 end
+#Clase de sumas
+class BinExpSuma <BinExp
+    def interprete()
+        izquierdo = @elems[0].interprete()
+        derecho =  @elems[1].interprete()
+        puts izquierdo
+        puts derecho
+        return izquierdo + derecho
+    end
+end
+#Clase de restas
+class BinExpResta <BinExp
+    def interprete()
+        izquierdo = @elems[0].interprete()
+        derecho =  @elems[1].interprete()
+        puts izquierdo - derecho
+        return izquierdo - derecho
+    end
+end
+#Clase de multiplicaciones
+class BinExpMult <BinExp
+    def interprete()
+        izquierdo = @elems[0].interprete()
+        derecho =  @elems[1].interprete()
+        puts izquierdo * derecho
+        return izquierdo * derecho
+    end
+end
+#clase de /
+class BinExpDiv2 <BinExp
+    def interprete()
+        izquierdo = @elems[0].interprete()
+        derecho =  @elems[1].interprete()
+        if derecho == 0
+            raise ExecError.new "No es posible completar la operación: División por cero"
+        else
+            puts izquierdo.fdiv(derecho)
+            return (izquierdo).fdiv(derecho)
+        end
+    end
+end
+#Clase de %
+class BinExpMod2 <BinExp
+    def interprete()
+        izquierdo = @elems[0].interprete()
+        derecho =  @elems[1].interprete()
+        if derecho == 0
+            raise ExecError.new "No es posible completar la operación: Resto exacto de cero"
+        else
+            puts izquierdo% derecho
+            return (izquierdo) % (derecho)
+        end
+    end
+end
+#Clase de div
+class BinExpDiv <BinExp
+    def interprete()
+        izquierdo = @elems[0].interprete()
+        derecho =  @elems[1].interprete()
+        if derecho == 0
+            raise ExecError.new "No es posible completar la operación: Resto exacto de cero"
+        else
+            izquierdo.div(derecho)
+            return (izquierdo).div(derecho)
+        end
+    end
+end
+
+#Clase de mod
+class BinExpMod <BinExp
+    def interprete()
+
+        izquierdo = @elems[0].interprete()
+        derecho =  @elems[1].interprete()
+        if derecho == 0
+            raise ExecError.new "No es posible completar la operación: Resto exacto de cero"
+        else
+            puts izquierdo.to_i.modulo(derecho)
+            return izquierdo.to_i.modulo(derecho)
+        end
+    end
+end
+
+#Clase del or
+class BinExpOr <BinExp
+    def interprete()
+        izquierdo = @elems[0].interprete()
+        derecho =  @elems[1].interprete()
+        return izquierdo || derecho
+    end
+end
+
+#Clase del and
+class BinExpAnd <BinExp
+    def interprete()
+        izquierdo = @elems[0].interprete()
+        derecho =  @elems[1].interprete()
+        return izquierdo && derecho
+    end
+end
+
+#Clase del < 
+class BinExpLT < BinExp
+    def interprete()
+        izquierdo = @elems[0].interprete()
+        derecho =  @elems[1].interprete()
+        return izquierdo < derecho
+    end
+end
+#Clase del >
+class BinExpGT <BinExp
+    def interprete()
+        izquierdo = @elems[0].interprete()
+        derecho =  @elems[1].interprete()
+        return izquierdo > derecho
+    end
+end
+
+#Clase del <
+class BinExpLET <BinExp
+    def interprete()
+        izquierdo = @elems[0].interprete()
+        derecho =  @elems[1].interprete()
+        return izquierdo <= derecho
+    end
+end
+
+#Clase del >=
+class BinExpGET <BinExp
+    def interprete()
+        izquierdo = @elems[0].interprete()
+        derecho =  @elems[1].interprete()
+        return izquierdo >= derecho
+    end
+end
+
+#Clase del /=
+class BinExpDist <BinExp
+    def interprete()
+        izquierdo = @elems[0].interprete()
+        derecho =  @elems[1].interprete()
+        return izquierdo != derecho
+    end
+end
+
+#clase del ==
+class BinExpEQ <BinExp
+    def interprete()
+        izquierdo = @elems[0].interprete()
+        derecho =  @elems[1].interprete()
+        return izquierdo == derecho
+    end
+end
 
 #Clase para la impresion de operacion Unarias como el inverso Aditivo
 # op es :Inverso_Aditivo y expr es la expresion.
@@ -405,6 +582,14 @@ class UnaExp
         end
         puts "#{@op}"
         @elem.printAST(lvl+1)
+    end
+
+    def interprete()
+        if op == :Inverso_Aditivo
+            return - @elem.interprete()
+        elsif op == :Negacion
+            return !@elem.interprete()
+        end
     end
 end
 
@@ -424,6 +609,10 @@ class ParExp
         puts "#{@type}"
         @expr.printAST(lvl+1)       
     end 
+
+    def interprete()
+        return @expr
+    end
 end
 
 #Clase para la impresión de Terms : identificadores, literales booleanos y literales nuḿéricos
@@ -454,11 +643,34 @@ class Terms
         end
     end
 
-    def interprete(symTable)
-        if @nameTerm == :DIGIT
-            puts"asigno un digit"
+    def interprete()
+        case @nameTerm
+        when :ID
             return @term.id
+        when :DIGIT
+            return @term.id.to_f
+        when :TRUE
+            return true
+        when :FALSE
+            return false
         end
     end
 
+end
+
+class ExecError < RuntimeError
+
+    def initialize(info,tok=nil)
+        @info=info
+        @token=tok
+    end
+
+    def to_s
+        #Línea #{token.position[0]}, Column #{token.position[1]}
+        if @token!=nil
+            puts "ERROR: Línea #{@token.position[0]}, Columna #{@token.position[1]}: #{@info}"
+        else
+            puts "ERROR:#{@info}"
+        end
+    end
 end

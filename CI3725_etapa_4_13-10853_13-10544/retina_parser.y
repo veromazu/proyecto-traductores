@@ -216,24 +216,24 @@ rule
     # Expresiones: define todas las expresiones recursivas en Retina.
     Expr                          
     : Term                        
-    | Expr PLUS Expr                  {result = BinExp.new(:Suma, val[0], val[2])}
-    | Expr LESS Expr                   {result = BinExp.new(:Resta, val[0], val[2])}
-    | Expr MULT Expr                {result = BinExp.new(:Multiplicacion, val[0], val[2])}
-    | Expr DIV2 Expr                {result = BinExp.new(:Division_Exacta, val[0], val[2])}
-    | Expr MOD2 Expr                 {result = BinExp.new(:Resto_Exacto, val[0], val[2])}
-    | Expr DIV Expr                {result = BinExp.new(:Division_Entera, val[0], val[2])}
-    | Expr MOD Expr                 {result = BinExp.new(:Resto_Entero, val[0], val[2])}
+    | Expr PLUS Expr                  {result = BinExpSuma.new(:Suma, val[0], val[2])}
+    | Expr LESS Expr                   {result = BinExpResta.new(:Resta, val[0], val[2])}
+    | Expr MULT Expr                {result = BinExpMult.new(:Multiplicacion, val[0], val[2])}
+    | Expr DIV2 Expr                {result = BinExpDiv2.new(:Division_Exacta, val[0], val[2])}
+    | Expr MOD2 Expr                 {result = BinExpMod2.new(:Resto_Exacto, val[0], val[2])}
+    | Expr DIV Expr                {result = BinExpDiv.new(:Division_Entera, val[0], val[2])}
+    | Expr MOD Expr                 {result = BinExpMod.new(:Resto_Entero, val[0], val[2])}
     | LESS Expr  =UMINUS                 {result = UnaExp.new(:Inverso_Aditivo , val[1])}
     | NOT Expr                        {result = UnaExp.new(:Negacion , val[1])}
     | LPARENT Expr RPARENT            {result = ParExp.new(:Expresion, val[1])}
-    | Expr OR Expr                    {result = BinExp.new(:Or , val[0],val[2])}
-    | Expr AND Expr                   {result = BinExp.new(:And, val[0], val[2])}
-    | Expr LESSTHAN Expr                 {result = BinExp.new(:Menor_que, val[0], val[2])}
-    | Expr GREATTHAN Expr              {result = BinExp.new(:Mayor_que, val[0], val[2])}
-    | Expr LETHAN Expr               {result = BinExp.new(:Menor_O_Igual_Que, val[0], val[2])}
-    | Expr GETHAN Expr            {result = BinExp.new(:Mayor_O_Igual_Que, val[0], val[2])}
-    | Expr DISTINCT Expr                 {result = BinExp.new(:Distinto_Que, val[0], val[2])}
-    | Expr EQUIVALENT Expr              {result = BinExp.new(:Equivalencia,val[0],val[2])}
+    | Expr OR Expr                    {result = BinExpOr.new(:Or , val[0],val[2])}
+    | Expr AND Expr                   {result = BinExpAnd.new(:And, val[0], val[2])}
+    | Expr LESSTHAN Expr                 {result = BinExpLT.new(:Menor_que, val[0], val[2])}
+    | Expr GREATTHAN Expr              {result = BinExpGT.new(:Mayor_que, val[0], val[2])}
+    | Expr LETHAN Expr               {result = BinExpLET.new(:Menor_O_Igual_Que, val[0], val[2])}
+    | Expr GETHAN Expr            {result = BinExpGET.new(:Mayor_O_Igual_Que, val[0], val[2])}
+    | Expr DISTINCT Expr                 {result = BinExpDist.new(:Distinto_Que, val[0], val[2])}
+    | Expr EQUIVALENT Expr              {result = BinExpEQ.new(:Equivalencia,val[0],val[2])}
     ;
 
     # Booleanos: define al tipo de variables booleanas en Retina.

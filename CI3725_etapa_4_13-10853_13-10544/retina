@@ -45,15 +45,15 @@ def main
 	lexer = Lexer.new()
 	if lexer.identifier(input)
 		parser=Parser.new(lexer)
-		begin
+		#begin
 			ast = parser.parse(lexer)
 			#ast.printAST(0)
 			
 
-		rescue => e
-			SyntaxError.new(e)
-			puts "Error sintactico: #{e}"
-		end
+		#rescue => e
+		#	SyntaxError.new(e)
+		#	puts "Error sintactico: #{e}"
+		#end
 		
 		begin
 			analizador = Analizador.new(ast)
@@ -62,6 +62,19 @@ def main
 			SyntaxError.new(e)
 			e.to_s
 		end
+
+		$tableStack.reverse!
+		$tableStack.each do |st|
+			st.print_Table
+		end
+
+		ast.interprete()
+=begin
+		while $symTable != nil
+				$symTable.print_Table
+				$symTable=$symTable.father
+			end
+=end
 =begin
 			if ($symTable == nil)
 
