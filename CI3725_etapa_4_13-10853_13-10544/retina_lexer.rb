@@ -34,7 +34,7 @@ $tokens = {
 	/^for\s/										=> :FOR,
 	/^repeat\s/										=>:REPEAT,
 	/^times\s/										=>:TIMES,
-	/^read/										=>:READ,
+	/^read\s/										=>:READ,
 	/^writeln\s/									=>:WRITELN,
 	/^write\s/										=>:WRITE,
 	/^from\s/										=>:FROM,
@@ -63,7 +63,7 @@ $tokens = {
 	/^-/											=>:LESS,
 	/^[a-z][a-zA-Z0-9_]*/							=>:ID,
 	/^"[a-zA-Z\d\s[[:punct:]]]*"/					=>:STRING,
-	/^([1-9][0-9]*|0)(\.[0-9]+)?/					=>:DIGIT,
+	/^(-|)([1-9][0-9]*|0)(\.[0-9]+)?/					=>:DIGIT,
 }
 
 

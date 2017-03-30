@@ -37,8 +37,87 @@ class Analizador
 		symTableAux = SymbolTable.new("Programa principal",$symTable)
 		$symTable = symTableAux
 
+		#Preinsertar home
+		$symTable.insert("home",[nil,nil])
+		# Asignación de una nueva tabla.
+		symTableAux = SymbolTable.new("Alcance home",$symTable)
+		$symTable = symTableAux
+		$symTable.insert("home",[nil,nil])
+		$tableStack << $symTable
+		$symTable = $symTable.father
 
-		listFuncError = 0
+		#Preinsertar openeye
+		$symTable.insert("openeye",[nil,nil])
+		# Asignación de una nueva tabla.
+		symTableAux = SymbolTable.new("Alcance openeye",$symTable)
+		$symTable = symTableAux
+		$symTable.insert("openeye",[nil,nil])
+		$tableStack << $symTable
+		$symTable = $symTable.father
+
+		#Presinsertar closeeye
+		$symTable.insert("closeeye",[nil,nil])
+		# Asignación de una nueva tabla.
+		symTableAux = SymbolTable.new("Alcance closeye",$symTable)
+		$symTable = symTableAux
+		$symTable.insert("closeeye",[nil,[]])
+		$tableStack << $symTable
+		$symTable = $symTable.father
+
+		#Preinsertar forward
+		$symTable.insert("forward",[nil,nil])
+		# Asignación de una nueva tabla.
+		symTableAux = SymbolTable.new("Alcance forward",$symTable)
+		$symTable = symTableAux
+		$symTable.insert("forward",[nil,nil])
+		$symTable.param << :TYPEN
+		$tableStack << $symTable
+		$symTable = $symTable.father
+
+		#Preinsertar backward
+
+		$symTable.insert("backward",[nil,nil])
+		# Asignación de una nueva tabla.
+		symTableAux = SymbolTable.new("Alcance backward",$symTable)
+		$symTable = symTableAux
+		$symTable.insert("backward",[nil,nil])
+		$symTable.param << :TYPEN
+		$tableStack << $symTable
+		$symTable = $symTable.father
+
+
+		#Preinsertar Rotater
+		$symTable.insert("rotater",[nil,nil])
+		# Asignación de una nueva tabla.
+		symTableAux = SymbolTable.new("Alcance rotater",$symTable)
+		$symTable = symTableAux
+		$symTable.insert("rotater",[nil,nil])
+		$symTable.param << :TYPEN
+		$tableStack << $symTable
+		$symTable = $symTable.father
+
+		#Preinsertar rotatel
+		$symTable.insert("rotatel",[nil,nil])
+		# Asignación de una nueva tabla.
+		symTableAux = SymbolTable.new("Alcance rotatel",$symTable)
+		$symTable = symTableAux
+		$symTable.insert("rotatel",[nil,nil])
+		$symTable.param << :TYPEN
+		$tableStack << $symTable
+		$symTable = $symTable.father
+
+		#Preinsertar setposition
+		$symTable.insert("setposition",[nil,nil])
+		# Asignación de una nueva tabla.
+		symTableAux = SymbolTable.new("Alcance setposition",$symTable)
+		$symTable = symTableAux
+		$symTable.insert("setposition",[nil,nil])
+		$symTable.param.push(:TYPEN,:TYPEN)
+		$tableStack << $symTable
+		$symTable = $symTable.father
+		
+		#preinsertar()
+
 		if (scope.elems[0]!=nil)
 			listFunc_Handler(scope.elems[0])
 		end
@@ -46,6 +125,8 @@ class Analizador
 		$tableStack << $symTable
 
 		scope.symTable = $symTable
+		puts "Escope .symtabl es "
+		scope.symTable.print_Table
 		#$symTable = $symTable.father
 =begin
 		if ($symTable == nil)
@@ -377,7 +458,9 @@ class Analizador
 
 		if (expression_Handler(expr)!= :TYPEB)
 			raise SemanticError.new "La condicion debe ser del tipo : 'boolean' en instrucción 'if'"
-		elsif (inst1 != nil)
+		end
+
+		if (inst1 != nil)
 			LInstF_Handler(namefunc,inst1) 
 		end
 		if (inst2 != nil)
@@ -409,7 +492,7 @@ class Analizador
 		when :Iteracion
 			iterator_Handler(instr.elems[0])
 		when :Lectura
-			lect_Handler(instr.elems[0]) 
+			lect_Handler(instr.val) 
 		when :Salida
 			salida_Handler(instr.elems[0])  
 		when :Salida_Con_Salto
@@ -434,104 +517,59 @@ class Analizador
 
 		$funcionParam = [] 
 
-		case func
-		when "home", "closeeye", "openeye"
-			if (parametros != nil)
-				raise SemanticError.new "Cantidad inválida de argumentos para '#{func}'",llamada.elems[0].term
-			end
-		when "forward", "backward", "rotater", "rotatel"
-			if (parametros !=nil)
-				if (parametros.list!=nil)
-					raise SemanticError.new " Cantidad inválida de argumentos para '#{func}'",llamada.elems[0].term
-				else
-					tipo=expression_Handler(parametros.elem)
-					if (tipo != :TYPEN)
-						if tipo == :TYPEB
-							raise SemanticError.new " Argumento inválido boolean para '#{func}'",llamada.elems[0].term
-						else 
-						end
-					end
-				end
-			else
-				raise SemanticError.new "Cantidad inválida de argumentos para '#{func}'",llamada.elems[0].term
-			end
+		if ($symTable.lookup(func) != nil)
+			$cantArgFunc = 0
+			$tableStack.each do |t|
 
-		when "setposition"
-			if (parametros !=nil)
-				if (parametros.list==nil or parametros.list.list!=nil)
-					raise SemanticError.new " Cantidad inválida de argumentos para '#{func}'",llamada.elems[0].term
-				else 
-					tipo1 = expression_Handler(parametros.elem)
-					tipo2 = expression_Handler(parametros.list.elem)
-					if (tipo1 != :TYPEN )
-						if (tipo1 == :TYPEB )
-							raise SemanticError.new " Argumento inválido boolean para '#{func}'",llamada.elems[0].term
-						else
-							raise SemanticError.new " Argumento inválido para '#{func}'",llamada.elems[0].term
-						end
-
-					elsif (tipo2 != :TYPEN)
-						if (tipo2 == :TYPEB )
-							raise SemanticError.new  " Argumento inválido boolean para'#{func}'",llamada.elems[0].term
-						end
-					end
+				if (t.nombre == "Alcance "+ func)
+					tablafunc = t 
+					$cantArgFunc = tablafunc.param.size
+					$funcionParam = tablafunc.param
+					break
 				end
 			end
-		else
-			if ($symTable.lookup(func) != nil)
-				$cantArgFunc = 0
-				$tableStack.each do |t|
-
-					if (t.nombre == "Alcance "+ func)
-						tablafunc = t 
-						$cantArgFunc = tablafunc.param.size
-						$funcionParam = tablafunc.param
-						break
-					end
-				end
-				#Cálculo de cantidad de argumentos en la llamada
+			#Cálculo de cantidad de argumentos en la llamada
+			cantArgCall = 0
+			if (parametros == nil)
 				cantArgCall = 0
-				if (parametros == nil)
-					cantArgCall = 0
-				else
-					if parametros.list != nil
-						cantArgCall = 2
-						aux=parametros.list
-						while (aux.list!=nil)
-							cantArgCall += 1
-							aux = aux.list
-						end
-					else
-						cantArgCall =1
+			else
+				if parametros.list != nil
+					cantArgCall = 2
+					aux=parametros.list
+					while (aux.list!=nil)
+						cantArgCall += 1
+						aux = aux.list
 					end
-
+				else
+					cantArgCall =1
 				end
 
-				#Error de cantidad de argumentos
-				if cantArgCall != $cantArgFunc
-					raise SemanticError.new " Cantidad inválida de argumentos para '#{func}'",llamada.elems[0].term
-
-				#Error por tipo de argumentos
-				else
-					for i in 0..($cantArgFunc-1)
-						aux = parametros.elem
-						tipoCall = expression_Handler(aux)
-						tipoDef = $funcionParam[i]
-						if tipoCall != tipoDef
-							if tipoCall == :TYPEN	
-								tipo = "number"
-							elsif tipoCall == :TYPEB
-								tipo = "boolean"
-							end
-							raise SemanticError.new "Argumento inválido '#{tipo}' para '#{func}'",llamada.elems[0].term
-						end
-						parametros = parametros.list
-
-					end
-				end
-			else 
-				raise SemanticError.new " Funcion #{func} no declarada",llamada.elems[0].term
 			end
+
+			#Error de cantidad de argumentos
+			if cantArgCall != $cantArgFunc
+				raise SemanticError.new " Cantidad inválida de argumentos para '#{func}'",llamada.elems[0].term
+
+			#Error por tipo de argumentos
+			else
+				for i in 0..($cantArgFunc-1)
+					aux = parametros.elem
+					tipoCall = expression_Handler(aux)
+					tipoDef = $funcionParam[i]
+					if tipoCall != tipoDef
+						if tipoCall == :TYPEN	
+							tipo = "number"
+						elsif tipoCall == :TYPEB
+							tipo = "boolean"
+						end
+						raise SemanticError.new "Argumento inválido '#{tipo}' para '#{func}'",llamada.elems[0].term
+					end
+					parametros = parametros.list
+
+				end
+			end
+		else 
+			raise SemanticError.new " Funcion #{func} no declarada",llamada.elems[0].term
 		end
 	end
 
@@ -627,16 +665,21 @@ class Analizador
 		expr = cond.elems[0]
 		inst1 = cond.elems[1]
 		inst2 = cond.elems[2]
-
+		puts expr 
+		puts inst1
+		puts inst2
 
 		if (expression_Handler(expr)!= :TYPEB)
+			puts "revise expr"
 			raise SemanticError.new " La condicion debe ser del tipo : 'boolean', en instrucción 'if'"
 
 		else
-			if (inst! != nil)
+			if (inst1 != nil)
+				puts "Revisando inst1"
 				LInst_Handler(inst1) 
 			end
 			if (inst2 != nil)
+				"Revisando inst2"
 				LInst_Handler(inst2) 
 			end
 		end
@@ -662,6 +705,7 @@ class Analizador
 		wis.symTable = $symTable
 		$tableStack << $symTable
 		$symTable = $symTable.father
+
 
 	end
 
@@ -817,13 +861,15 @@ class Analizador
 			case type
 			when :ID		
 				idVar = expr.term.id
+				puts idVar
 				typeVar = $symTable.lookup(idVar)
+				puts typeVar
 				if typeVar!=nil
 					typeVar = typeVar[0]
+					return typeVar
 				else
 					raise SemanticError.new " Variale '#{idVar}' no declarada en este entorno",expr.term
 				end
-				return typeVar
 			when :DIGIT
 				return :TYPEN
 			when :TRUE

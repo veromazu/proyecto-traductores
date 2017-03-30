@@ -121,12 +121,12 @@ rule
     | RETURN Expr SEMICOLON {result=InstReturn_call.new(:Retorno,val[1])}
     | Assign  {result=InstAsign.new(:Asignacion,val[0])}
     | IteratorF  {result=InstIteratorF.new(:Iteracion,val[0])}
-    | READ Var SEMICOLON  {result=InstRead.new(:Lectura,val[1])}   
-    | WRITE writable SEMICOLON  {result=Write.new(:Salida,val[1])}
-    | WRITELN writable SEMICOLON  {result=Write.new(:Salida_Con_Salto,val[1])}
-    | CondF  {result=InstCondF.new(:Condicional,val[0])}
+    | READ Var SEMICOLON  {result=Read.new(:Lectura,val[1])}   
+    | WRITE writable1 SEMICOLON  {result=Write.new(:Salida,val[1])}
+    | WRITELN writable2 SEMICOLON  {result=WriteSalto.new(:Salida_Con_Salto,val[1])}
+    | CondF  {result=Inst.new(:Condicional,val[0])}
     | Call SEMICOLON {result=InstCall.new(:Llamada_de_Funcion,val[0])}
-    | Expr SEMICOLON {result=InstExpr.new(:Expresion,val[0])}
+    | Expr SEMICOLON {result=Inst.new(:Expresion,val[0])}
     ;
 
     LInstruc
@@ -144,20 +144,28 @@ rule
     : wis  {result=InstWis.new(:Bloque,val[0])}
     | Assign  {result=InstAsign.new(:Asignacion,val[0])}
     | Iterator  {result=Inst.new(:Iteracion,val[0])}
-    | READ Var SEMICOLON  {result=Inst.new(:Lectura,val[1])}    
-    | WRITE writable SEMICOLON  {result=Write.new(:Salida,val[1])}
-    | WRITELN writable SEMICOLON  {result=Write.new(:Salida_Con_Salto,val[1])}
+    | READ Var SEMICOLON  {result=Read.new(:Lectura,val[1])}    #listo
+    | WRITE writable1 SEMICOLON  {result=Write.new(:Salida,val[1])}
+    | WRITELN writable2 SEMICOLON  {result=WriteSalto.new(:Salida_Con_Salto,val[1])}
     | Cond  {result=Inst.new(:Condicional,val[0])}
     | Call SEMICOLON {result=Inst.new(:Llamada_de_Funcion,val[0])}
     | Expr SEMICOLON {result=Inst.new(:Expresion,val[0])}
     ;
 
-    writable 
-    :Expr  {result=Writable.new(:Expresion,val[0])}
+    writable1 
+    :Expr  {result=Writable.new(:Expresion,val[0])} #listo
     |Str   {result=Writable.new(:String,val[0])}
     |Call   {result=Writable.new(:Llamada_de_Funcion,val[0])}
-    |writable COLON writable {result=Writable.new(:valor,val[0],:valor,val[2])}
+    |writable1 COLON writable1 {result=Writable.new(:valor,val[0],:valor,val[2])} #listo para expr
     ; 
+
+    writable2 
+    :Expr  {result=Writable2.new(:Expresion,val[0])} #listo
+    |Str   {result=Writable2.new(:String,val[0])}
+    |Call   {result=Writable2.new(:Llamada_de_Funcion,val[0])}
+    |writable2 COLON writable2 {result=Writable.new(:valor,val[0],:valor,val[2])} #listo para expr
+    ; 
+
     
     Str
     : STRING  {result=Str.new(val[0])}

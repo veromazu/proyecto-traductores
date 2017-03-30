@@ -1,16 +1,21 @@
-func min(number x, boolean y) -> number
-begin
-	with 
-    boolean k;
-    do 
-        k = true and (((false or true) or false) and not true) and true;
-    end;
-end;
 program
     with 
-    number a;
+    number x=30;
+    number j;
+    boolean h,t,casd;
+    number y=87/58478751.87 + 878451 mod 78;
+    boolean b;
     do 
-        a=100+((10+5) mod 3-(7 div 2 -23.5%2)/1 +(-4));
-    end;
+ 		b = x > y; 
+        if b then
+            write x;
+        else
+        	writeln "loquix";
+        end;
+        2+2;
+        repeat 5 times 
+        	writeln "HOla";
 
+        end;
+    end;
 end;

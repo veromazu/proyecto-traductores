@@ -72,6 +72,7 @@ class SymbolTable
 			if (@father != nil)
 				return @father.lookup(key)
 			else
+
 				return nil
 			end
 		else
@@ -85,6 +86,7 @@ class SymbolTable
 			if (@father != nil)
 				return @father.lookup(key)
 			else
+
 				return nil
 			end
 		else
@@ -130,7 +132,12 @@ class SymbolTable
 				end
 				puts
 				(lvl+2).times { print " "}
-				print"#{k} : #{tipo} #{v[1]}"
+				if @param != []
+					print"#{k} : #{tipo} #{@param}"
+				else
+					print"#{k} : #{tipo} #{v[1]}"
+				end
+
 
 			end
 			
