@@ -4,6 +4,7 @@
 require_relative 'retina_parser'
 require_relative 'retina_lexer'
 require_relative 'manejadorSimbolos'
+require_relative 'retina_ast'
 =begin
 
 UNIVERSIDAD SIMÓN BOLÍVAR

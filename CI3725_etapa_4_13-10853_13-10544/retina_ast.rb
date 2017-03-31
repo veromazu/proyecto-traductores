@@ -23,6 +23,7 @@ $Backward = nil
 $Setposition = nil
 
 
+
 ####################################
 ####### Clases predefinidas  #############
 ####################################
@@ -69,7 +70,7 @@ class Forward
     def initialize()
         @symTable=nil
     end
-   
+
     def interprete(symTable,parametros)
         pasos = parametros[0]
         cont=pasos
@@ -77,9 +78,13 @@ class Forward
         y = $Tortuga[1]
         if $Open.activo
             while cont<=pasos
-                $Pixels[x][y]=1
-                y+=1
-                cont+=1
+                if 0<=y and y<=1001 and 0<=x and x<=1001
+                    $Pixels[x][y]=1
+                    y+=1
+                    cont+=1
+                else
+                    break
+                end
             end
         end
         $Tortuga[1]+=pasos
@@ -99,9 +104,13 @@ class Backward
         y = $Tortuga[1]
         if $Open.activo
             while cont<=pasos
-                $Pixels[x][y]=1
-                y-=1
-                cont+=1
+                if 0<=y and y<=1001 and 0<=x and x<=1001
+                    $Pixels[x][y]=1
+                    y-=1
+                    cont+=1
+                else
+                    break
+                end
             end
         end
         $Tortuga[1]-=pasos
@@ -161,11 +170,13 @@ class S
     def interprete(tableStack)
         #Se guarda como variable global la pila de Tablas de símbolos para su uso cuando se requiera
         $Tablas=tableStack
+
         $Pixels=[]
         filas = [0]*1001
         for i in 0 .. 1001
             $Pixels[i] = filas
         end
+        $Tortuga=[500,500]
         @scope.interprete()
     end
 end
