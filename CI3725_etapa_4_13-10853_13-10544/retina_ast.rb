@@ -543,7 +543,9 @@ class Writable<Bloque
         val = @elems[0].interprete(symTable).to_s
         case val
         when /^"[a-zA-Z\d\s[[:punct:]]]*"/
-            print val[/[^"]/]
+            val.gsub!(/"/,'')
+
+            print val
         else
             print val
         end
@@ -553,7 +555,8 @@ class Writable<Bloque
              val = @elems[1].interprete(symTable).to_s
             case val
             when /^"[a-zA-Z\d\s[[:punct:]]]*"/
-                print val[/[^"]/]
+                val.gsub!(/"/,'')
+                print val
             else
                 print val
             end
@@ -574,8 +577,8 @@ class Writable2<Bloque
         val = @elems[0].interprete(symTable).to_s
         case val
         when /^"[a-zA-Z\d\s[[:punct:]]]*"/
+            val.gsub!(/"/,'')
             puts val
-            puts val[/[^"]/]
         else
             puts val
         end
@@ -585,8 +588,8 @@ class Writable2<Bloque
              val = @elems[1].interprete(symTable).to_s
             case val
             when /^"[a-zA-Z\d\s[[:punct:]]]*"/
+                val.gsub!(/"/,'')
                 puts val
-                puts val[/[^"]/]
             else
                 puts val
             end
