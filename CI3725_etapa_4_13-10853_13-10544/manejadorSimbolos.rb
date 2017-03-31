@@ -42,7 +42,6 @@ class Analizador
 		# Asignación de una nueva tabla.
 		symTableAux = SymbolTable.new("Alcance home",$symTable)
 		$symTable = symTableAux
-		$symTable.insert("home",[nil,nil])
 		$symTable.clase = $Home
 		$Home.symTable = $symTable
 		$tableStack << $symTable
@@ -53,7 +52,6 @@ class Analizador
 		# Asignación de una nueva tabla.
 		symTableAux = SymbolTable.new("Alcance openeye",$symTable)
 		$symTable = symTableAux
-		$symTable.insert("openeye",[nil,nil])
 		$symTable.clase = $Open
 		$Open.symTable = $symTable
 		$tableStack << $symTable
@@ -64,7 +62,6 @@ class Analizador
 		# Asignación de una nueva tabla.
 		symTableAux = SymbolTable.new("Alcance closeeye",$symTable)
 		$symTable = symTableAux
-		$symTable.insert("closeeye",[nil,[]])
 		$symTable.clase = $Close
 		$Close.symTable = $symTable
 		$tableStack << $symTable
@@ -75,7 +72,7 @@ class Analizador
 		# Asignación de una nueva tabla.
 		symTableAux = SymbolTable.new("Alcance forward",$symTable)
 		$symTable = symTableAux
-		$symTable.insert("forward",[nil,nil])
+		#$symTable.insert("x",[:TYPEN,nil])
 		$symTable.param << :TYPEN
 		$symTable.clase = $Forward
 		$Forward.symTable = $symTable
@@ -88,7 +85,7 @@ class Analizador
 		# Asignación de una nueva tabla.
 		symTableAux = SymbolTable.new("Alcance backward",$symTable)
 		$symTable = symTableAux
-		$symTable.insert("backward",[nil,nil])
+		#$symTable.insert("x",[:TYPEN,nil])
 		$symTable.param << :TYPEN
 		$symTable.clase = $Backward
 		$Backward.symTable = $symTable
@@ -101,7 +98,7 @@ class Analizador
 		# Asignación de una nueva tabla.
 		symTableAux = SymbolTable.new("Alcance rotater",$symTable)
 		$symTable = symTableAux
-		$symTable.insert("rotater",[nil,nil])
+		#$symTable.insert("x",[:TYPEN,nil])
 		$symTable.param << :TYPEN
 		$symTable.clase = $Close
 		$Close.symTable = $symTable
@@ -115,7 +112,7 @@ class Analizador
 		# Asignación de una nueva tabla.
 		symTableAux = SymbolTable.new("Alcance rotatel",$symTable)
 		$symTable = symTableAux
-		$symTable.insert("rotatel",[nil,nil])
+		#$symTable.insert("x",[:TYPEN,nil])
 		$symTable.param << :TYPEN
 		#$symTable.clase = $Rotater
 		#$Rotater.symTable = $symTable
@@ -127,7 +124,8 @@ class Analizador
 		# Asignación de una nueva tabla.
 		symTableAux = SymbolTable.new("Alcance setposition",$symTable)
 		$symTable = symTableAux
-		$symTable.insert("setposition",[nil,nil])
+		#$symTable.insert("x",[:TYPEN,nil])
+		#$symTable.insert("y",[:TYPEN,nil])
 		$symTable.param.push(:TYPEN,:TYPEN)
 		$symTable.clase = $Setposition
 		$Setposition.symTable = $symTable

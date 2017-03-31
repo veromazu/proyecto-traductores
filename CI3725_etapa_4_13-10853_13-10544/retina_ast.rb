@@ -33,7 +33,7 @@ class Home
         @symTable=nil
     end
     def interprete(symTable,parametros)
-        $Tortuga=[500][500]
+        $Tortuga=[500,500]
     end
 end
 
@@ -69,6 +69,7 @@ class Forward
     def initialize()
         @symTable=nil
     end
+   
     def interprete(symTable,parametros)
         pasos = parametros[0]
         cont=pasos
@@ -306,17 +307,6 @@ class WLoop<Ldecl
         @elems=[var,list,typeret,inst,var6]
     end
     def interprete(symTable)
-=begin
-        accion=nil
-        if elems[1] != nil
-            while @elems[0].interprete(symTable)
-                if (accion = elems[1].interprete(symTable))!=nil
-                    puts accion
-                    return accion            
-                end
-            end
-        end
-=end
     #Si hay alguna instruccion se ejecuta el while y las acciones del mismo
         if elems[1] != nil
             while @elems[0].interprete(symTable)
@@ -388,8 +378,6 @@ class RLoop<Ldecl
         end
     end
 end
-
-
 
 
 #Clase de los bloques With
@@ -630,20 +618,21 @@ class Call<Bloque
     end
     def interprete(symTable)
         nombreFunc=@elems[0].term.id
-        #$ejecutar = true
         parametros = nil
         if @elems[1]!=nil
            parametros = @elems[1].interprete(symTable)
         end
         tipoRetorno = symTable.lookup(nombreFunc)[0]
 
+        #Se busca la tabla de símbolos de la función, para así 
+        # tener la tabla a la que pertenece y ejecutar el método interpretar
         $Tablas.each do |t|
             if (t.nombre == "Alcance "+ nombreFunc)
-                puts "Estoy aqui"
+
                 clase = t.clase
-                retorno = clase.elems[2]
+                  
                 llamada = clase.interprete(symTable,parametros)
-                if llamada==nil and retorno != nil
+                if llamada==nil and tipoRetorno!= nil
                     raise ExecError.new "No se encontró valor de Retorno para función '#{nombreFunc}'"
                 end
                 return llamada
