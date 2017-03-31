@@ -1,3 +1,11 @@
 program
-	write "melanie";
+	home();
+    openeye();
+    forward(15);
+    closeeye();
+    forward(100);
+    openeye();
+    forward(500);
+    backward(800);
+    closeeye();
 end;
