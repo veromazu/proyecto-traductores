@@ -1,21 +1,29 @@
+func factorial(number n) -> number
+begin
+   if n==1 then
+      return 1;
+   else
+      return n * factorial(n-1);
+    end;
+end;
+func epa(number x)->number
+begin
+with number k;
+do
+	k=factorial(3) + 2;
+	return 2+k+x;
+end;
+end;
 program
-    with 
-    number x=30;
-    number j;
-    boolean h,t,casd;
-    number y=87/58478751.87 + 878451 mod 78;
-    boolean b;
-    do 
- 		b = x > y; 
-        if b then
-            write x;
-        else
-        	writeln "loquix";
-        end;
-        2+2;
-        repeat 5 times 
-        	writeln "HOla";
-
+	writeln epa(2);
+   	writeln epa(15)-9898514;
+   	writeln factorial(8);
+    with
+        number i;
+    do
+        for j from 1.5 to 4.5 do
+            write j, " ";
         end;
     end;
+    writeln "Hola valeeee";
 end;

@@ -20,6 +20,7 @@ class SymbolTable
 	attr_accessor :param
 	attr_accessor :cont
 	attr_accessor :symTable
+	attr_accessor :clase
 
 	def initialize(nombre,father = nil,param=nil,cont=nil)
 		@symTable = Hash.new
@@ -27,6 +28,7 @@ class SymbolTable
 		@nombre = nombre
 		@param = []
 		@cont=cont
+		@clase=nil
 	end
 	
 	def insert(key, values)
@@ -66,7 +68,7 @@ class SymbolTable
 			return @symTable[key]
 		end
 	end
-
+	
 	def lookup_symtable(key)
 		if !(contains(key))
 			if (@father != nil)
@@ -79,7 +81,6 @@ class SymbolTable
 			return @nombre.to_s
 		end
 	end
-
 
 	def lookup_param(key)
 		if !(contains(key))
@@ -133,7 +134,7 @@ class SymbolTable
 				puts
 				(lvl+2).times { print " "}
 				if @param != []
-					print"#{k} : #{tipo} #{@param}"
+					print"#{k} : #{tipo} #{v[1]} #{@param}"
 				else
 					print"#{k} : #{tipo} #{v[1]}"
 				end

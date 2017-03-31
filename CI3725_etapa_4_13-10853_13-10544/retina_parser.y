@@ -41,7 +41,12 @@ rule
 
     # Simbolo inicial: define un programa en Retina e incorpora el alcance.
     S
-    :  Scope {result = S.new(val[0])}
+    :  Scope {result = S.new(val[0]);$Close = Closeeye.new()
+        $Open= Openeye.new();
+        $Home = Home.new();
+        $Forward = Forward.new();
+        $Backward = Backward.new();
+        $Setposition = Setposition.new()}
     ;   
     
     # Alcance: le quita la recursividad al simbolo inicial.
@@ -112,20 +117,18 @@ rule
 
     LInstf
     : Instf  {result=ListaInst.new(:Instruccion,val[0])}
-    | Instf LInstf  {result=ListaInst.new(:Instruccion,val[0],val[1])}
+    | LInstf Instf  {result=ListaInst.new(:Instruccion,val[1],val[0])}
     ;
 
     Instf
-    : wisf  {result=InstWisf.new(:Bloque,val[0])}
-    | RETURN Call SEMICOLON {result=InstReturn.new(:Retorno,val[1])}
-    | RETURN Expr SEMICOLON {result=InstReturn_call.new(:Retorno,val[1])}
+    : wisf  {result=InstWis.new(:Bloque,val[0])}
+    | RETURN Expr SEMICOLON {result=InstReturn.new(:Retorno,val[1])}
     | Assign  {result=InstAsign.new(:Asignacion,val[0])}
-    | IteratorF  {result=InstIteratorF.new(:Iteracion,val[0])}
+    | IteratorF  {result=Inst.new(:Iteracion,val[0])}
     | READ Var SEMICOLON  {result=Read.new(:Lectura,val[1])}   
     | WRITE writable1 SEMICOLON  {result=Write.new(:Salida,val[1])}
     | WRITELN writable2 SEMICOLON  {result=WriteSalto.new(:Salida_Con_Salto,val[1])}
     | CondF  {result=Inst.new(:Condicional,val[0])}
-    | Call SEMICOLON {result=InstCall.new(:Llamada_de_Funcion,val[0])}
     | Expr SEMICOLON {result=Inst.new(:Expresion,val[0])}
     ;
 
@@ -136,7 +139,7 @@ rule
 
     LInst
     : Inst  {result=ListaInst.new(:Instruccion,val[0])}
-    | Inst LInst  {result=ListaInst.new(:Instruccion,val[0],val[1])}
+    | LInst Inst   {result=ListaInst.new(:Instruccion,val[1],val[0])}
     ;
 
 
@@ -148,21 +151,18 @@ rule
     | WRITE writable1 SEMICOLON  {result=Write.new(:Salida,val[1])}
     | WRITELN writable2 SEMICOLON  {result=WriteSalto.new(:Salida_Con_Salto,val[1])}
     | Cond  {result=Inst.new(:Condicional,val[0])}
-    | Call SEMICOLON {result=Inst.new(:Llamada_de_Funcion,val[0])}
     | Expr SEMICOLON {result=Inst.new(:Expresion,val[0])}
     ;
 
     writable1 
     :Expr  {result=Writable.new(:Expresion,val[0])} #listo
     |Str   {result=Writable.new(:String,val[0])}
-    |Call   {result=Writable.new(:Llamada_de_Funcion,val[0])}
     |writable1 COLON writable1 {result=Writable.new(:valor,val[0],:valor,val[2])} #listo para expr
     ; 
 
     writable2 
     :Expr  {result=Writable2.new(:Expresion,val[0])} #listo
     |Str   {result=Writable2.new(:String,val[0])}
-    |Call   {result=Writable2.new(:Llamada_de_Funcion,val[0])}
     |writable2 COLON writable2 {result=Writable.new(:valor,val[0],:valor,val[2])} #listo para expr
     ; 
 
@@ -177,7 +177,6 @@ rule
 
     Asignable #Puedo asignar cualquiera de estos a una variable
     :Expr  {result=Asignable_Expr.new(:Expresion,val[0])}
-    |Call   {result=Asignable_Call.new(:Llamada_de_Funcion,val[0])}
     ;
 
     Iterator
@@ -223,7 +222,8 @@ rule
 
     # Expresiones: define todas las expresiones recursivas en Retina.
     Expr                          
-    : Term                        
+    : Term   
+    | Call                          
     | Expr PLUS Expr                  {result = BinExpSuma.new(:Suma, val[0], val[2])}
     | Expr LESS Expr                   {result = BinExpResta.new(:Resta, val[0], val[2])}
     | Expr MULT Expr                {result = BinExpMult.new(:Multiplicacion, val[0], val[2])}

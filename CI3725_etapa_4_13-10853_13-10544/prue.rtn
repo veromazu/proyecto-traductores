@@ -1,0 +1,9 @@
+program
+	home();
+    openeye();
+    forward(15);
+    closeeye();
+    forward(100);
+    openeye();
+    forward(500);
+end;

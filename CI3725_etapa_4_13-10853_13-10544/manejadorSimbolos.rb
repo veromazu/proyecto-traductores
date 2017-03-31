@@ -43,6 +43,8 @@ class Analizador
 		symTableAux = SymbolTable.new("Alcance home",$symTable)
 		$symTable = symTableAux
 		$symTable.insert("home",[nil,nil])
+		$symTable.clase = $Home
+		$Home.symTable = $symTable
 		$tableStack << $symTable
 		$symTable = $symTable.father
 
@@ -52,15 +54,19 @@ class Analizador
 		symTableAux = SymbolTable.new("Alcance openeye",$symTable)
 		$symTable = symTableAux
 		$symTable.insert("openeye",[nil,nil])
+		$symTable.clase = $Open
+		$Open.symTable = $symTable
 		$tableStack << $symTable
 		$symTable = $symTable.father
 
 		#Presinsertar closeeye
 		$symTable.insert("closeeye",[nil,nil])
 		# Asignación de una nueva tabla.
-		symTableAux = SymbolTable.new("Alcance closeye",$symTable)
+		symTableAux = SymbolTable.new("Alcance closeeye",$symTable)
 		$symTable = symTableAux
 		$symTable.insert("closeeye",[nil,[]])
+		$symTable.clase = $Close
+		$Close.symTable = $symTable
 		$tableStack << $symTable
 		$symTable = $symTable.father
 
@@ -71,6 +77,8 @@ class Analizador
 		$symTable = symTableAux
 		$symTable.insert("forward",[nil,nil])
 		$symTable.param << :TYPEN
+		$symTable.clase = $Forward
+		$Forward.symTable = $symTable
 		$tableStack << $symTable
 		$symTable = $symTable.father
 
@@ -82,6 +90,8 @@ class Analizador
 		$symTable = symTableAux
 		$symTable.insert("backward",[nil,nil])
 		$symTable.param << :TYPEN
+		$symTable.clase = $Backward
+		$Backward.symTable = $symTable
 		$tableStack << $symTable
 		$symTable = $symTable.father
 
@@ -93,6 +103,10 @@ class Analizador
 		$symTable = symTableAux
 		$symTable.insert("rotater",[nil,nil])
 		$symTable.param << :TYPEN
+		$symTable.clase = $Close
+		$Close.symTable = $symTable
+		#$symTable.clase = $Rotater
+		#$Rotater.symTable = $symTable
 		$tableStack << $symTable
 		$symTable = $symTable.father
 
@@ -103,6 +117,8 @@ class Analizador
 		$symTable = symTableAux
 		$symTable.insert("rotatel",[nil,nil])
 		$symTable.param << :TYPEN
+		#$symTable.clase = $Rotater
+		#$Rotater.symTable = $symTable
 		$tableStack << $symTable
 		$symTable = $symTable.father
 
@@ -113,6 +129,8 @@ class Analizador
 		$symTable = symTableAux
 		$symTable.insert("setposition",[nil,nil])
 		$symTable.param.push(:TYPEN,:TYPEN)
+		$symTable.clase = $Setposition
+		$Setposition.symTable = $symTable
 		$tableStack << $symTable
 		$symTable = $symTable.father
 		
@@ -125,8 +143,8 @@ class Analizador
 		$tableStack << $symTable
 
 		scope.symTable = $symTable
-		puts "Escope .symtabl es "
-		scope.symTable.print_Table
+		#puts "Escope .symtabl es "
+		#scope.symTable.print_Table
 		#$symTable = $symTable.father
 =begin
 		if ($symTable == nil)
@@ -175,6 +193,7 @@ class Analizador
 		# Asignación de una nueva tabla.
 		symTableAux = SymbolTable.new("Alcance #{namefunc}",$symTable)
 		$symTable = symTableAux
+		$symTable.clase = func
 
 		if (func.elems[1] != nil)
 			param_Handler(namefunc,func.elems[1])
@@ -185,6 +204,7 @@ class Analizador
 			$symTable.update(namefunc,[tipoRetorno,[]])
 		end
 
+		$tableStack << $symTable
 		if (func.elems[3] != nil)
 
 			FInst_Handler(namefunc,func.elems[3])   
@@ -192,7 +212,6 @@ class Analizador
 
 		func.symTable = $symTable
 		# Se empila la tabla del scope en la pila de tablas.
-		$tableStack << $symTable
 		$symTable = $symTable.father
 
 	return  
@@ -309,17 +328,14 @@ class Analizador
 		funcion = $symTable.lookup(namefunc)
 		tipo_fun = funcion[0]
 		id_llamada = call.elems[0].term.id
-		case id_llamada
-		when "home", "closeeye", "openeye", "forward", "backward", "rotater", "rotatel", "setposition"
-			tipo_llamada = nil
-		else
-			fun_llamada = $symTable.lookup(call.elems[0].term.id)
-			if (fun_llamada != nil)
-				tipo_llamada = fun_llamada[0]
-			else 
-				raise SemanticError.new " Funcion '#{call.elems[0].term.id}' no declarada",call.elems[0].term
-			end
+
+		fun_llamada = $symTable.lookup(call.elems[0].term.id)
+		if (fun_llamada != nil)
+			tipo_llamada = fun_llamada[0]
+		else 
+			raise SemanticError.new " Funcion '#{call.elems[0].term.id}' no declarada",call.elems[0].term
 		end
+	
 		if tipo_llamada == :TYPEN
 			tipoVar = "number"
 		elsif tipo_llamada == :TYPEB
@@ -665,21 +681,15 @@ class Analizador
 		expr = cond.elems[0]
 		inst1 = cond.elems[1]
 		inst2 = cond.elems[2]
-		puts expr 
-		puts inst1
-		puts inst2
 
 		if (expression_Handler(expr)!= :TYPEB)
-			puts "revise expr"
 			raise SemanticError.new " La condicion debe ser del tipo : 'boolean', en instrucción 'if'"
 
 		else
 			if (inst1 != nil)
-				puts "Revisando inst1"
 				LInst_Handler(inst1) 
 			end
 			if (inst2 != nil)
-				"Revisando inst2"
 				LInst_Handler(inst2) 
 			end
 		end
@@ -837,7 +847,7 @@ class Analizador
 
 	#Manejador de instrucciones como expresión
 	def expr_Handler(expr)
-		if expression_Handler(expr) == nil
+		if expression_Handler(expr) == nil and !expr.instance_of?(Call)
 			raise SemanticError.new "ERROR: Error en los tipos de la expresion"
 		end
 	end
@@ -855,15 +865,20 @@ class Analizador
 		# Procesar como parentizada
 		elsif expr.instance_of?(ParExp)
 			return parExp_Handler(expr)
+		elsif expr.instance_of?(Call)
+			if (funcion = $symTable.lookup(expr.elems[0].term.id)) != nil
+				tipo_fun = funcion[0]
+				return_Call_Handler(expr.elems[0].term.id,expr)
+				return tipo_fun
+			else raise SemanticError.new " Función'#{expr.elems[0].term.id}' no definida en este entorno"
+			end
 		# Procesar como un caso base, un termino.
 		elsif expr.instance_of?(Terms)
 			type = expr.nameTerm
 			case type
 			when :ID		
 				idVar = expr.term.id
-				puts idVar
 				typeVar = $symTable.lookup(idVar)
-				puts typeVar
 				if typeVar!=nil
 					typeVar = typeVar[0]
 					return typeVar
@@ -919,7 +934,6 @@ class Analizador
 				raise SemanticError.new "Tipos de expresión distintos para operación de comparación"
 			end
 		when :Equivalencia,:Distinto_Que
-			puts "entree acaa"
 			if (typeExpr1 == :TYPEN) and (typeExpr2 == :TYPEN)
 				return :TYPEB
 			elsif (typeExpr1 == :TYPEB) and (typeExpr2 == :TYPEB)

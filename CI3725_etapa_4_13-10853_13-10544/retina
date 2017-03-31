@@ -45,30 +45,51 @@ def main
 	lexer = Lexer.new()
 	if lexer.identifier(input)
 		parser=Parser.new(lexer)
-		#begin
-			ast = parser.parse(lexer)
-			#ast.printAST(0)
-			
-
-		#rescue => e
-		#	SyntaxError.new(e)
-		#	puts "Error sintactico: #{e}"
-		#end
-		
 		begin
-			analizador = Analizador.new(ast)
-			analizador.program_Handler
+			$ast = parser.parse(lexer)
+			#$ast.printAST(0)
+			
 		rescue => e
 			SyntaxError.new(e)
-			e.to_s
+			puts "Error sintactico: #{e}"
 		end
+		
+		#Se intenta con el análisis de contexto
+		#begin
+			analizador = Analizador.new($ast)
+			analizador.program_Handler
+		#rescue => e
+		#	SyntaxError.new(e)
+		#	e.to_s
+		#end
+
+		#Finalmente se ejecuta el programa
 
 		$tableStack.reverse!
 		$tableStack.each do |st|
 			st.print_Table
 		end
 
-		ast.interprete()
+		#begin
+			$ast.interprete($tableStack)
+		#rescue =>e
+		#	SyntaxError.new(e)
+		#	e.to_s
+		#end
+
+		# Create a new file and write to it  
+		File.open(ARGV[0][/\w+\./]+"pbm", 'w') do |f2|  
+ 		 # use "\n" fo1r two lines of text  
+  			f2.puts "P1"
+  			f2.puts "1001 1001"
+  			for i in 0..1001
+  				for j in 0..1001
+  					f2.print $Pixels[i][j]
+  					f2.print " "
+  				end  
+  				f2.puts
+  			end
+		end 
 =begin
 		while $symTable != nil
 				$symTable.print_Table
@@ -93,6 +114,7 @@ def main
 
 	else
 		lexer.printErrors
+
 	end
 end
 
