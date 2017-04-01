@@ -1,11 +1,9 @@
 program
-	home();
-    openeye();
-    forward(15);
-    closeeye();
-    forward(100);
-    openeye();
-    forward(500);
-    backward(800);
-    closeeye();
+    with
+        number x = 4;
+    do
+        rotatel(90); # Gira 90 grados contra-reloj
+        forward(50);
+
+    end;
 end;

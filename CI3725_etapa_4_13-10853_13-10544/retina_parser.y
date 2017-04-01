@@ -46,7 +46,7 @@ rule
         $Home = Home.new();
         $Forward = Forward.new();
         $Backward = Backward.new();
-        $Setposition = Setposition.new()}
+        $Setposition = Setposition.new();$Rotater=Rotater.new();$Rotatel=Rotatel.new()}
     ;   
     
     # Alcance: le quita la recursividad al simbolo inicial.

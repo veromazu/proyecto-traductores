@@ -20,7 +20,10 @@ $Open= nil
 $Home = nil
 $Forward = nil
 $Backward = nil
+$Rotatel =nil
+$Rotater = nil
 $Setposition = nil
+$angulo = nil
 
 
 
@@ -73,22 +76,101 @@ class Forward
 
     def interprete(symTable,parametros)
         pasos = parametros[0]
-        cont=pasos
+        
         x = $Tortuga[0]
         y = $Tortuga[1]
-        if $Open.activo
-            while cont<=pasos
-                if 0<=y and y<=1001 and 0<=x and x<=1001
-                    $Pixels[x][y]=1
-                    y+=1
-                    cont+=1
-                else
-                    break
+        puts "Comienzo con #{x},#{y}"
+        #b de la ecuación de la recta
+        b = $Tortuga[1]-500
+        puts "b es #{b}"
+        #pendiente m
+        m = Math.tan($angulo)
+        puts "tangente #{m}"
+
+        #Angulo en 1er cuadrante
+        if 0 <= $angulo and $angulo<90     
+            j=y
+            for i in x..x+pasos
+                cont=0
+                j=y
+                while cont <= pasos 
+                    recta =  (j-500) - m*(i-500) - b
+                    if recta>=-0.85 and recta <=0.85
+                        if $Open.activo
+                            $Pixels[j][i]=1
+                        end
+                        $Tortuga[1] = j
+                        $Tortuga[0] = i
+                    end
+                    j-= 1
+                    cont += 1
+                end
+            end
+        #Angulo en segundo cuadrante
+        elsif $angulo>=90 and $angulo<180
+            j=y
+            i=x
+            conti = 0       
+            while conti <= pasos 
+                contj = 0
+                j=y
+                while contj <= pasos
+                    recta =  (j-500) - m*(i-500) - b
+                    if recta>=-0.85 and recta <=0.85
+                        if $Open.activo
+                            $Pixels[j][i]=1
+                        end
+                        $Tortuga[1] = j
+                        $Tortuga[0] = i
+                    end
+                    j -= 1
+                    contj += 1
+                end
+                i-=1
+                conti+=1
+            end
+        #Angulo en tercer cuadrante
+        elsif 180<=$angulo and $angulo<270                
+            j=y
+            i=x
+            conti = 0       
+            while conti <= pasos 
+                contj = 0
+                j=y
+                while contj <= pasos
+                    recta =  (j-500) - m*(i-500) - b
+                    #puts recta
+                    if recta>=-0.85 and recta<=0.85
+                        if $Open.activo
+                            $Pixels[j][i]=1
+                        end
+                        $Tortuga[1] = j
+                        $Tortuga[0] = i
+                    end
+                        j += 1
+                        contj += 1
+                end
+                i-=1
+                conti+=1
+            end
+
+        #Angulo en cuarto cuadrante
+        elsif 270<=$angulo and $angulo <360
+            for i in x..x+pasos
+                for j in y..y+pasos 
+                    recta =  (j-500) - m*(i-500) - b
+                    if recta>=-0.85 and recta<=0.85
+                        if $Open.activo
+                            $Pixels[j][i]=1
+                        end
+                        $Tortuga[1] = j
+                        $Tortuga[0] = i
+                    end
                 end
             end
         end
-        $Tortuga[1]+=pasos
-       # @symTable.print_Table
+        puts "Final tortuga [#{$Tortuga[0]}][#{$Tortuga[1]}]"
+        
     end
 end
 
@@ -99,21 +181,92 @@ class Backward
     end
     def interprete(symTable,parametros)
         pasos = parametros[0]
-        cont=pasos
+        
         x = $Tortuga[0]
         y = $Tortuga[1]
-        if $Open.activo
-            while cont<=pasos
-                if 0<=y and y<=1001 and 0<=x and x<=1001
-                    $Pixels[x][y]=1
-                    y-=1
-                    cont+=1
-                else
-                    break
+        "Comienzo con #{x},#{y}"
+        #b de la ecuación de la recta
+        b = $Tortuga[1] - 500
+        #pendiente m
+        m = Math.tan($angulo)
+
+        if 0 <= $angulo and $angulo<=90
+            j=y
+            i=x
+            conti = 0       
+            while conti <= pasos 
+                contj = 0
+                j=y
+                while contj <= pasos
+                    recta =  (j-500) - m*(i-500) - b
+                    #puts recta
+                    if recta>=-0.85 and recta<=0.85
+                        if $Open.activo
+                            $Pixels[j][i]=1
+                        end
+                        $Tortuga[1] = j
+                        $Tortuga[0] = i
+                    end
+                        j += 1
+                        contj += 1
+                end
+                i-=1
+                conti+=1
+            end
+        elsif $angulo>90 and $angulo<=180
+            for i in x..x+pasos
+                for j in y..y+pasos 
+                    recta =  (j-500) - m*(i-500) - b
+                    if recta>=-0.85 and recta<=0.85
+                        if $Open.activo
+                            $Pixels[j][i]=1
+                        end
+                        $Tortuga[1] = j
+                        $Tortuga[0] = i
+                    end
                 end
             end
+        elsif 180<$angulo and $angulo<=270                
+            for i in x..x+pasos
+                cont=0
+                j=y
+                while cont <= pasos 
+                    recta =  (j-500) - m*(i-500) - b
+                    if recta>=-0.85 and recta <=0.85
+                        if $Open.activo
+                            $Pixels[j][i]=1
+                        end
+                        $Tortuga[1] = j
+                        $Tortuga[0] = i
+                    end
+                    j-= 1
+                    cont += 1
+                end
+            end
+        elsif 270<$angulo and $angulo <360
+            j=y
+            i=x
+            conti = 0       
+            while conti <= pasos 
+                contj = 0
+                j=y
+                while contj <= pasos
+                    recta =  (j-500) - m*(i-500) - b
+                    if recta>=-0.85 and recta <=0.85
+                        if $Open.activo
+                            $Pixels[j][i]=1
+                        end
+                        $Tortuga[1] = j
+                        $Tortuga[0] = i
+                    end
+                    j -= 1
+                    contj += 1
+                end
+                i-=1
+                conti+=1
+            end
         end
-        $Tortuga[1]-=pasos
+        "Final tortuga [#{$Tortuga[0]}][#{$Tortuga[1]}]"
     end
 end
 
@@ -127,29 +280,37 @@ class Setposition
         $Tortuga[1]=parametros[1]
     end
 end
-=begin
-class rotater
+
+class Rotater
     attr_accessor :symTable
     def initialize()
         @symTable=nil
     end
-    def setposition(x,y)
-        $Tortuga[0]=x
-        $Tortuga[1]=y
+    def interprete(symTable,parametros)
+        $angulo -= parametros[0]
+        $angulo = $angulo%360
+        if $angulo <0
+            $angulo += 360
+        end
+        puts parametros[0]
+        puts "Nuevo angulo #{$angulo}"
     end
 end
 
-class rotatel
+class Rotatel
     attr_accessor :symTable
     def initialize()
         @symTable=nil
     end
-    def setposition(x,y)
-        $Tortuga[0]=x
-        $Tortuga[1]=y
+    def interprete(symTable,parametros)
+        $angulo += parametros[0]
+        $angulo = $angulo%360
+        if $angulo <0
+            $angulo += 360
+        end
+        puts "Nuevo angulo #{$angulo}"
     end
 end
-=end
 
 ### Se definen clases con métodos para imprimir e interpretar el AST ####
 
@@ -172,11 +333,12 @@ class S
         $Tablas=tableStack
 
         $Pixels=[]
-        filas = [0]*1001
         for i in 0 .. 1001
-            $Pixels[i] = filas
+            $Pixels[i] = [0]*1001
         end
         $Tortuga=[500,500]
+        $angulo = 0
+        $Open.activo = true
         @scope.interprete()
     end
 end

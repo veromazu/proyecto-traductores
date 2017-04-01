@@ -871,7 +871,7 @@ module_eval(<<'.,.,', 'retina_parser.y', 43)
         $Home = Home.new();
         $Forward = Forward.new();
         $Backward = Backward.new();
-        $Setposition = Setposition.new()
+        $Setposition = Setposition.new();$Rotater=Rotater.new();$Rotatel=Rotatel.new()
     result
   end
 .,.,

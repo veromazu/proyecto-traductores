@@ -100,10 +100,8 @@ class Analizador
 		$symTable = symTableAux
 		#$symTable.insert("x",[:TYPEN,nil])
 		$symTable.param << :TYPEN
-		$symTable.clase = $Close
-		$Close.symTable = $symTable
-		#$symTable.clase = $Rotater
-		#$Rotater.symTable = $symTable
+		$symTable.clase = $Rotater
+		$Rotater.symTable = $symTable
 		$tableStack << $symTable
 		$symTable = $symTable.father
 
@@ -114,8 +112,8 @@ class Analizador
 		$symTable = symTableAux
 		#$symTable.insert("x",[:TYPEN,nil])
 		$symTable.param << :TYPEN
-		#$symTable.clase = $Rotater
-		#$Rotater.symTable = $symTable
+		$symTable.clase = $Rotatel
+		$Rotatel.symTable = $symTable
 		$tableStack << $symTable
 		$symTable = $symTable.father
 
