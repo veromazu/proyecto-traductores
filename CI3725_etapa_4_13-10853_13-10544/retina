@@ -48,39 +48,34 @@ def main
 		parser=Parser.new(lexer)
 		begin
 			$ast = parser.parse(lexer)
-			#$ast.printAST(0)
 			
 		rescue => e
 			SyntaxError.new(e)
 			puts "Error sintactico: #{e}"
+			abort
 		end
 		
 		#Se intenta con el análisis de contexto
-		#begin
+		begin
 			analizador = Analizador.new($ast)
 			analizador.program_Handler
-		#rescue => e
-		#	SyntaxError.new(e)
-		#	e.to_s
-		#end
-
-		#Finalmente se ejecuta el programa
-
-		$tableStack.reverse!
-		$tableStack.each do |st|
-			st.print_Table
+		rescue => e
+			SyntaxError.new(e)
+			e.to_s
+			abort
 		end
 
-		#begin
+		#Finalmente se ejecuta el programa
+		begin
 			$ast.interprete($tableStack)
-		#rescue =>e
-		#	SyntaxError.new(e)
-		#	e.to_s
-		#end
+		rescue =>e
+			SyntaxError.new(e)
+			e.to_s
+			abort
+		end
 
-		# Create a new file and write to it  
+		# Creación de archivo de salida de la imagen de retina 
 		File.open(ARGV[0][/\w+\./]+"pbm", 'w') do |f2|  
- 		 # use "\n" fo1r two lines of text  
   			f2.puts "P1"
   			f2.puts "1001 1001"
   			for i in 0..1001
@@ -91,28 +86,6 @@ def main
   				f2.puts
   			end
 		end 
-=begin
-		while $symTable != nil
-				$symTable.print_Table
-				$symTable=$symTable.father
-			end
-
-=begin
-			if ($symTable == nil)
-
-				puts "Tabla de Simbolos"
-				$tableStack.reverse!
-				$tableStack.each do |st|
-					st.print_Table
-					ast.interprete(st)
-				end
-				end
-			while $symTable.father != nil
-				$symTable.father.print_Table
-			end
-=end
-
-
 	else
 		lexer.printErrors
 

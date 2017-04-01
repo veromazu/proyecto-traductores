@@ -3,7 +3,7 @@
 # encoding: utf-8
 #UNIVERSIDAD SIMÓN BOLÍVAR
 #Traductores e Interpretadores
-#Fase 2 de Proyecto : Parser de Retina.
+#Fase 4 de Proyecto : Parser de Retina.
 #Elaborado por:
 #    -Verónica Mazutiel, 13-10853
 #    -Melanie Gomes, 13-10544
@@ -69,6 +69,7 @@ rule
     |WITH Ldecl DO LInst END SEMICOLON {result=Bloque.new(:declaraciones,val[1],:instrucciones,val[3])}
     |WITH Ldecl DO END SEMICOLON {result=Bloque.new(:declaraciones,val[1])}
     |WITH DO END SEMICOLON {result=Bloque.new(:declaraciones,nil,:instrucciones,nil)}
+    |WITH DO LInst END SEMICOLON {result=Bloque.new(:declaraciones,nil,:instrucciones,val[2])}
     ;
 
     wisf

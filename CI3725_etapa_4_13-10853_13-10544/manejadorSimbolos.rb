@@ -4,7 +4,7 @@
 
 UNIVERSIDAD SIMÓN BOLÍVAR
 Traductores e Interpretadores
-Fase 3 de Proyecto : Parser de Retina
+Fase 4 de Proyecto : Parser de Retina
 Elaborado por:
 	-Verónica Mazutiel, 13-10853
 	-Melanie Gomes, 13-10544
